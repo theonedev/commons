@@ -7,13 +7,13 @@ lexer grammar CSharpLexer;
 @lexer::header
 {import java.util.Stack;}
 
+channels { COMMENTS_CHANNEL, DIRECTIVE }
+
 @lexer::members
 {private int interpolatedStringLevel;
 private Stack<Boolean> interpolatedVerbatiums = new Stack<Boolean>();
 private Stack<Integer> curlyLevels = new Stack<Integer>();
 private boolean verbatium;
-public static int COMMENTS_CHANNEL = 2;
-public static int DIRECTIVE = 3;
 
 }
 

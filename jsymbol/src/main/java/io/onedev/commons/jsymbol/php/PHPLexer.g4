@@ -24,6 +24,8 @@ THE SOFTWARE.
 
 lexer grammar PHPLexer;
 
+channels { PhpComments, ErrorLexem, SkipChannel }
+
 @lexer::members
 {public boolean AspTags = true;
 boolean _scriptTag;
@@ -33,9 +35,6 @@ int _prevTokenType;
 String _htmlNameText;
 boolean _phpScript;
 boolean _insideString;
-public static int PhpComments = 2;
-public static int ErrorLexem = 3;
-public static int SkipChannel = 4;
 
 @Override
 public Token nextToken()
