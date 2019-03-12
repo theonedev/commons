@@ -6,8 +6,8 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
-import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BaseErrorListener;
+import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
@@ -16,13 +16,11 @@ import org.slf4j.LoggerFactory;
 
 import io.onedev.commons.jsymbol.AbstractSymbolExtractor;
 import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.jsymbol.r.RParser.ExprContext;
 import io.onedev.commons.jsymbol.r.symbols.FunctionSymbol;
 import io.onedev.commons.jsymbol.r.symbols.RSymbol;
 import io.onedev.commons.jsymbol.r.symbols.VariableSymbol;
 import io.onedev.commons.jsymbol.util.Utils;
-import io.onedev.commons.jsymbol.r.RLexer;
-import io.onedev.commons.jsymbol.r.RParser;
-import io.onedev.commons.jsymbol.r.RParser.ExprContext;
 
 public class RExtractor extends AbstractSymbolExtractor<RSymbol> {
 
@@ -42,7 +40,7 @@ public class RExtractor extends AbstractSymbolExtractor<RSymbol> {
 			
 		};
 		
-		RLexer lexer = new RLexer(new ANTLRInputStream(fileContent));
+		RLexer lexer = new RLexer(CharStreams.fromString(fileContent));
 		lexer.removeErrorListeners();
 		lexer.addErrorListener(errorListener);
 		

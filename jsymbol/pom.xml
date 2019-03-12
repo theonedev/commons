@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>io.onedev</groupId>
 		<artifactId>commons</artifactId>
-		<version>1.0.6</version>
+		<version>1.0.7</version>
 	</parent>
 	<artifactId>commons-jsymbol</artifactId>
 	<build>
@@ -163,6 +163,6 @@
 	<properties>
 		<jetty.version>9.2.13.v20150730</jetty.version>
 		<wicket.version>7.3.0</wicket.version>
-		<antlr.version>4.5.1-1</antlr.version>
+		<antlr.version>4.7.2</antlr.version>
 	</properties>
 </project>

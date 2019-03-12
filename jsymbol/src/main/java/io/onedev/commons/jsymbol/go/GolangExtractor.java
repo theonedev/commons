@@ -6,8 +6,8 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
-import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BaseErrorListener;
+import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RecognitionException;
@@ -18,13 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import io.onedev.commons.jsymbol.AbstractSymbolExtractor;
 import io.onedev.commons.jsymbol.TokenPosition;
-import io.onedev.commons.jsymbol.go.symbols.FunctionSymbol;
-import io.onedev.commons.jsymbol.go.symbols.GolangSymbol;
-import io.onedev.commons.jsymbol.go.symbols.TypeSymbol;
-import io.onedev.commons.jsymbol.go.symbols.VariableSymbol;
-import io.onedev.commons.jsymbol.util.Utils;
-import io.onedev.commons.jsymbol.go.GolangLexer;
-import io.onedev.commons.jsymbol.go.GolangParser;
 import io.onedev.commons.jsymbol.go.GolangParser.ConstSpecContext;
 import io.onedev.commons.jsymbol.go.GolangParser.DeclarationContext;
 import io.onedev.commons.jsymbol.go.GolangParser.FieldDeclContext;
@@ -41,6 +34,11 @@ import io.onedev.commons.jsymbol.go.GolangParser.TypeContext;
 import io.onedev.commons.jsymbol.go.GolangParser.TypeDeclContext;
 import io.onedev.commons.jsymbol.go.GolangParser.TypeSpecContext;
 import io.onedev.commons.jsymbol.go.GolangParser.VarSpecContext;
+import io.onedev.commons.jsymbol.go.symbols.FunctionSymbol;
+import io.onedev.commons.jsymbol.go.symbols.GolangSymbol;
+import io.onedev.commons.jsymbol.go.symbols.TypeSymbol;
+import io.onedev.commons.jsymbol.go.symbols.VariableSymbol;
+import io.onedev.commons.jsymbol.util.Utils;
 
 public class GolangExtractor extends AbstractSymbolExtractor<GolangSymbol> {
 
@@ -62,7 +60,7 @@ public class GolangExtractor extends AbstractSymbolExtractor<GolangSymbol> {
 			
 		};
 		
-		GolangLexer lexer = new GolangLexer(new ANTLRInputStream(fileContent));
+		GolangLexer lexer = new GolangLexer(CharStreams.fromString(fileContent));
 		lexer.removeErrorListeners();
 		lexer.addErrorListener(errorListener);
 		clearLexerCache(lexer);

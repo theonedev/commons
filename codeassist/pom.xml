@@ -5,7 +5,7 @@
     <parent> 
         <groupId>io.onedev</groupId>  
         <artifactId>commons</artifactId>  
-        <version>1.0.6</version>
+        <version>1.0.7</version>
     </parent>  
     <build> 
         <plugins> 
@@ -83,6 +83,6 @@
 		</repository>
 	</repositories>
     <properties> 
-		<antlr.version>4.5.1-1</antlr.version>
+		<antlr.version>4.7.2</antlr.version>
     </properties> 
 </project>

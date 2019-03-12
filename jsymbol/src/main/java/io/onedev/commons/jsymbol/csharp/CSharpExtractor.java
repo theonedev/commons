@@ -6,8 +6,8 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BaseErrorListener;
+import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.ListTokenSource;
@@ -22,19 +22,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Joiner;
+
 import io.onedev.commons.jsymbol.AbstractSymbolExtractor;
 import io.onedev.commons.jsymbol.TokenPosition;
-import io.onedev.commons.jsymbol.csharp.symbols.CSharpSymbol;
-import io.onedev.commons.jsymbol.csharp.symbols.FieldSymbol;
-import io.onedev.commons.jsymbol.csharp.symbols.MethodSymbol;
-import io.onedev.commons.jsymbol.csharp.symbols.NamespaceSymbol;
-import io.onedev.commons.jsymbol.csharp.symbols.TypeSymbol;
-import io.onedev.commons.jsymbol.csharp.symbols.TypeSymbol.Kind;
-import io.onedev.commons.jsymbol.util.QualifiedName;
-import io.onedev.commons.jsymbol.util.Utils;
-import io.onedev.commons.jsymbol.csharp.CSharpLexer;
-import io.onedev.commons.jsymbol.csharp.CSharpParser;
-import io.onedev.commons.jsymbol.csharp.CSharpPreprocessorParser;
 import io.onedev.commons.jsymbol.csharp.CSharpParser.All_member_modifierContext;
 import io.onedev.commons.jsymbol.csharp.CSharpParser.All_member_modifiersContext;
 import io.onedev.commons.jsymbol.csharp.CSharpParser.Arg_declarationContext;
@@ -78,8 +69,14 @@ import io.onedev.commons.jsymbol.csharp.CSharpParser.Typed_member_declarationCon
 import io.onedev.commons.jsymbol.csharp.CSharpParser.Variable_declaratorContext;
 import io.onedev.commons.jsymbol.csharp.CSharpParser.Variant_type_parameterContext;
 import io.onedev.commons.jsymbol.csharp.CSharpParser.Variant_type_parameter_listContext;
-
-import com.google.common.base.Joiner;
+import io.onedev.commons.jsymbol.csharp.symbols.CSharpSymbol;
+import io.onedev.commons.jsymbol.csharp.symbols.FieldSymbol;
+import io.onedev.commons.jsymbol.csharp.symbols.MethodSymbol;
+import io.onedev.commons.jsymbol.csharp.symbols.NamespaceSymbol;
+import io.onedev.commons.jsymbol.csharp.symbols.TypeSymbol;
+import io.onedev.commons.jsymbol.csharp.symbols.TypeSymbol.Kind;
+import io.onedev.commons.jsymbol.util.QualifiedName;
+import io.onedev.commons.jsymbol.util.Utils;
 
 public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 
@@ -538,7 +535,7 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 		List<Token> codeTokens = new ArrayList<>();
 
 		BaseErrorListener errorListener = newErrorListener();
-		Lexer preprocessorLexer = new CSharpLexer(new ANTLRInputStream(sourceCode));
+		Lexer preprocessorLexer = new CSharpLexer(CharStreams.fromString(sourceCode));
 		preprocessorLexer.removeErrorListeners();
 		preprocessorLexer.addErrorListener(errorListener);
 		clearLexerCache(preprocessorLexer);

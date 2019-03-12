@@ -8,8 +8,8 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
-import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BaseErrorListener;
+import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
@@ -19,17 +19,10 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
+
 import io.onedev.commons.jsymbol.AbstractSymbolExtractor;
 import io.onedev.commons.jsymbol.TokenPosition;
-import io.onedev.commons.jsymbol.python.symbols.ClassSymbol;
-import io.onedev.commons.jsymbol.python.symbols.ImportedSymbol;
-import io.onedev.commons.jsymbol.python.symbols.MethodSymbol;
-import io.onedev.commons.jsymbol.python.symbols.PythonSymbol;
-import io.onedev.commons.jsymbol.python.symbols.VariableSymbol;
-import io.onedev.commons.jsymbol.util.QualifiedName;
-import io.onedev.commons.jsymbol.util.Utils;
-import io.onedev.commons.jsymbol.python.Python3Lexer;
-import io.onedev.commons.jsymbol.python.Python3Parser;
 import io.onedev.commons.jsymbol.python.Python3Parser.Async_stmtContext;
 import io.onedev.commons.jsymbol.python.Python3Parser.ClassdefContext;
 import io.onedev.commons.jsymbol.python.Python3Parser.Compound_stmtContext;
@@ -46,8 +39,13 @@ import io.onedev.commons.jsymbol.python.Python3Parser.Small_stmtContext;
 import io.onedev.commons.jsymbol.python.Python3Parser.StmtContext;
 import io.onedev.commons.jsymbol.python.Python3Parser.SuiteContext;
 import io.onedev.commons.jsymbol.python.Python3Parser.Testlist_star_exprContext;
-
-import com.google.common.base.Preconditions;
+import io.onedev.commons.jsymbol.python.symbols.ClassSymbol;
+import io.onedev.commons.jsymbol.python.symbols.ImportedSymbol;
+import io.onedev.commons.jsymbol.python.symbols.MethodSymbol;
+import io.onedev.commons.jsymbol.python.symbols.PythonSymbol;
+import io.onedev.commons.jsymbol.python.symbols.VariableSymbol;
+import io.onedev.commons.jsymbol.util.QualifiedName;
+import io.onedev.commons.jsymbol.util.Utils;
 
 public class PythonExtractor extends AbstractSymbolExtractor<PythonSymbol> {
 
@@ -67,7 +65,7 @@ public class PythonExtractor extends AbstractSymbolExtractor<PythonSymbol> {
 			
 		};
 		
-		Python3Lexer lexer = new Python3Lexer(new ANTLRInputStream(fileContent));
+		Python3Lexer lexer = new Python3Lexer(CharStreams.fromString(fileContent));
 		lexer.removeErrorListeners();
 		lexer.addErrorListener(errorListener);
 		

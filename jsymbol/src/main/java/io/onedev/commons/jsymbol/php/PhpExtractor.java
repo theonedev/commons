@@ -6,8 +6,8 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
-import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BaseErrorListener;
+import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ListTokenSource;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -20,20 +20,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+
 import io.onedev.commons.jsymbol.AbstractSymbolExtractor;
 import io.onedev.commons.jsymbol.TokenPosition;
-import io.onedev.commons.jsymbol.php.symbols.ConstantSymbol;
-import io.onedev.commons.jsymbol.php.symbols.FunctionSymbol;
-import io.onedev.commons.jsymbol.php.symbols.ImportedSymbol;
-import io.onedev.commons.jsymbol.php.symbols.NamespaceSymbol;
-import io.onedev.commons.jsymbol.php.symbols.PhpSymbol;
-import io.onedev.commons.jsymbol.php.symbols.TypeSymbol;
-import io.onedev.commons.jsymbol.php.symbols.VariableSymbol;
-import io.onedev.commons.jsymbol.php.symbols.Visibility;
-import io.onedev.commons.jsymbol.util.QualifiedName;
-import io.onedev.commons.jsymbol.util.Utils;
-import io.onedev.commons.jsymbol.php.PHPLexer;
-import io.onedev.commons.jsymbol.php.PHPParser;
 import io.onedev.commons.jsymbol.php.PHPParser.ActualArgumentContext;
 import io.onedev.commons.jsymbol.php.PHPParser.ArgumentsContext;
 import io.onedev.commons.jsymbol.php.PHPParser.BlockStatementContext;
@@ -78,9 +69,16 @@ import io.onedev.commons.jsymbol.php.PHPParser.UseGroupContext;
 import io.onedev.commons.jsymbol.php.PHPParser.UseGroupElementContext;
 import io.onedev.commons.jsymbol.php.PHPParser.VariableInitializerContext;
 import io.onedev.commons.jsymbol.php.PHPParser.WhileStatementContext;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
+import io.onedev.commons.jsymbol.php.symbols.ConstantSymbol;
+import io.onedev.commons.jsymbol.php.symbols.FunctionSymbol;
+import io.onedev.commons.jsymbol.php.symbols.ImportedSymbol;
+import io.onedev.commons.jsymbol.php.symbols.NamespaceSymbol;
+import io.onedev.commons.jsymbol.php.symbols.PhpSymbol;
+import io.onedev.commons.jsymbol.php.symbols.TypeSymbol;
+import io.onedev.commons.jsymbol.php.symbols.VariableSymbol;
+import io.onedev.commons.jsymbol.php.symbols.Visibility;
+import io.onedev.commons.jsymbol.util.QualifiedName;
+import io.onedev.commons.jsymbol.util.Utils;
 
 public class PhpExtractor extends AbstractSymbolExtractor<PhpSymbol> {
 
@@ -100,7 +98,7 @@ public class PhpExtractor extends AbstractSymbolExtractor<PhpSymbol> {
 			
 		};
 		
-		PHPLexer lexer = new PHPLexer(new ANTLRInputStream(fileContent));
+		PHPLexer lexer = new PHPLexer(CharStreams.fromString(fileContent));
 		lexer.removeErrorListeners();
 		lexer.addErrorListener(errorListener);
 		

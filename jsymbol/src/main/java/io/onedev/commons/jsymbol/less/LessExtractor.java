@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
-import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BaseErrorListener;
+import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
@@ -15,16 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import io.onedev.commons.jsymbol.AbstractSymbolExtractor;
 import io.onedev.commons.jsymbol.TokenPosition;
-import io.onedev.commons.jsymbol.less.symbols.ClassSymbol;
-import io.onedev.commons.jsymbol.less.symbols.IdSymbol;
-import io.onedev.commons.jsymbol.less.symbols.LessSymbol;
-import io.onedev.commons.jsymbol.less.symbols.MixinSymbol;
-import io.onedev.commons.jsymbol.less.symbols.SelectorSymbol;
-import io.onedev.commons.jsymbol.less.symbols.VariableSymbol;
-import io.onedev.commons.jsymbol.util.QualifiedName;
-import io.onedev.commons.jsymbol.util.Utils;
-import io.onedev.commons.jsymbol.less.LessLexer;
-import io.onedev.commons.jsymbol.less.LessParser;
 import io.onedev.commons.jsymbol.less.LessParser.BlockContext;
 import io.onedev.commons.jsymbol.less.LessParser.ElementContext;
 import io.onedev.commons.jsymbol.less.LessParser.MixinDefinitionContext;
@@ -34,6 +24,14 @@ import io.onedev.commons.jsymbol.less.LessParser.SelectorsContext;
 import io.onedev.commons.jsymbol.less.LessParser.StatementContext;
 import io.onedev.commons.jsymbol.less.LessParser.StylesheetContext;
 import io.onedev.commons.jsymbol.less.LessParser.VariableDeclarationContext;
+import io.onedev.commons.jsymbol.less.symbols.ClassSymbol;
+import io.onedev.commons.jsymbol.less.symbols.IdSymbol;
+import io.onedev.commons.jsymbol.less.symbols.LessSymbol;
+import io.onedev.commons.jsymbol.less.symbols.MixinSymbol;
+import io.onedev.commons.jsymbol.less.symbols.SelectorSymbol;
+import io.onedev.commons.jsymbol.less.symbols.VariableSymbol;
+import io.onedev.commons.jsymbol.util.QualifiedName;
+import io.onedev.commons.jsymbol.util.Utils;
 
 public class LessExtractor extends AbstractSymbolExtractor<LessSymbol> {
 
@@ -53,7 +51,7 @@ public class LessExtractor extends AbstractSymbolExtractor<LessSymbol> {
 			
 		};
 		
-		LessLexer lexer = new LessLexer(new ANTLRInputStream(fileContent));
+		LessLexer lexer = new LessLexer(CharStreams.fromString(fileContent));
 		lexer.removeErrorListeners();
 		lexer.addErrorListener(errorListener);
 		

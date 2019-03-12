@@ -16,9 +16,9 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 
-import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.Token;
@@ -28,7 +28,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import io.onedev.commons.codeassist.ANTLRv4Lexer;
 import io.onedev.commons.codeassist.ANTLRv4Parser;
-import io.onedev.commons.codeassist.AntlrUtils;
 import io.onedev.commons.codeassist.ANTLRv4Parser.AlternativeContext;
 import io.onedev.commons.codeassist.ANTLRv4Parser.AtomContext;
 import io.onedev.commons.codeassist.ANTLRv4Parser.BlockContext;
@@ -51,6 +50,7 @@ import io.onedev.commons.codeassist.ANTLRv4Parser.ParserRuleSpecContext;
 import io.onedev.commons.codeassist.ANTLRv4Parser.RuleBlockContext;
 import io.onedev.commons.codeassist.ANTLRv4Parser.RuleSpecContext;
 import io.onedev.commons.codeassist.ANTLRv4Parser.SetElementContext;
+import io.onedev.commons.codeassist.AntlrUtils;
 import io.onedev.commons.codeassist.grammar.ElementSpec.Multiplicity;
 
 public class Grammar implements Serializable {
@@ -109,7 +109,7 @@ public class Grammar implements Serializable {
 	
 		for (String grammarFile: grammarFiles) {
 			try (InputStream is = getClass().getClassLoader().getResourceAsStream(grammarFile)) {
-				ANTLRv4Lexer lexer = new ANTLRv4Lexer(new ANTLRInputStream(is));
+				ANTLRv4Lexer lexer = new ANTLRv4Lexer(CharStreams.fromStream(is));
 				CommonTokenStream tokens = new CommonTokenStream(lexer);
 				ANTLRv4Parser parser = new ANTLRv4Parser(tokens);
 				parser.removeErrorListeners();
@@ -399,7 +399,7 @@ public class Grammar implements Serializable {
 	public final List<Token> lex(String content) {
 		try {
 			List<Token> tokens = new ArrayList<>();
-			Lexer lexer = getLexerCtor().newInstance(new ANTLRInputStream(content));
+			Lexer lexer = getLexerCtor().newInstance(CharStreams.fromString(content));
 			lexer.removeErrorListeners();
 			Token token = lexer.nextToken();
 			while (token.getType() != Token.EOF) {

@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
-import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BaseErrorListener;
+import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
@@ -15,17 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import io.onedev.commons.jsymbol.AbstractSymbolExtractor;
 import io.onedev.commons.jsymbol.TokenPosition;
-import io.onedev.commons.jsymbol.scss.symbols.ClassSymbol;
-import io.onedev.commons.jsymbol.scss.symbols.FunctionSymbol;
-import io.onedev.commons.jsymbol.scss.symbols.IdSymbol;
-import io.onedev.commons.jsymbol.scss.symbols.MixinSymbol;
-import io.onedev.commons.jsymbol.scss.symbols.ScssSymbol;
-import io.onedev.commons.jsymbol.scss.symbols.SelectorSymbol;
-import io.onedev.commons.jsymbol.scss.symbols.VariableSymbol;
-import io.onedev.commons.jsymbol.util.QualifiedName;
-import io.onedev.commons.jsymbol.util.Utils;
-import io.onedev.commons.jsymbol.scss.ScssLexer;
-import io.onedev.commons.jsymbol.scss.ScssParser;
 import io.onedev.commons.jsymbol.scss.ScssParser.BlockContext;
 import io.onedev.commons.jsymbol.scss.ScssParser.ElementContext;
 import io.onedev.commons.jsymbol.scss.ScssParser.ElseIfStatementContext;
@@ -39,6 +28,15 @@ import io.onedev.commons.jsymbol.scss.ScssParser.SelectorContext;
 import io.onedev.commons.jsymbol.scss.ScssParser.StatementContext;
 import io.onedev.commons.jsymbol.scss.ScssParser.StylesheetContext;
 import io.onedev.commons.jsymbol.scss.ScssParser.VariableDeclarationContext;
+import io.onedev.commons.jsymbol.scss.symbols.ClassSymbol;
+import io.onedev.commons.jsymbol.scss.symbols.FunctionSymbol;
+import io.onedev.commons.jsymbol.scss.symbols.IdSymbol;
+import io.onedev.commons.jsymbol.scss.symbols.MixinSymbol;
+import io.onedev.commons.jsymbol.scss.symbols.ScssSymbol;
+import io.onedev.commons.jsymbol.scss.symbols.SelectorSymbol;
+import io.onedev.commons.jsymbol.scss.symbols.VariableSymbol;
+import io.onedev.commons.jsymbol.util.QualifiedName;
+import io.onedev.commons.jsymbol.util.Utils;
 
 public class ScssExtractor extends AbstractSymbolExtractor<ScssSymbol> {
 
@@ -58,7 +56,7 @@ public class ScssExtractor extends AbstractSymbolExtractor<ScssSymbol> {
 			
 		};
 		
-		ScssLexer lexer = new ScssLexer(new ANTLRInputStream(fileContent));
+		ScssLexer lexer = new ScssLexer(CharStreams.fromString(fileContent));
 		lexer.removeErrorListeners();
 		lexer.addErrorListener(errorListener);
 		
