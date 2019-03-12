@@ -1,0 +1,18 @@
+package javax.annotation 
+{
+  public @interface Resource 
+  {
+    String name()
+    String lookup()
+    Class<?> type()
+    enum AuthenticationType 
+    {
+      CONTAINER
+      APPLICATION
+    }
+    AuthenticationType authenticationType()
+    boolean shareable()
+    String mappedName()
+    String description()
+  }
+}

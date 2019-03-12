@@ -1,0 +1,33 @@
+namespace MyLib
+{
+  use ... as C
+  public constant Version
+  public constant ANIMALS
+  public constant address
+  public function test($name, $value)
+  class Person
+  {
+    public $firstName
+    protected $middleName
+    private $lastName
+    private constant sex
+    public function getName()
+  }
+  class InnerClass
+  public function innerFunc(Throwable $e, Throwable $f): array
+}
+public $gen
+public $getX
+public $myLogger
+public $build
+public $username
+public $config
+namespace MyJar
+{
+  use ... as p
+}
+namespace MyInnerJar
+{
+  public constant ProductName
+  public constant ProductDescription
+}

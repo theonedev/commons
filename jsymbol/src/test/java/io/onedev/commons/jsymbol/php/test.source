@@ -1,0 +1,84 @@
+<?php
+namespace MyLib;
+
+use some\namespace\{ClassA, ClassB, ClassC as C};
+
+define(Version, "1.0.0");
+
+define('ANIMALS', [
+    'dog',
+    'cat',
+    'bird'
+]);
+
+$gen = (function() {
+    yield 1;
+    yield 2;
+    yield from gen2();
+
+    return 3;
+})();
+
+$getX = function() {return $this->x;};
+
+echo $getX->call(new MyLogger());
+
+$myLogger = new class implements Logger {
+    public function log(string $msg) {
+        echo $msg;
+    }
+};
+
+Project::new('Project Name')->private()->for('purpose here')->with('username here');
+
+echo "\u{aa}";
+echo "\u{0000aa}";
+echo "\u{9999}";
+
+$build = "1.0.0";
+$build = "2.0.0";
+
+$username = $_GET['user'] ?? 'nobody';   
+
+const address = "baotun";
+
+function test($name, $value) {
+    global $config;  
+    
+    $innerVar = 1000;
+    echo 2 <=> 1; // 1
+} 
+
+class Person {
+    var $firstName;
+    
+    protected $middleName = "Robin";
+    
+    private $lastName;
+    
+    private const sex = "Male"; 
+    
+    public function getName(  ) {    
+      class InnerClass {};
+      
+      function innerFunc(Throwable $e, Throwable $f): array {
+      }
+    }    
+}
+namespace MyLib\MyJar;
+?>
+
+<div>hello world</div>
+
+<?php
+
+use MyLib\Person as p;
+
+namespace MyLib\MyJar\MyInnerJar {
+define("ProductName", "GitPlex");
+define('ProductDescription', "Git management system"); 
+define("Product{$version}Description", "Git management system");
+
+}
+
+?>

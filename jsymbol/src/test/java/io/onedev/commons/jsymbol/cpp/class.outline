@@ -1,0 +1,84 @@
+class test
+{
+  A
+  A a
+  const int a
+  local int a
+  local const int b
+  local const int c
+  void te(){...}
+  int tes()
+  void te(){...}
+  local void te(){...}
+  local void te(){...}
+  int a
+  const int a
+  local int a
+  local const int b
+  local const int c
+  void te(){...}
+  void te(){...}
+  local void te(){...}
+  local void te(){...}
+  ~test()
+  local int a
+  local const int a
+  local const int b
+  local const int c
+  local int a
+  local void te(){...}
+  local void te(){...}
+  local void te(){...}
+  local void te(){...}
+}
+class test
+{
+  A a
+  const int a
+  local int a
+  local const int b
+  local const int c
+  void te(){...}
+  int tes()
+  void te(){...}
+  local void te(){...}
+  local void te(){...}
+  int a
+  const int a
+  local int a
+  local const int b
+  local const int c
+  void te(){...}
+  void te(){...}
+  local void te(){...}
+  local void te(){...}
+  local int a
+  local const int a
+  local int a
+  local const int b
+  local const int c
+  local void te(){...}
+  local void te(){...}
+  local void te(){...}
+  local void te(){...}
+}
+
+class Point
+{
+  local Point()
+  local Point operator++()
+  local Point operator+()
+  local ~Point()
+}
+
+Point Point::operator++(){...}
+
+Point Point::operator +(Point){...}
+class testclass
+{
+  local int x1
+  local const int a
+  local int a
+  local const int a
+  local int test(){...}  
+}

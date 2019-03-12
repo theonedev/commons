@@ -1,0 +1,17 @@
+extern int a;
+static float a;
+extern static char a;
+double a;
+extern void main();
+static void main();
+extern static void main();
+void main();
+class testClass{
+  int a;
+  int b;
+  class testPrivate{
+  protected:
+    int a;
+    void main();
+  };
+};

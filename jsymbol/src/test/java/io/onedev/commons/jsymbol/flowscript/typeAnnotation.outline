@@ -1,0 +1,28 @@
+function test(value: test, value1: bool)
+function accessTwo(value: 2)
+function accessMixed(value: mixed)
+function accessAny(name: any)
+function acceptsMaybeString(value: ?string)
+varVariable
+letVariable
+function concat(a: string, b: string): string
+obj1: {foo:boolean}
+{
+  foo
+}
+arr: Array<number>
+tuple: [number]
+class MyClass
+{
+  method(value: string): number
+}
+MyObject<A,B>
+ID
+function identify(x: ID): ID
+Serializable
+{
+  local serializable(value: test, value1: test): string
+}
+function identify<T>(value: T): T
+function toStringPrimitives(value: number|boolean)
+function method(value: A&B&C)

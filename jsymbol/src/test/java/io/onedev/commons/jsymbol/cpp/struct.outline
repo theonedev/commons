@@ -1,0 +1,23 @@
+struct Person
+{
+  local char* name
+  struct Address
+  {
+    const char* country
+    const char* province
+    struct test
+    {
+      local const int test    
+    }
+    struct test te
+  }
+  struct Address address
+  int age
+}
+struct Person People
+struct Person person
+struct te
+{
+  T a
+  void main()
+}

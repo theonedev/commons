@@ -1,0 +1,41 @@
+package com.example 
+{
+  enum MyEnum 
+  {
+    private String name
+    private String[] values
+    MyEnum(String, String...)
+    public String getName()
+    public void setName(String)
+    public String[] getValues()
+    public void setValues(String[])
+    ENUM1
+    ENUM2
+  }
+  @interface MyAnn 
+  {
+    String[] values()
+  }
+  @interface MyAnotherAnn 
+  {
+    String[] values()
+  }
+  public class Test<@MyAnn(values = { "a" }) K, V> 
+  {
+    private Map<String, @MyAnotherAnn(values = { "value1", "value2" }) String> map1
+    private Map<String, @MyAnotherAnn(values = { "value1", "value2" }) String> map2
+    private Map<String, @MyAnotherAnn(values = { "value1", "value2" }) String> map3
+    static final java.util.List<String> values
+    static interface MyRunnable 
+    {
+      void run(int, int)
+    }
+    class Inner 
+    {
+      Runnable r1
+      MyRunnable r2
+      public MyRunnable doSomething(Integer, String)
+    }
+    public static void main(String[])
+  }
+}

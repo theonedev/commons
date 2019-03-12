@@ -1,0 +1,16 @@
+#ifdef SOMEMACRO
+int test1(){
+#else
+int test2(){
+#endif
+}
+#define SOMEMACRO
+#ifdef SOMEMACRO
+int test1(){
+#elif defined TESTMACRO
+int test2(){
+#endif
+}
+#define PRINT(message){\
+     printf(message);
+}

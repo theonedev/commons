@@ -1,0 +1,130 @@
+package main
+
+import (
+	"fmt"
+)
+
+type Kitchen struct {
+	numOfPlates int
+}
+
+type House interface {
+	Kitchen
+}  
+
+type MyFloat float64
+
+func (f MyFloat) Abs() float64 {
+	if f < 0 {
+		return float64(-f)
+	}
+	return float64(f)
+} 
+
+func (f MyDouble) max(value1 int, value2 int) (float64, int) {
+	if f < 0 {
+		return float64(-f)
+	}
+	return float64(f)
+}
+
+
+/* define an interface */
+type Shape interface {
+   area() float64
+}
+
+/* define a circle */
+type Circle struct {
+   x,y,radius float64
+}
+
+/* define a rectangle */
+type Rectangle struct {
+   width, height float64
+}
+
+/* define a method for circle (implementation of Shape.area())*/
+func(circle Circle) area() float64 {
+   return math.Pi * circle.radius * circle.radius
+}
+
+/* define a method for rectangle (implementation of Shape.area())*/
+func(rect Rectangle) area() float64 {
+   return rect.width * rect.height
+}
+
+/* define a method for shape */
+func getArea(shape Shape) float64 {
+   return shape.area()
+}
+
+func main() { 
+	if (true) {
+		type House2 struct {
+
+		}
+
+	}
+
+	fmt.Println("hello world")
+	
+   circle := Circle{x:0,y:0,radius:5}
+   rectangle := Rectangle {width:10, height:5}
+
+   type Circle2 struct {
+     x,y,radius float64
+   }
+	
+}
+
+func init() {
+	{name:"robin"} // hello "world"
+}
+
+var nextTextRegexp = test(`\n\S`)
+var issue16214src = `hello`
+
+type Command struct {
+	Run func()
+	UsageLine string
+}
+
+type (
+	Float32    float32
+	Float64    float64
+	Complex64  complex64
+	Complex128 complex128
+)
+
+var (
+	f32 float32
+	f64 float64
+	F32 Float32
+	F64 Float64
+
+	c64  complex64
+	c128 complex128
+	C64  Complex64
+	C128 Complex128)
+	
+type block1 struct {
+	Block
+	index int
+}
+
+type block2 struct {
+	index int
+	a.Block
+}
+
+type A interface {
+  Intf1
+  method1() int
+  Intf2
+}
+
+
+type entry = struct {
+	nlz, ntz, pop int
+}

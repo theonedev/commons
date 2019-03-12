@@ -1,0 +1,11 @@
+import person from 'person';
+import {person as people} from 'person';
+import * as person from 'person';
+export {Person as person};
+export person from 'person.js';
+export const test = function() {
+	this.name = 'robin';
+};
+export function test() {
+	this.name = 'robin';
+};

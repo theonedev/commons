@@ -1,0 +1,9 @@
+public class MyClass
+{
+  delegate void click()
+  event click(...) handlers
+}
+interface Intf
+{
+  event MyClass.click(...) handlers
+}

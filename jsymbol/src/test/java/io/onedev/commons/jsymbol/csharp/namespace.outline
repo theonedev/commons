@@ -1,0 +1,15 @@
+namespace a
+{
+  namespace b
+  {
+    namespace c
+    {
+      class A
+      {
+        struct D
+      }
+      interface B
+    }
+    namespace d
+  }
+}

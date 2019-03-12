@@ -1,0 +1,27 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+body>div {
+clear: both;
+}
+body>div>.left {
+    float: left;
+    width: 65%;
+}
+body>div>.left>textarea {
+    width: 100%;
+    height: 500px;
+}
+body>div>.right {
+    float: right;
+    width: 34%;
+}
+body>div>.right .tree-content>img {
+	vertical-align: bottom;
+}
+body>div>.right .tree-content>span {
+	font-size: 13px;
+}
+body>div>.right .tree-node {
+    white-space: nowrap;
+}

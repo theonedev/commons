@@ -1,0 +1,16 @@
+function test() {
+  var person = {
+    name: "robin",
+  }
+  person.age = 100;
+  module.exports = person;
+  exports = hello.world;
+  
+  function inner1() {
+    person.name = 'nonaame';
+  }
+  
+  function inner2() {
+    exports = {};
+  }
+}

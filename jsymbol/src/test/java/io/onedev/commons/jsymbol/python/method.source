@@ -1,0 +1,8 @@
+def method(param1, param2):
+  a = 1
+  class B: 
+  	pass
+  b = B();
+  b.name = "robin"
+  b.age = 100
+  

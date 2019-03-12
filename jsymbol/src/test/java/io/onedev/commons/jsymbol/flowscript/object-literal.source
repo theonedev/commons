@@ -1,0 +1,14 @@
+var person = {
+  name: 'a person',
+  get grade() {
+    return 12;
+  },
+  set grade(grade) {
+  },
+  walk(speed, distance) {
+  },
+  pet: {
+    name: 'wangwang',
+    type: 'dog'
+  }
+};

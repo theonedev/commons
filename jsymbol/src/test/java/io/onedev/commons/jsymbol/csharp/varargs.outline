@@ -1,0 +1,5 @@
+public class MyClass
+{
+  public static void UseParams(params int[])
+  protected void UseParams2(int, params int[])
+}

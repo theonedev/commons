@@ -1,0 +1,9 @@
+union test
+{
+  int a
+  const int b
+  local const int c
+  void fun1()
+  local int func2()
+  local int func3()
+}

@@ -1,0 +1,79 @@
+@document
+  /* Rules for a specific page */
+  url(http://css-tricks.com/),
+  /* Rules for pages with a URL that begin with... */
+  url-prefix(http://css-tricks.com/snippets/),
+  /* Rules for any page hosted on a domain */
+  domain(css-tricks.com),
+  /* Rules for all secure pages */
+  regexp("https:.*")
+{
+  body
+}
+@font-face
+@keyframes pulse
+{
+  0%
+  100%
+}
+@supports (display: flex)
+{
+  .module
+  .module
+}
+@supports (display: flex) and (-webkit-appearance: checkbox)
+{
+  .module
+  .module
+}
+@page :first
+#menu
+#menu a
+.post
+.post a
+@var conversion-1
+@var conversion-2
+@var incompatible-units
+@var base
+@var filler
+@var other
+.weird-element
+.weird-element
+nav ul
+.big-division
+.big-division
+.big-bag
+.big-bag:extend(.bag)
+.big-bucket
+.big-bucket:extend(.bucket)
+[title=identifier]
+[title='identifier']
+[title="identifier"]
+.noQuote
+.noQuote:extend([title=identifier])
+.singleQuote
+.singleQuote:extend([title='identifier'])
+.doubleQuote
+.doubleQuote:extend([title="identifier"])
+.wrap()
+pre
+.box-shadow(@x:0;@y:0;@blur:1px;@color:#000)
+.big-block
+.big-block
+@var detached-ruleset
+.top
+.top
+.mixin()
+.myclass
+.myclass
+.button
+.button
+{
+  &-ok
+  &-cancel
+  &-custom
+}
+@var my-selector
+.@{my-selector}
+.test
+.test

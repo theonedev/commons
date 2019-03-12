@@ -1,0 +1,11 @@
+struct (anonymous)
+{
+  int age
+  char* name
+}
+typedef struct  Person 
+{
+  int age
+  char* name
+}
+typedef int INT

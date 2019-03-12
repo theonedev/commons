@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<solr persistent="true">
+<cores adminPath="/admin/cores">
+  <core name="Default" instanceDir="default"/>
+  <core name="MC_10001_CatalogEntry_Unstructured_en_US" instanceDir="MC_10001_\en_US\CatalogEntry\unstructured\"/>
+  <core name="MC_10001_CatalogEntry_en_US" instanceDir="MC_10001_\en_US\CatalogEntry\"/>
+  <core name="MC_10001_CatalogGroup_en_US" instanceDir="MC_10001_\en_US\CatalogGroup\"/>
+</cores>
+</solr>
+solr.xml

@@ -1,0 +1,9 @@
+namespace one{
+	T a;
+	template<class T>
+	T n;
+    namespace two{
+        int a;
+        void test(int a);
+    }
+}

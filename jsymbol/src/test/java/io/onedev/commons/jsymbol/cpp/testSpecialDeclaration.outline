@@ -1,0 +1,14 @@
+macro MAKE_RAII(type)
+struct test
+{
+  int:32 (anonymous)
+}
+void* memmove(void*,const void*,size_t)
+namespace (anonymous)
+{
+  int a
+}
+struct (anonymous)
+{
+  TEST ALL
+}

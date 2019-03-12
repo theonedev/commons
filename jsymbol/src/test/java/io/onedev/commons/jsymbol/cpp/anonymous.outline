@@ -1,0 +1,9 @@
+enum (anonymous) 
+{
+  CFLAG1
+  CFLAG2
+}
+struct (anonymous)
+{
+  int a
+}

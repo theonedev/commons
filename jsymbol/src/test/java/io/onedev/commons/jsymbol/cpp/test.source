@@ -1,0 +1,48 @@
+int a = 1;
+const int b = 2;
+constexpr char a;
+static int a = 100;
+extern static struct Person p;
+static enum Strategy s;
+int &x=a;
+int *ptr = (int *)malloc(sizeof(int ));
+void *a;
+int *signal1;
+int (*signal2)();
+int* (*signal3)();
+int (*signal4())();
+void (*signal5(int sig, void (*func)(int),char ch[][]))(int);
+void func1(char *name="test", int age=1);
+int* func2(char *, int);
+int func3(int a[])constexpr;
+template<classs T>
+int main();
+template<typename T>
+static int main();
+template<typename T>
+int main()const;
+template<typename T>
+static int main()const;
+void swap(int &x,int &y){
+	int t = x;
+	x = y;
+	y =t;
+}
+int& Func(const int &x,int &y,int z)
+{
+     return y;
+}
+inline int Multiply(int x,int y){
+       return x*y;
+}
+auto find_id(const std::vector<record> &people)
+{
+  auto match_name = [&name](const record& r) -> bool {
+    return r.name == name;
+  };
+  auto ii = find_if(people.begin(), people.end(), match_name );
+  if (ii == people.end())
+    return -1;
+  else
+    return ii->id;
+}

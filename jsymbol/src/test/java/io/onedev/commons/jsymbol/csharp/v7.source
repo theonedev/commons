@@ -1,0 +1,41 @@
+using System;
+
+class Person
+{
+    static int value = 1;
+    int a = (value == 1? value: throw new Exception());
+
+    delegate ref int test();
+
+    ref int test2()
+    {
+        int[] arr = { 1 };
+        ref int x = ref arr[0];
+        return ref x;
+    }
+
+    (int, int) field1 = (100, 200);
+
+    int d = 123_456;
+    int x = 0xAB_CD_EF;
+
+    public Person(string name):base(a._b) => field1 = (300, 400);
+    ~Person() => field1 = (0, 0);
+    public string Name
+    {
+        get => "hello";
+        set => d = 200;
+    }
+    
+    private bool IsNullLiteral(IOperation operand)
+        => operand is ILiteralExpression literal &&
+           literal.ConstantValue.HasValue &&
+           literal.ConstantValue.Value == null;
+    
+    public bool HasCachedData => !object.Equals(Data, default);
+	
+	public bool CanAddTo(SyntaxNode destination, Solution solution, CancellationToken cancellationToken)
+    	=> CanAddTo(destination, solution, cancellationToken, out var availableIndices);		
+    
+    private const uint Lower4BitMask = 0b1111;
+}

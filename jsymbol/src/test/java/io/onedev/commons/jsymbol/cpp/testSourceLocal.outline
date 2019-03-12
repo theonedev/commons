@@ -1,0 +1,11 @@
+test.cpp
+{
+  local int a
+  local float a
+  local char a
+  double a
+  local void main()
+  local void main()
+  local void main()
+  void main()
+}

@@ -1,0 +1,26 @@
+class Digit<T>
+{
+    byte value;
+
+    public Digit(byte value)  //constructor
+    {
+        if (value > 9)
+        {
+            throw new System.ArgumentException();
+        }
+        this.value = value;
+    }
+
+    public static Digit<T> operator +(Digit<T> c1, Digit<T> x)
+    {
+        return null;
+    }
+
+    public static explicit operator Digit<T>(byte b)  // explicit byte to digit conversion operator
+    {
+        Digit<T> d = new Digit<T>(b);  // explicit conversion
+
+        System.Console.WriteLine("Conversion occurred.");
+        return d;
+    }
+}

@@ -1,0 +1,46 @@
+function test(value:test , value1 : bool){
+}
+function accessTwo(value:2){
+}
+function accessMixed(value:mixed){	
+}
+function accessAny(name:any){
+	
+}
+function acceptsMaybeString(value:?string){
+	
+}
+var varVariable = 1;
+let letVariable = 1;
+function concat(a:string,b:string):string{
+	return a + b;
+}
+var obj1:{foo:boolean} = {foo:true};
+let arr:Array<number> = [1,2,3];
+let tuple:[number] = [1];
+
+class MyClass{
+	prop:number;
+    method(value:string):number{	
+    }
+}
+type MyObject<A, B> = {
+		foo:A,
+		bar:B,
+};
+opaque type ID = string;
+function identify(x:ID):ID{
+	return x;
+}
+interface Serializable{
+    serializable(value:test,value1:test):string	
+}
+function identify<T>(value:T):T{
+	return value;
+}
+function toStringPrimitives(value:number|boolean){
+	return String(value);
+}
+function method(value:A&B&C){
+	
+}

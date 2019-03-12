@@ -1,0 +1,145 @@
+class test: public A{
+public:
+　　　      friend class A;
+      A a;
+      const int a;
+      static int a;
+      static const int b;
+      const static int c;
+      void te(){
+      }
+      friend int tes();
+      void te() const{
+      }
+      static void te(){
+      }
+      static void te()const{
+      }
+protected:
+      int a;
+      const int a;
+      static int a;
+      static const int b;
+      const static int c;
+      void te(){
+      }
+      void te()const{
+      }
+      static void te(){
+      }
+      static void te()const{
+      }
+      virtual ~test();
+private:
+      int a;
+      const int a;
+      static const int b;
+      const static int c;
+      static int a;
+      void te(){
+      }
+      void te()const{
+      }
+      static void te(){
+      }
+      static void te()const{
+      }
+}; 
+template<class T>
+class test: public A{
+public:
+      template<class T>
+      A a;
+      template<class T>
+      const int a;
+      template<class T>
+      static int a;
+      template<class T>
+      static const int b;
+      template<class T>
+      const static int c;
+      template<class T>
+      void te(){
+      }
+      template<class T>
+      friend int tes();
+      template<class T>
+      void te() const{
+      }
+      template<class T>
+      static void te(){
+      }
+      template<class T>
+      static void te()const{
+      }
+protected:
+      template<class T>
+      int a;
+      template<class T>
+      const int a;
+      template<class T>
+      static int a;
+      template<class T>
+      static const int b;
+      template<class T>
+      const static int c;
+      template<class T>
+      void te(){
+      }
+      template<class T>
+      void te()const{
+      }
+      template<class T>
+      static void te(){
+      }
+      template<class T>
+      static void te()const{
+      }
+private:
+      template<class T>
+      int a;
+      template<class T>
+      const int a;
+      template<class T>
+      static int a;
+      template<class T>
+      static const int b;
+      template<class T>
+      const static int c;
+      template<class T>
+      void te(){
+      }
+      template<class T>
+      void te()const{
+      }
+      template<class T>
+      static void te(){
+      }
+      template<class T>
+      static void te()const{
+      }
+};
+
+
+class Point{
+      Point();
+      Point operator++();
+      Point operator+();
+      ~Point();
+};
+Point Point::operator++(){
+}
+
+Point Point::operator + (Point p)
+{
+     return p;
+}
+class testclass{
+private:
+	int x1;
+        const int a;
+        static int a;
+        static const int a;
+        virtual int test(){
+        }  
+};

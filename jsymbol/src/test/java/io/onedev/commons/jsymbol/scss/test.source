@@ -1,0 +1,238 @@
+/* some comments here */
+
+$font-stack:    Helvetica, sans-serif;
+$primary-color: #333;
+
+.border body, #box .outer {
+  font: 100% $font-stack;
+  color: $primary-color;
+}
+
+nav {
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li { display: inline-block; }
+
+  a {
+    display: block;
+    padding: 6px 12px;
+    text-decoration: none;
+  }
+}
+
+@mixin border-radius($radius) {
+  -webkit-border-radius: $radius;
+     -moz-border-radius: $radius;
+      -ms-border-radius: $radius;
+          border-radius: $radius;
+}
+
+.box { @include border-radius(10px); }
+
+
+.message {
+  border: 1px solid #ccc;
+  padding: 10px;
+  color: #333;
+}
+
+.success {
+  @extend .message;
+  border-color: green;
+}
+
+.error {
+  @extend .message;
+  border-color: red;
+}
+
+.warning {
+  @extend .message;
+  border-color: yellow;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+
+article[role="main"] {
+  float: left;
+  width: 600px / 960px * 100%;
+}
+
+aside[role="complementary"] {
+  float: right;
+  width: 300px / 960px * 100%;
+}
+
+@function my-calculation-function($some-number, $another-number){
+  @return $some-number + $another-number;
+}
+
+.my-module {
+  padding: my-calculation-function(10px, 5px);
+}
+ 
+.a:first-child>.b#{$myvar}.c {
+	border-radius: 4px 4px 0 0 !important;
+	filter:alpha(opacity=0); /* Only applies to IE */
+	left: 50%; 	
+}
+
+$translucent-red: rgba(255, 0, 0, 0.5);
+$green: #00ff00;
+div {
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled='false', startColorstr='#{ie-hex-str($green)}', endColorstr='#{ie-hex-str($translucent-red)}');
+}
+
+.foo.bar .baz.bang, .bip.qux {
+  $selector: &;
+}
+
+@mixin does-parent-exist {
+  @if & {
+    &:hover {
+      color: red;
+    }
+  } @else {
+    a {
+      color: red;
+    }
+  }
+}
+
+@import "rounded-corners", "text-shadow";
+
+.sidebar {
+  width: 300px;
+  @media screen and (orientation: landscape) {
+    width: 500px;
+  }
+}
+
+// This ruleset won't be rendered on its own.
+#context a%extreme {
+  color: blue;
+  font-weight: bold;
+  font-size: 2em;
+}
+
+a.important {
+  @extend .notice !optional;
+}
+
+.parent {
+  @at-root .child {
+  }   
+}
+
+@mixin adjust-location($x, $y) {
+  @if unitless($x) {
+    @warn "Assuming #{$x} to be in pixels";
+    $x: 1px * $x;
+  }
+  @if unitless($y) {
+    @warn "Assuming #{$y} to be in pixels";
+    $y: 1px * $y;
+  }
+  position: relative; left: $x; top: $y;
+}
+
+#main {
+  $width: 5em !global;
+  width: $width;
+}
+
+@mixin large-text {
+  font: {
+    family: Arial;
+    size: 20px;
+    weight: bold;
+  }
+  color: #ff0000;
+}
+
+@mixin colors($text, $background, $border) {
+  color: $text;
+  background-color: $background;
+  border-color: $border;
+}
+
+$values: #ff0000, #00ff00, #0000ff;
+
+.primary {
+  @include colors($values...);
+}
+
+$value-map: (text: #00ff00, background: #0000ff, border: #ff0000);
+
+.secondary {
+  @include colors($value-map...);
+}
+
+@mixin apply-to-ie6-only {
+  * html {
+    @content;
+  }
+}
+
+@mixin css-triangle($color, $direction, $size: 6px, $position: absolute, $round: false){
+    $name: "robin";
+    
+    @if $direction == left {
+        margin-left: -$size;
+    }
+}
+
+@charset "UTF-8";
+
+@namespace url(http://www.w3.org/1999/xhtml);
+
+@document 
+  /* Rules for a specific page */
+  url(http://css-tricks.com/),
+  
+  /* Rules for pages with a URL that begin with... */
+  url-prefix(http://css-tricks.com/snippets/),
+  
+  /* Rules for any page hosted on a domain */
+  domain(css-tricks.com),
+
+  /* Rules for all secure pages */
+  regexp("https:.*")
+{
+  
+  /* Start styling */
+  body { font-family: Comic Sans; }
+}
+
+@font-face {
+  font-family: 'MyWebFont';
+  src:  url('myfont.woff2') format('woff2'),
+        url('myfont.woff') format('woff');
+}  
+
+@keyframes pulse {
+  0% {
+    background-color: #001f3f;
+  }
+  100% {
+    background-color: #ff4136;
+  }
+}
+
+/* Check one supported condition */
+@supports (display: flex) {
+  .module { display: flex; }
+}
+
+/* Check multiple conditions */
+@supports (display: flex) and (-webkit-appearance: checkbox) {
+  .module { display: flex; }
+}
+
+@page :first {
+  margin: 1in;
+}

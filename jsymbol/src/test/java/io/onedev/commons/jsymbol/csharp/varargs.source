@@ -1,0 +1,11 @@
+public class MyClass
+{
+    public static void UseParams(params int[] list)
+    {
+    }
+
+    protected void UseParams2(int good, params int[] list)
+    {
+    }
+
+}

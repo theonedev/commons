@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">  
+    <modelVersion>4.0.0</modelVersion>  
+    <parent>
+    	<groupId>io.onedev</groupId>
+    	<artifactId>parent</artifactId>
+    	<version>1.0.2</version>
+    </parent>
+    <artifactId>commons</artifactId>  
+    <version>1.0.5</version>  
+    <packaging>pom</packaging>  
+    <modules> 
+        <module>utils</module>
+        <module>jsyntax</module>
+        <module>jsymbol</module>
+        <module>codeassist</module>
+        <module>launcher</module>
+    </modules>  
+	<repositories>
+		<repository>
+			<id>pmeaseRepo</id>
+			<url>http://artifact.pmease.com/artifactory/pmeaseRepo</url>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+				<checksumPolicy>fail</checksumPolicy>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+				<checksumPolicy>fail</checksumPolicy>
+			</snapshots>
+		</repository>
+	</repositories>
+</project>

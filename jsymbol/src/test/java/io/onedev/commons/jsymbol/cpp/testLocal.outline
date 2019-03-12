@@ -1,0 +1,18 @@
+local int a
+local float a
+local char a
+double a
+local void main()
+local void main()
+local void main()
+void main()
+class testClass
+{
+  local int a
+  local int b
+  local class testPrivate
+  {
+    int a
+    void main()
+  }
+}

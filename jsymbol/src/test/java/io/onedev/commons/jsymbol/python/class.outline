@@ -1,0 +1,24 @@
+f1(self,x,y)
+class Person
+{
+  f
+  name
+  age
+  g(self)
+  h
+  __init__(self,name,age)
+}
+class DeviceSpec
+{
+  _job
+  a
+  b
+  c
+  m()
+  m2
+  __init__(self)
+  {
+    _clear(self)
+  }
+  test(self)
+}

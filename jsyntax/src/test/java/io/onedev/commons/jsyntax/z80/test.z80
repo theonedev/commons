@@ -1,0 +1,41 @@
+push ix
+ld ix,#0
+add ix,sp
+; if (pStr)
+ld a,4(ix)
+or a,5(ix)
+jr Z,line_add_str_with_char_fork
+ld hl,#__pLine
+ld iy,#__sLineLen
+ld a,0(iy)
+add a,(hl)
+ld e,a
+ld a,1(iy)
+inc hl
+adc a,(hl)
+ld d,a
+ld l,4(ix)
+ld h,5(ix)
+xor a,a
+ld b,a
+ld c,a
+line_add_str_with_char_loop:
+ld a,(hl)
+ldi
+or a,a
+jr nz,line_add_str_with_char_loop
+ld (de),a
+dec de
+ld a,6(ix) 
+ld (de),a
+; inc bc
+ld a,0(iy)
+sub a,c
+ld 0(iy),a
+ld a,1(iy)
+sbc a,b
+ld 1(iy),a
+
+line_add_str_with_char_fork:
+pop ix
+ret

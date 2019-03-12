@@ -1,0 +1,52 @@
+import absolute_import
+import division
+import print_function
+import six
+import xrange
+import np
+import ops
+import tensor_shape
+import array_ops
+import init_ops
+import nn
+import standard_ops
+import vs
+import base
+import utils
+class Dense
+{
+  units
+  activation
+  use_bias
+  kernel_initializer
+  bias_initializer
+  kernel_regularizer
+  bias_regularizer
+  activity_regularizer
+  kernel_constraint
+  bias_constraint
+  input_spec
+  kernel
+  bias
+  built
+  __init__(self,units,activation=None,use_bias=True,kernel_initializer=None,bias_initializer=init_ops.zeros_initializer(),kernel_regularizer=None,bias_regularizer=None,activity_regularizer=None,kernel_constraint=None,bias_constraint=None,trainable=True,name=None,**kwargs)
+  build(self,input_shape)
+  call(self,inputs)
+  _compute_output_shape(self,input_shape)
+}
+dense(inputs,units,activation=None,use_bias=True,kernel_initializer=None,bias_initializer=init_ops.zeros_initializer(),kernel_regularizer=None,bias_regularizer=None,activity_regularizer=None,kernel_constraint=None,bias_constraint=None,trainable=True,name=None,reuse=None)
+class Dropout
+{
+  rate
+  noise_shape
+  seed
+  __init__(self,rate=0.5,noise_shape=None,seed=None,name=None,**kwargs)
+  _get_noise_shape(self,_)
+  call(self,inputs,training=False)
+  {
+    dropped_inputs()
+  }
+}
+dropout(inputs,rate=0.5,noise_shape=None,seed=None,training=False,name=None)
+FullyConnected
+fully_connected

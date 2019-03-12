@@ -1,0 +1,9 @@
+class N;
+struct A a;
+enum en e;
+int a,b;
+extern static int a;
+static int a;
+class test{
+  static int a;
+};

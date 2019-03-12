@@ -1,0 +1,26 @@
+int a
+const int b
+constexpr char a
+local int a
+local struct Person p
+local enum Strategy s
+int& x
+int* ptr
+void* a
+int* signal1
+int(*)() signal2
+int*(*)() signal3
+int(*)() signal4()
+void(*)(int) signal5(int,void(*)(int),char[][])
+void func1(char*="test",int=1)
+int* func2(char*,int)
+int func3(int[])
+int main()
+local int main()
+int main()
+local int main()
+void swap(int&,int&){...}
+int& Func(const int&,int&,int){...}
+int Multiply(int,int){...}
+find_id(const std::vector<record>&){...}
+

@@ -1,0 +1,17 @@
+var Parent = Vue.extend({
+  template: '<div>This is a parent component <my-component></my-component></div>',
+  components: {
+    'my-component': Child
+  }
+});
+
+Vue.component('child', {
+  props: ['message'],
+  template: '<span>{{ message }}</span>'
+});
+
+new Vue({
+  components: {
+    'my-component': Child
+  }
+});

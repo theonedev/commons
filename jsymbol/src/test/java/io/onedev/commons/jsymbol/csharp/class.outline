@@ -1,0 +1,24 @@
+public class Document
+{
+  public class WordCollection
+  {
+    readonly Document document
+    internal WordCollection(Document)
+    ~WordCollection()
+    private bool GetWord(char[], int, int, out int, out int)
+    public string this[int]
+    public int Count
+  }
+  public class CharacterCollection
+  {
+    readonly Document document
+    internal CharacterCollection(Document)
+    public char this[int]
+    public int Count
+  }
+  public readonly WordCollection Words
+  public readonly CharacterCollection Characters
+  private char[] TextArray
+  public Document(string)
+  public string Text
+}

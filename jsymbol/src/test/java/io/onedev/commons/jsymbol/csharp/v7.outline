@@ -1,0 +1,17 @@
+class Person
+{
+  static int value
+  int a
+  delegate int test()
+  int test2()
+  (int,int) field1
+  int d
+  int x
+  public Person(string)
+  ~Person()
+  public string Name
+  private bool IsNullLiteral(IOperation)
+  public bool HasCachedData
+  public bool CanAddTo(SyntaxNode, Solution, CancellationToken)
+  private uint Lower4BitMask
+}

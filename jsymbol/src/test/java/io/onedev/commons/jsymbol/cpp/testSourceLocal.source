@@ -1,0 +1,8 @@
+extern int a;
+static float a;
+extern static char a;
+double a;
+extern void main();
+static void main();
+extern static void main();
+void main();

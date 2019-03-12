@@ -1,0 +1,7 @@
+class Program
+{
+  class A
+  {
+    int d
+  }
+}

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org">
+	<head>
+		<meta charset="utf-8" />
+		<title>Test</title>
+	</head>
+	<body>
+		<div>
+			<div class="left">
+				<label>Extractor</label> <select wicket:id="extractor"></select>
+				<textarea wicket:id="source"></textarea>
+			</div>
+			<div class="right">
+				<div wicket:id="outline"></div>
+			</div>
+		</div>
+	</body>
+	<wicket:fragment wicket:id="outlineNodeFrag">
+		<img wicket:id="icon"><img> <span wicket:id="symbol"></span>
+	</wicket:fragment>
+</html>

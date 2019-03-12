@@ -1,0 +1,156 @@
+@charset "UTF-8";
+
+@namespace url(http://www.w3.org/1999/xhtml);
+
+@document 
+  /* Rules for a specific page */
+  url(http://css-tricks.com/),
+  
+  /* Rules for pages with a URL that begin with... */
+  url-prefix(http://css-tricks.com/snippets/),
+  
+  /* Rules for any page hosted on a domain */
+  domain(css-tricks.com),
+
+  /* Rules for all secure pages */
+  regexp("https:.*")
+{
+  
+  /* Start styling */
+  body { font-family: Comic Sans; }
+}
+
+@font-face {
+  font-family: 'MyWebFont';
+  src:  url('myfont.woff2') format('woff2'),
+        url('myfont.woff') format('woff');
+}  
+
+@keyframes pulse {
+  0% {
+    background-color: #001f3f;
+  }
+  100% {
+    background-color: #ff4136;
+  }
+}
+
+/* Check one supported condition */
+@supports (display: flex) {
+  .module { display: flex; }
+}
+
+/* Check multiple conditions */
+@supports (display: flex) and (-webkit-appearance: checkbox) {
+  .module { display: flex; }
+}
+
+@page :first {
+  margin: 1in;
+}
+
+#menu a {
+  color: #111;
+  .bordered;
+}
+
+.post a {
+  color: red;
+  .bordered;
+}
+
+@conversion-1: 5cm + 10mm; // result is 6cm
+@conversion-2: 2 - 3cm - 5mm; // result is -1.5cm
+
+// conversion is impossible
+@incompatible-units: 2 + 5px - 3cm; // result is 4px
+
+// example with variables
+@base: 5%;
+@filler: @base * 2; // result is 10%
+@other: @base + @filler; // result is 15%
+
+.weird-element {
+  content: ~"^//* some horrible but needed css hack";
+}
+
+nav ul {
+  &:extend(.inline);
+  background: blue;
+}
+
+.big-division,
+.big-bag:extend(.bag),
+.big-bucket:extend(.bucket) {
+  // body
+}
+
+[title=identifier] {
+  color: blue;
+}
+[title='identifier'] {
+  color: blue;
+}
+[title="identifier"] {
+  color: blue;
+}
+
+.noQuote:extend([title=identifier]) {}
+.singleQuote:extend([title='identifier']) {}
+.doubleQuote:extend([title="identifier"]) {}
+
+.wrap() {
+  text-wrap: wrap;
+  white-space: -moz-pre-wrap;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+pre { .wrap }
+
+.box-shadow(@x: 0; @y: 0; @blur: 1px; @color: #000) {
+  -webkit-box-shadow: @arguments;
+     -moz-box-shadow: @arguments;
+          box-shadow: @arguments;
+}
+.big-block {
+  .box-shadow(2px; 5px);
+}
+
+// declare detached ruleset
+@detached-ruleset: { background: red; };
+
+// use detached ruleset
+.top {
+    @detached-ruleset(); 
+}
+
+.mixin() {
+  box-shadow+: inset 0 0 10px #555;
+}
+.myclass {
+  .mixin();
+  box-shadow+: 0 0 20px black;
+}  
+
+.button {
+  &-ok {
+    background-image: url("ok.png");
+  }
+  &-cancel {
+    background-image: url("cancel.png");
+  }
+
+  &-custom {
+    background-image: url("custom.png");
+  }
+}
+// Variables
+@my-selector: banner;
+
+// Usage
+.@{my-selector}, .test {
+  font-weight: bold;
+  line-height: 40px;
+  margin: 0 auto;
+}

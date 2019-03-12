@@ -1,0 +1,43 @@
+x=c(12,7,3,4.2,18,2,54,-21,8,-5) # this is some test
+
+100->a
+b<<-200
+c=300
+d:=400
+e<-500
+600->>f
+
+g = function(x, y, ...) {
+  inner<-function() {
+  }
+
+  value = 200; value2=300;
+} 
+
+output.forest <- randomForest(nativeSpeaker ~ age + shoeSize + score,   
+           data = readingSkills)
+
+           function
+(a, 
+ b) 
+  
+  {
+  
+}
+
+if (a>1 
+    && 
+    b>2) 
+{
+  address = "baot"
+
+myfunc <<- function() {}
+
+myfunc()
+
+100 ->> myval
+
+print(myval)  
+}
+
+getOption("SweaveHooks")[["fig"]]()

@@ -1,0 +1,16 @@
+class Program
+{
+  internal unsafe struct S
+  {
+    void Intfs.Intf<string>.test(string)
+    public char* fixedBuffer
+    public char* fixedBuffer2
+  }
+}
+namespace Intfs
+{
+  interface Intf<T>
+  {
+    void test(T)
+  }
+}

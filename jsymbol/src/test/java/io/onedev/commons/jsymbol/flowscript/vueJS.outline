@@ -1,0 +1,36 @@
+class VNode
+{
+  constructor(tag?: string, children?: ?Array < VNode  >, componentOptions?: VNodeComponentOptions, asyncFactory?: Function)
+  {
+    this
+    {
+      tag
+      data
+      children
+      text
+      elm
+      ns
+      context
+    }
+  }
+  get child(): Component|void
+}
+export function createEmptyVNode(text: string)=>
+{
+  local node
+  {
+    text
+    isComment
+  }
+}
+export function createTextVNode(val: string|number)
+export function cloneVNode(vnode: VNode): VNode
+{
+  local cloned
+  {
+    ns
+    isStatic
+    key
+  }
+}
+Shape

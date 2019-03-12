@@ -1,0 +1,17 @@
+struct Person{
+  static char* name;
+  struct Address{
+      const char *country,*province;
+      struct test{
+         const static int test;      
+	  }te;
+  }address;
+  int age;
+}People,person;
+template <class T>
+struct te{
+    template <class T>
+    T a;
+    template <class T>
+    void main();
+};

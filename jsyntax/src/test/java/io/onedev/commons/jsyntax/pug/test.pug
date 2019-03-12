@@ -1,0 +1,38 @@
+doctype html
+
+<!--[if IE 8]><html class='ie8'><![endif]-->
+<!--[if IE 9]><html class='ie9'><![endif]-->
+<!--[if !IE]><!--><html><!--<![endif]-->
+
+head 
+    meta(charset='utf-8')
+    title jade
+body
+    //- var say = "good"
+    -var name = "zhangsan"
+    h1 this is first jade1
+    h1 #{hello}
+    //使用=和.的作用，注意都是紧挨在标签元素后面
+    h1= name
+    p.
+        #{say}
+        #{user}
+    //直接以#或者.开始的直接生成div标签
+    #div
+    //-非缓存注释
+    input(type="text",name='agreement')
+
+    ul
+        li.first: a(href="#") 跳转
+    - var jobs = {"catagory" : "fe", "company" : "wandoujia", "local" : "beijing"}
+    each val,key in jobs
+        li #{key} : #{val}
+
+    - var users = [{ id: 12, name: 'tobi',role:'user' },{id:12,name:'admin',role:'admin'}]
+    for user in users
+        if user.role == 'admin'
+            p #{user.name} is an admin
+        else
+            p= user.name
+
+</html>

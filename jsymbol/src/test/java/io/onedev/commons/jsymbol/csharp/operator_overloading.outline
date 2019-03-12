@@ -1,0 +1,7 @@
+class Digit<T>
+{
+  byte value
+  public Digit(byte)
+  public static operator Digit<T> +(Digit<T>, Digit<T>)
+  public static explicit operator Digit<T>(byte)
+}

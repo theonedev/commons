@@ -1,0 +1,29 @@
+# Function defined outside the class
+def f1(self, x, y):
+    return min(x, x+y)
+
+class Person:
+    f = f1
+
+    def g(self):
+        return 'hello world'
+
+    h = g
+    
+    def __init__(self, name, age)
+    	self.name = name
+    	self.age = age
+   
+class DeviceSpec(object):
+  def m(): 
+    pass
+
+  m2=100
+
+  def __init__(self):    
+    def _clear(self):   
+      self._job = None
+      self.a=1
+      self.b=2
+  def test(self):
+    self.c=3   

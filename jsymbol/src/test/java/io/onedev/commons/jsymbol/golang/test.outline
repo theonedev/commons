@@ -1,0 +1,77 @@
+Kitchen
+{
+  numOfPlates int
+}
+House
+{
+  Kitchen
+}
+MyFloat
+{
+  func Abs() float64
+}
+Shape
+{
+  func area() float64
+}
+Circle
+{
+  x float64
+  y float64
+  radius float64
+  func area() float64
+}
+Rectangle
+{
+  width float64
+  height float64
+  func area() float64
+}
+func getArea(shape Shape) float64
+func main()
+func init()
+nextTextRegexp
+issue16214src
+Command
+{
+  Run func()
+  UsageLine string
+}
+Float32
+Float64
+Complex64
+Complex128
+f32 float32
+f64 float64
+F32 Float32
+F64 Float64
+c64 complex64
+c128 complex128
+C64 Complex64
+C128 Complex128
+block1
+{
+  Block
+  index int
+}
+block2
+{
+  index int
+  a.Block
+}
+A
+{
+  Intf1
+  func method1() int
+  Intf2
+}
+entry
+{
+  nlz int
+  ntz int
+  pop int
+}
+MyDouble
+{
+  func max(value1 int, value2 int) (float64, int)
+}

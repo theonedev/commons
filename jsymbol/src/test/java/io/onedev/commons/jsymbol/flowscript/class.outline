@@ -1,0 +1,27 @@
+module 
+{
+  exports
+}
+class Polygon 
+{
+  constructor(height, width) 
+  {
+    this 
+    {
+      name
+      height
+      width
+    }
+  }
+  test() 
+  {
+    local class Inner1 
+    {
+      method1()
+    }
+    local class Inner2 
+    {
+      method2()
+    }
+  }
+}

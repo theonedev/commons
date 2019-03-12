@@ -1,0 +1,19 @@
+import Person
+person1
+{
+  name
+  age
+  avatar
+}
+person2
+{
+  name
+  age
+}
+test()
+{
+  person2
+  {
+    avatar
+  }
+}

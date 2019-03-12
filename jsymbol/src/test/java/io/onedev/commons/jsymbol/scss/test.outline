@@ -1,0 +1,124 @@
+@var font-stack
+@var primary-color
+.border
+.border body
+#box
+.outer
+#box .outer
+nav
+{
+  ul
+  li
+  a
+}
+@mixin border-radius($radius)
+.box
+.box
+.message
+.message
+.success
+.success
+.error
+.error
+.warning
+.warning
+article[role="main"]
+aside[role="complementary"]
+@function my-calculation-function($some-number,$another-number)
+.my-module
+.my-module
+.a
+.c
+.a:first-child>.b#{$myvar}.c
+@var translucent-red
+@var green
+div
+.foo
+.bar
+.baz
+.bang
+.foo.bar .baz.bang
+{
+  @var selector
+}
+.bip
+.qux
+.bip.qux
+{
+  @var selector
+}
+@mixin does-parent-exist
+{
+  &:hover
+  a
+}
+.sidebar
+.sidebar
+{
+  @media screen and (orientation: landscape)
+}
+#context
+#context a%extreme
+.important
+a.important
+.parent
+.parent
+{
+  .child
+  @at-root .child
+}
+@mixin adjust-location($x,$y)
+{
+  local @var x
+  local @var y
+}
+#main
+#main
+{
+  @var width
+}
+@mixin large-text
+@mixin colors($text,$background,$border)
+@var values
+.primary
+.primary
+@var value-map
+.secondary
+.secondary
+@mixin apply-to-ie6-only
+{
+  * html
+}
+@mixin css-triangle($color,$direction,$size:6px,$position:absolute,$round:false)
+{
+  local @var name
+}
+@document
+  /* Rules for a specific page */
+  url(http://css-tricks.com/),
+  /* Rules for pages with a URL that begin with... */
+  url-prefix(http://css-tricks.com/snippets/),
+  /* Rules for any page hosted on a domain */
+  domain(css-tricks.com),
+  /* Rules for all secure pages */
+  regexp("https:.*")
+{
+  body
+}
+@font-face
+@keyframes pulse
+{
+  0%
+  100%
+}
+@supports (display: flex)
+{
+  .module
+  .module
+}
+@supports (display: flex) and (-webkit-appearance: checkbox)
+{
+  .module
+  .module
+}
+@page :first

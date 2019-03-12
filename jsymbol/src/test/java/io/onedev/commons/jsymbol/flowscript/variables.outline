@@ -1,0 +1,15 @@
+module 
+{
+  exports
+}
+exports
+function test() 
+{
+  export person 
+  {
+    name
+    age
+  }
+  local function inner1()
+  local function inner2()
+}

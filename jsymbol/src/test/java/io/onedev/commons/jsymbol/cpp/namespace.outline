@@ -1,0 +1,10 @@
+namespace one
+{
+  T a
+  T n
+  namespace two
+  {
+    int a
+    void test(int)
+  }
+} 

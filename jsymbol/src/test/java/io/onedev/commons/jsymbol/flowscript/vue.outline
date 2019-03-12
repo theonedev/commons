@@ -1,0 +1,24 @@
+Parent
+null 
+{
+  template
+  components 
+  {
+    my-component
+  }
+}
+vueComponents 
+{
+  export child 
+  {
+    props
+    template
+  }
+}
+null 
+{
+  components 
+  {
+    my-component
+  }
+}

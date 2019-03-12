@@ -1,0 +1,5 @@
+typedef struct {
+    int age;
+    char* name;
+}Person;
+typedef int INT;

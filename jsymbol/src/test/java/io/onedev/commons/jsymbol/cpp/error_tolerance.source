@@ -1,0 +1,7 @@
+_MACRO1_ void func();
+void _MACRO2_ func2();
+void func3();
+MACRO3
+void func4();
+void func5(MACRO5, int a) MACRO6
+void func6(int,int);

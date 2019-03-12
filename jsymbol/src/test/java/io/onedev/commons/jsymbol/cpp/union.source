@@ -1,0 +1,10 @@
+union test{
+     int a;
+     const int b;
+     static const int c;
+     void fun1();
+     static int func2();
+     static int func3()const;
+};
+
+

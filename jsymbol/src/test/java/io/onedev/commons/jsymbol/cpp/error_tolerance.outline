@@ -1,0 +1,5 @@
+void func()
+void func3()
+void func4()
+void func5(MACRO5,int)
+void func6(int,int)

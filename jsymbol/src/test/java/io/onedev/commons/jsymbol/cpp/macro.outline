@@ -1,0 +1,4 @@
+macro SOMEMACRO	
+macro PRINT(message)
+int test2(){...}
+int test1(){...}

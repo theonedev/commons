@@ -1,0 +1,7 @@
+foo
+local bar
+exports 
+{
+  export function app()
+  export function foo()
+}

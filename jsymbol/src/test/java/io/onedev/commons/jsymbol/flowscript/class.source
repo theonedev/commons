@@ -1,0 +1,19 @@
+class Polygon {
+  constructor(height, width) {
+    this.name = 'Polygon';
+    this.height = height;
+    this.width = width;
+  }
+
+  test() {
+    class Inner1 {
+      method1() {
+      }
+    }
+    class Inner2 {
+      method2() {
+       module.exports = {};
+      }
+    }
+  }
+}

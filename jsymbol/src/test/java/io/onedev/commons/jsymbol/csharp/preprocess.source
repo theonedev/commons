@@ -1,0 +1,27 @@
+#define PERLS
+#define PYTHONS
+#define NET
+#undef NET
+
+using System;
+
+class Program
+{
+#warning Deprecated code in this method. 
+#region
+#if (PERLS || PYTHONS) && !NET
+    class A
+    {
+#if !((PERLS || PYTHONS) && !NET)
+        int c;
+#else
+        int d;
+#endif
+
+#elif PYTHONS
+    class B 
+    {
+#endif
+    }
+#endregion
+}

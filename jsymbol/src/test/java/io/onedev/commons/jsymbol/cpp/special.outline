@@ -1,0 +1,11 @@
+N
+struct A a
+enum en e
+int a
+int b
+local int a
+local int a
+class test
+{
+  local int a
+}

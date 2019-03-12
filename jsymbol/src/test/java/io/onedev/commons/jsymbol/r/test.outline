@@ -1,0 +1,17 @@
+@var x
+@var a
+@var b
+@var c
+@var d
+@var e
+@var f
+@function g(x,y,...)
+{
+  local @function inner()
+  local @var value
+  local @var value2
+}
+@var output.forest
+@var address
+@function myfunc()
+@var myval

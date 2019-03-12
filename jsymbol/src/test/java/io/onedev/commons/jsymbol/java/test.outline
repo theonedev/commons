@@ -1,0 +1,18 @@
+package com.sun.javadoc 
+{
+  public class Test<T extends A & B, M extends java.util.List<?>> 
+  {
+    private static int a
+    enum Type 
+    {
+      A
+      B
+      C
+    }
+    private List<java.util.Map<java.lang.String, @D String>>[] name
+    private int @A [][] age
+    public String getName(List<String>, String...)
+    class Internal
+    <A extends B & C, D extends Class<?>> T test()
+  }
+}

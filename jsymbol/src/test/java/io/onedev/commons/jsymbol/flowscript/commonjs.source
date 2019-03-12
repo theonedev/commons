@@ -1,0 +1,11 @@
+var foo = require('./foo');
+var bar;
+bar = require('./bar');
+ 
+exports.app = function(){
+    console.log('Im an application!');
+}
+ 
+exports.foo = function(){
+    return modA.helloWorld();
+}

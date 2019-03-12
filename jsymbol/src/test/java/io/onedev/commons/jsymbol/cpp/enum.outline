@@ -1,0 +1,6 @@
+enum strategy 
+{
+  RANDOM
+  IMMEDIATE
+  SEARCH
+}

@@ -1,0 +1,12 @@
+person 
+{
+  name
+  get grade()
+  set grade(grade)
+  walk(speed, distance)
+  pet
+  {
+    name
+    type
+  }
+}

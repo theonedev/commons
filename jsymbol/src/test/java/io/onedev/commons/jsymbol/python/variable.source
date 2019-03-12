@@ -1,0 +1,11 @@
+from com.example import Person
+
+person1, person2 = Person()
+
+person1.name = person2.name = "robin"
+person1.age = person2.age = 100
+
+def test():
+	person1.avatar = "default.png"
+	person2 = Person()
+	person2.avatar = "default.png"

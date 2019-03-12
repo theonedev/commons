@@ -1,0 +1,9 @@
+enum 
+{
+  CFLAG1,
+  CFLAG2
+};
+    struct
+{
+  int a;
+};
