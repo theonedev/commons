@@ -425,9 +425,9 @@ public class Grammar implements Serializable {
 		return Integer.MAX_VALUE;
 	}
 	
-	public boolean isSpaceRequired(String content, String suffix) {
-		List<Token> suffixTokens = lex(suffix);
-		String whole = content + suffix;
+	public boolean canAppend(String content, String append) {
+		List<Token> suffixTokens = lex(append);
+		String whole = content + append;
 		List<Token> wholeTokens = lex(whole);
 		if (wholeTokens.size() >= suffixTokens.size()) {
 			for (int i=0; i<suffixTokens.size(); i++) {
@@ -436,12 +436,12 @@ public class Grammar implements Serializable {
 				if (wholeToken.getType() != suffixToken.getType() 
 						|| wholeToken.getStartIndex() != suffixToken.getStartIndex() + content.length()
 						|| wholeToken.getStopIndex() != suffixToken.getStopIndex() + content.length()) {
-					return true;
+					return false;
 				}
 			}
-			return false;
-		} else {
 			return true;
+		} else {
+			return false;
 		}
 	}
 	

@@ -38,7 +38,7 @@ public class TestCodeAssist6 {
 		suggestions = codeAssist.suggest(new InputStatus("ab"), "rule2");
 		assertEquals(2, suggestions.size());
 		assertEquals("ab cd:5", suggestions.get(0).toString());
-		assertEquals("ab  cd:6", suggestions.get(1).toString());
+		assertEquals("ab :3", suggestions.get(1).toString());
 		
 		suggestions = codeAssist.suggest(new InputStatus(""), "rule1");
 		assertEquals(1, suggestions.size());

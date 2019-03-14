@@ -158,29 +158,28 @@ public abstract class CodeAssist implements Serializable {
 			List<String> mandatoryList = getMandatoriesAfter(terminalExpect, elementSpec);
 			for (InputSuggestion inputSuggestion: inputSuggestions) {
 				String replaceContent = inputSuggestion.getContent();
-				String mandatories = "";
-				if (elementSpec.matches(grammar, replaceContent) && replaceEnd == inputContent.length()) {
-					String content = replaceContent;
-					for (String mandatory: mandatoryList) {
-						if (grammar.isSpaceRequired(content, mandatory))
-							content += " " + mandatory;
-						else
-							content += mandatory;
-					}
-					mandatories = content.substring(replaceContent.length());
-				} 
-
-				String description = inputSuggestion.getDescription();
-				int caret = inputSuggestion.getCaret();
-				if (grammar.isSpaceRequired(contentBeforeReplaceBegin, replaceContent)) { 
-					replaceContent = " ";
-					description = "space";
-					caret = 1;
-				}
-				
 				Range replaceRange = new Range(replaceBegin, replaceEnd);
-				extendedSuggestions.add(new ExtendedInputSuggestion(replaceRange, replaceContent, caret, 
-						description, inputSuggestion.getMatch(), mandatories));
+				if (grammar.canAppend(contentBeforeReplaceBegin, replaceContent)) { 
+					String mandatories = "";
+					if (elementSpec.matches(grammar, replaceContent) && replaceEnd == inputContent.length()) {
+						String content = replaceContent;
+						for (String mandatory: mandatoryList) {
+							if (grammar.canAppend(content, mandatory))
+								content += mandatory;
+							else if (grammar.canAppend(content + " ", mandatory))
+								content += " " + mandatory;
+							else
+								break;
+						}
+						mandatories = content.substring(replaceContent.length());
+					} 
+					extendedSuggestions.add(new ExtendedInputSuggestion(replaceRange, replaceContent, 
+							inputSuggestion.getCaret(), inputSuggestion.getDescription(), 
+							inputSuggestion.getMatch(), mandatories));
+				} else if (grammar.canAppend(contentBeforeReplaceBegin + " ", replaceContent)) {
+					extendedSuggestions.add(new ExtendedInputSuggestion(replaceRange, " ", 1, 
+							"space", null, ""));
+				}
 			}
 			
 		}
