@@ -326,7 +326,15 @@ public class EarleyParser {
 
 			@Override
 			public int compare(TerminalExpect o1, TerminalExpect o2) {
-				return orders.get(o1) - orders.get(o2);
+				int result = orders.get(o1) - orders.get(o2);
+				if (result == 0 && o1.getState().getRuleSpec() == o2.getState().getRuleSpec()) { 
+					result = o1.getState().getAlternativeSpecIndex() - o2.getState().getAlternativeSpecIndex();
+					if (result == 0)
+						result = o1.getState().getExpectedElementSpecIndex() - o2.getState().getExpectedElementSpecIndex();
+					if (result == 0)
+						result = o1.getState().getPrevTokenIndex() - o2.getState().getPrevTokenIndex();
+				}
+				return result;
 			}
 			
 		});

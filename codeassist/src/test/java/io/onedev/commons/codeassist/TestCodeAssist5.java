@@ -122,20 +122,16 @@ public class TestCodeAssist5 {
 		assertEquals("select tableC.columnF:21", suggestions.get(1).toString());
 		
 		suggestions = codeAssist.suggest(new InputStatus("select schema"), "stat");
-		assertEquals(5, suggestions.size());
-		assertEquals("select schema select:20", suggestions.get(0).toString());
-		assertEquals("select schema from:18", suggestions.get(1).toString());
-		assertEquals("select schema where:19", suggestions.get(2).toString());
-		assertEquals("select schemaA.:15", suggestions.get(3).toString());
-		assertEquals("select schemaB.:15", suggestions.get(4).toString());
+		assertEquals(3, suggestions.size());
+		assertEquals("select schema :14", suggestions.get(0).toString());
+		assertEquals("select schemaA.:15", suggestions.get(1).toString());
+		assertEquals("select schemaB.:15", suggestions.get(2).toString());
 
 		suggestions = codeAssist.suggest(new InputStatus("select table"), "stat");
-		assertEquals(5, suggestions.size());
-		assertEquals("select table select:19", suggestions.get(0).toString());
-		assertEquals("select table from:17", suggestions.get(1).toString());
-		assertEquals("select table where:18", suggestions.get(2).toString());
-		assertEquals("select tableA.:14", suggestions.get(3).toString());
-		assertEquals("select tableB.:14", suggestions.get(4).toString());
+		assertEquals(3, suggestions.size());
+		assertEquals("select table :13", suggestions.get(0).toString());
+		assertEquals("select tableA.:14", suggestions.get(1).toString());
+		assertEquals("select tableB.:14", suggestions.get(2).toString());
 	}
 	
 }

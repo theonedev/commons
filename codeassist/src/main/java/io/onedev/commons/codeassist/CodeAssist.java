@@ -170,16 +170,17 @@ public abstract class CodeAssist implements Serializable {
 					mandatories = content.substring(replaceContent.length());
 				} 
 
+				String description = inputSuggestion.getDescription();
 				int caret = inputSuggestion.getCaret();
 				if (grammar.isSpaceRequired(contentBeforeReplaceBegin, replaceContent)) { 
-					replaceContent = " " + inputSuggestion.getContent();
-					if (caret != -1)
-						caret ++;
+					replaceContent = " ";
+					description = "space";
+					caret = 1;
 				}
 				
 				Range replaceRange = new Range(replaceBegin, replaceEnd);
 				extendedSuggestions.add(new ExtendedInputSuggestion(replaceRange, replaceContent, caret, 
-						inputSuggestion.getDescription(), inputSuggestion.getMatch(), mandatories));
+						description, inputSuggestion.getMatch(), mandatories));
 			}
 			
 		}

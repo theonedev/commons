@@ -31,8 +31,8 @@ public class TestCodeAssist4 {
 
 		suggestions = codeAssist.suggest(new InputStatus("a"), "stat");
 		assertEquals(6, suggestions.size());
-		assertEquals("a=:2", suggestions.get(0).toString());
-		assertEquals("a;:2", suggestions.get(1).toString());
+		assertEquals("a;:2", suggestions.get(0).toString());
+		assertEquals("a=:2", suggestions.get(1).toString());
 		assertEquals("a+:2", suggestions.get(2).toString());
 		assertEquals("a-:2", suggestions.get(3).toString());
 		assertEquals("a*:2", suggestions.get(4).toString());
