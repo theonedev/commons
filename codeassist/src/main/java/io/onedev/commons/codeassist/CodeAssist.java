@@ -186,6 +186,12 @@ public abstract class CodeAssist implements Serializable {
 		
 		Map<String, List<ExtendedInputSuggestion>> contentSuggestions = new LinkedHashMap<>();
 		for (ExtendedInputSuggestion suggestion: extendedSuggestions) {
+			String contentBeforeReplaceBegin = inputStatus.getContent().substring(0, suggestion.getReplaceRange().getFrom());
+			if (suggestion.getContent().equals(" ") 
+					&& (contentBeforeReplaceBegin.length() == 0 || contentBeforeReplaceBegin.endsWith(" "))) {
+				// do not suggest redundant spaces even if grammar allows
+				continue;
+			}
 			String content = inputStatus.replace(suggestion.getReplaceRange(), suggestion.getContent());
 			List<ExtendedInputSuggestion> value = contentSuggestions.get(content);
 			if (value == null) {
