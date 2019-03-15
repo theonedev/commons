@@ -54,9 +54,8 @@ public class TestCodeAssist9 {
 		List<? extends InputStatus> suggestions;
 		
 		suggestions = newCodeAssist(false).suggest(new InputStatus(" "), "query");
-		assertEquals(2, suggestions.size());
+		assertEquals(1, suggestions.size());
 		assertEquals(" \"name\" is \":12", suggestions.get(0).toString());
-		assertEquals("  \":3", suggestions.get(1).toString());
 	}
 	
 }
