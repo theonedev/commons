@@ -40,6 +40,8 @@ public class Bootstrap {
 	public static final String DEFAULT_APP_LOADER = "io.onedev.commons.launcher.loader.AppLoader";
 
 	public static File installDir;
+	
+	private static File libCacheDir;
 
 	public static boolean sandboxMode;
 
@@ -137,11 +139,14 @@ public class Bootstrap {
 				logger.info("Cleaning temp directory...");
 				Files.walk(tempDir.toPath()).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
 			} 
+			
 			if (!tempDir.mkdirs()) {
 				throw new RuntimeException("Can not create directory '" + tempDir.getAbsolutePath() + "'.");
 			}
 			System.setProperty("java.io.tmpdir", tempDir.getAbsolutePath());
 
+			libCacheDir = createTempDir("libcache");
+			
 			logger.info("Launching application from '" + installDir.getAbsolutePath() + "'...");
 
 			List<File> libFiles = new ArrayList<File>();
@@ -158,11 +163,13 @@ public class Bootstrap {
 						libFiles.add(entry.getValue());
 					}
 				}
-				if (new File("system/lib").exists()) {
-					libFiles.addAll(getLibFiles(new File("system/lib")));
-				}
 			} else {
 				libFiles.addAll(getLibFiles(getLibDir()));
+			}
+
+			for (File file : libCacheDir.listFiles()) {
+				if (file.getName().endsWith(".jar"))
+					libFiles.add(file);
 			}
 
 			List<URL> urls = new ArrayList<URL>();
@@ -288,16 +295,11 @@ public class Bootstrap {
 
 	private static List<File> getLibFiles(File libDir) {
 		List<File> libFiles = new ArrayList<>();
-		File libCacheDir = createTempDir("libcache");
 		for (File file : libDir.listFiles()) {
 			if (file.getName().endsWith(".jar"))
 				libFiles.add(file);
 			else if (file.getName().endsWith(".zip"))
 				BootstrapUtils.unzip(file, libCacheDir);
-		}
-		for (File file : libCacheDir.listFiles()) {
-			if (file.getName().endsWith(".jar"))
-				libFiles.add(file);
 		}
 		return libFiles;
 	}
