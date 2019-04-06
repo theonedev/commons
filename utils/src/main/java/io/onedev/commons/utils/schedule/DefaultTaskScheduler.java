@@ -3,6 +3,7 @@ package io.onedev.commons.utils.schedule;
 import java.util.Properties;
 import java.util.UUID;
 
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
@@ -89,6 +90,7 @@ public class DefaultTaskScheduler implements TaskScheduler {
 		}
 	}
 	
+	@DisallowConcurrentExecution	
     public static class HelperTask implements Job {
 
     	@Override

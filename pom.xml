@@ -7,7 +7,7 @@
     	<version>1.0.2</version>
     </parent>
     <artifactId>commons</artifactId>  
-    <version>1.0.8</version>  
+    <version>1.0.9</version>  
     <packaging>pom</packaging>  
     <modules> 
         <module>utils</module>
