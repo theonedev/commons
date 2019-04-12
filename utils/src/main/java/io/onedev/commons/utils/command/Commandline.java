@@ -136,6 +136,17 @@ public class Commandline  {
     	return processBuilder;
     }
     
+	public ExecuteResult execute(OutputStream stdout, LineConsumer stderr, @Nullable InputStream stdin) {
+		return execute(stdout, stderr, stdin, new ProcessKiller() {
+			
+			@Override
+			public void kill(Process process) {
+				process.destroy();
+			}
+			
+		});
+	}
+	
 	/**
 	 * Execute the command.
 	 * 
@@ -148,7 +159,7 @@ public class Commandline  {
 	 * @return
 	 * 			execution result
 	 */
-	public ExecuteResult execute(OutputStream stdout, final LineConsumer stderr, @Nullable InputStream stdin) {
+	public ExecuteResult execute(OutputStream stdout, LineConsumer stderr, @Nullable InputStream stdin, ProcessKiller processKiller) {
     	Process process;
         try {
         	ProcessBuilder processBuilder = createProcessBuilder();
@@ -181,7 +192,7 @@ public class Commandline  {
         try {
             result.setReturnCode(process.waitFor());
 		} catch (InterruptedException e) {
-			process.destroy();
+			processKiller.kill(process);
 			throw new RuntimeException(e);
 		} finally {
 			streamPumper.waitFor();
