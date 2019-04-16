@@ -134,17 +134,21 @@ public class Bootstrap {
 		configureLogging();
 
 		try {
-	        File tempDir = Bootstrap.getTempDir();
+	        File tempDir = getTempDir();
 			if (tempDir.exists()) {
 				logger.info("Cleaning temp directory...");
 				Files.walk(tempDir.toPath()).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
 			} 
 			
-			if (!tempDir.mkdirs()) {
-				throw new RuntimeException("Can not create directory '" + tempDir.getAbsolutePath() + "'.");
-			}
+			if (!tempDir.mkdirs())
+				throw new RuntimeException("Can not create directory '" + tempDir.getAbsolutePath() + "'");
+			
 			System.setProperty("java.io.tmpdir", tempDir.getAbsolutePath());
 
+			File cacheDir = getCacheDir();
+			if (!cacheDir.exists() && !cacheDir.mkdirs()) 
+				throw new RuntimeException("Can not create directory '" + cacheDir.getAbsolutePath() + "'");
+			
 			libCacheDir = createTempDir("libcache");
 			
 			logger.info("Launching application from '" + installDir.getAbsolutePath() + "'...");
@@ -375,6 +379,10 @@ public class Bootstrap {
 			return new File(installDir, "temp/" + command.getName());
 		else
 			return new File(installDir, "temp/server");
+	}
+	
+	public static File getCacheDir() {
+		return new File(installDir, "cache");
 	}
 
 	public static File getConfDir() {
