@@ -12,6 +12,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 import org.antlr.v4.runtime.Lexer;
+import org.antlr.v4.runtime.Token;
 
 import com.google.common.base.Optional;
 
@@ -129,14 +130,20 @@ public abstract class CodeAssist implements Serializable {
 			}
 			
 			int replaceBegin = inputStatus.getCaret() - terminalExpect.getUnmatchedText().length();
-			int replaceEnd = inputStatus.getCaret();
 			String contentBeforeReplaceBegin = inputContent.substring(0, replaceBegin);
 			String contentAfterReplaceBegin = inputContent.substring(replaceBegin);
 			
 			TerminalElementSpec elementSpec = terminalExpect.getElementSpec();
 
-			int endOfMatch = elementSpec.getEndOfMatch(grammar, contentAfterReplaceBegin);
-			if (endOfMatch == -1) {
+			int replaceLen = -1;
+			List<Token> tokens = grammar.lex(contentAfterReplaceBegin);
+			if (tokens.size() >= 1) {
+				Token token = tokens.get(0);
+				if (token.getStartIndex() == 0 && !token.getText().equals(" "))
+					replaceLen = token.getStopIndex() + 1;
+			} 
+			
+			if (replaceLen == -1) {
 				LiteralScan scan = elementSpec.scanMandatories();
 				if (scan.isStop() && !scan.getLiterals().isEmpty()) { 
 					/*
@@ -146,14 +153,13 @@ public abstract class CodeAssist implements Serializable {
 					String fenceOpen = scan.getLiterals().iterator().next();
 					if (contentAfterReplaceBegin.startsWith(fenceOpen)) {
 						String content = fenceOpen + " " + contentAfterReplaceBegin.substring(fenceOpen.length());
-						endOfMatch = elementSpec.getEndOfMatch(grammar, content);
-						if (endOfMatch != -1)
-							endOfMatch--;
+						replaceLen = elementSpec.getEndOfMatch(grammar, content);
+						if (replaceLen != -1)
+							replaceLen--;
 					}
 				}
 			}
-			if (endOfMatch + replaceBegin > replaceEnd)
-				replaceEnd = endOfMatch + replaceBegin;
+			int replaceEnd = Math.max(replaceLen + replaceBegin, inputStatus.getCaret());
 			
 			List<String> mandatoryList = getMandatoriesAfter(terminalExpect, elementSpec);
 			for (InputSuggestion inputSuggestion: inputSuggestions) {
@@ -219,9 +225,8 @@ public abstract class CodeAssist implements Serializable {
 					duplicateContents.add(content);
 					int caret = completion.getCaret();
 					if (caret == -1)
-						caret = content.length();
-					else
-						caret += completion.getReplaceRange().getFrom();
+						caret = replaceContent.length();
+					caret += completion.getReplaceRange().getFrom();
 					inputCompletions.add(new InputCompletion(completion.getContent(), content, caret, 
 							completion.getDescription(), completion.getMatch()));
 				}

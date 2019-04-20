@@ -16,7 +16,7 @@ public abstract class TerminalElementSpec extends ElementSpec {
 
 	public int getEndOfMatch(Grammar grammar, String content) {
 		List<Token> tokens = grammar.lex(content);
-		if (tokens.size() == 1) {
+		if (tokens.size() >= 1) {
 			Token token = tokens.get(0);
 			if (token.getStartIndex() == 0 && isToken(token.getType()))
 				return token.getStopIndex() + 1;
