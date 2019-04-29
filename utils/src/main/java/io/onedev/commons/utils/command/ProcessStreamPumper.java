@@ -24,7 +24,7 @@ public class ProcessStreamPumper {
     
     private final OutputStream stderr;
     
-    private ProcessStreamPumper(Process process, @Nullable OutputStream stdout, 
+    public ProcessStreamPumper(Process process, @Nullable OutputStream stdout, 
     		@Nullable OutputStream stderr, @Nullable InputStream stdin) {
         this.stdout = stdout;
         this.stderr = stderr;
@@ -36,11 +36,6 @@ public class ProcessStreamPumper {
             stdinPumper = createPump(stdin, process.getOutputStream(), false, true);
         else
         	stdinPumper = null;
-    }
-    
-    public static ProcessStreamPumper pump(Process process, @Nullable OutputStream stdoutStream, 
-    		@Nullable OutputStream stderrStream, @Nullable InputStream stdinStream) {
-    	return new ProcessStreamPumper(process, stdoutStream, stderrStream, stdinStream); 
     }
     
     public void waitFor() {
@@ -83,17 +78,25 @@ public class ProcessStreamPumper {
 		            	if (output != null)
 		            		output.write(buf, 0, length);
 		            }
-
-		            if (closeInputWhenExhausted) 
-		            	input.close();
-		            if (closeOutputWhenExhausted && output!=null) 
-		            	output.close();
-		        } catch (Exception e) {
+		        } catch (IOException e) {
+		        	throw new RuntimeException(e);
+				} finally {
 		        	try {
-						while (input.read(buf) > 0); // drain command outputs to avoid blocking
-					} catch (IOException e2) {
+						while (input.read(buf) > 0);
+					} catch (IOException e) {
 					}
-					throw ExceptionUtils.unchecked(e);
+		            if (closeInputWhenExhausted) { 
+		            	try {
+							input.close();
+						} catch (IOException e) {
+						}
+		            }
+		        	if (output != null && closeOutputWhenExhausted) {
+						try {
+							output.close();
+						} catch (IOException e) {
+						}
+		        	}
 		        }
 			}
     		

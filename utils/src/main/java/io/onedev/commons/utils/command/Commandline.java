@@ -1,6 +1,5 @@
 package io.onedev.commons.utils.command;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -81,15 +80,6 @@ public class Commandline  {
         return buf.toString();
     }
 
-    public Commandline clear() {
-        executable = null;
-        arguments.clear();
-        environments.clear();
-        workingDir = null;
-        
-        return this;
-    }
-
     public Commandline clearArgs() {
         arguments.clear();
         return this;
@@ -136,7 +126,7 @@ public class Commandline  {
     	return processBuilder;
     }
     
-	public ExecuteResult execute(OutputStream stdout, LineConsumer stderr, @Nullable InputStream stdin) {
+	public ExecuteResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr, @Nullable InputStream stdin) {
 		return execute(stdout, stderr, stdin, new ProcessKiller() {
 			
 			@Override
@@ -159,7 +149,7 @@ public class Commandline  {
 	 * @return
 	 * 			execution result
 	 */
-	public ExecuteResult execute(OutputStream stdout, LineConsumer stderr, @Nullable InputStream stdin, ProcessKiller processKiller) {
+	public ExecuteResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr, @Nullable InputStream stdin, ProcessKiller processKiller) {
     	Process process;
         try {
         	ProcessBuilder processBuilder = createProcessBuilder();
@@ -184,11 +174,9 @@ public class Commandline  {
 			};
 		}
     	
-        ProcessStreamPumper streamPumper = ProcessStreamPumper.pump(process, stdout, 
-        		errorMessageCollector, stdin);
+        ProcessStreamPumper streamPumper = new ProcessStreamPumper(process, stdout, errorMessageCollector, stdin);
         
         ExecuteResult result = new ExecuteResult(this);
-        
         try {
             result.setReturnCode(process.waitFor());
 		} catch (InterruptedException e) {
@@ -214,26 +202,8 @@ public class Commandline  {
 	 * @return
 	 * 			execution result
 	 */
-    public ExecuteResult execute(OutputStream stdout, LineConsumer stderr) {
+    public ExecuteResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr) {
     	return execute(stdout, stderr, null);
-    }
-
-    /**
-     * Execute the command without waiting for command completion.
-     * 
-     * @param stdinBytes
-     * 			standard input bytes to feed into command
-     */
-    public void executeWithoutWait(@Nullable byte[] stdinBytes) {
-    	ByteArrayInputStream stdinStream = null;
-    	if (stdinBytes != null && stdinBytes.length != 0) 
-    		stdinStream = new ByteArrayInputStream(stdinBytes);
-        
-        try {
-            ProcessStreamPumper.pump(createProcessBuilder().start(), null, null, stdinStream);
-        } catch (IOException e) {
-        	throw new RuntimeException(e);
-        }
     }
 
 }
