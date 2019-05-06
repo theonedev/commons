@@ -2,7 +2,7 @@ package io.onedev.commons.utils.stringmatch;
 
 import java.io.Serializable;
 
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 public class PatternApplied implements Serializable {
 
@@ -10,9 +10,9 @@ public class PatternApplied implements Serializable {
 
 	private final String text;
 	
-	private final Range match;
+	private final LinearRange match;
 	
-	public PatternApplied(String text, Range match) {
+	public PatternApplied(String text, LinearRange match) {
 		this.text = text;
 		this.match = match;
 	}
@@ -21,7 +21,7 @@ public class PatternApplied implements Serializable {
 		return text;
 	}
 
-	public Range getMatch() {
+	public LinearRange getMatch() {
 		return match;
 	}
 

@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.onedev.commons.jsymbol.AbstractSymbolExtractor;
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.r.RParser.ExprContext;
 import io.onedev.commons.jsymbol.r.symbols.FunctionSymbol;
 import io.onedev.commons.jsymbol.r.symbols.RSymbol;
@@ -74,9 +74,9 @@ public class RExtractor extends AbstractSymbolExtractor<RSymbol> {
 			}
 			if (nameExpr.unaryExpr()!=null && nameExpr.unaryExpr().ID() != null 
 					&& getChild(symbols, parentSymbol, nameExpr.getText()) == null) {
-				TokenPosition position = Utils.getTokenPosition(nameExpr);
+				PlanarRange position = Utils.getTextRange(nameExpr);
 				if (valueExpr.FUNCTION() != null) {
-					TokenPosition scope = Utils.getTokenPosition(valueExpr);
+					PlanarRange scope = Utils.getTextRange(valueExpr);
 					String params = "(" + valueExpr.ignoreInsideParens().getText() + ")";
 					FunctionSymbol functionSymbol = new FunctionSymbol(parentSymbol, nameExpr.getText(), position, 
 							scope, params, parentSymbol!=null);

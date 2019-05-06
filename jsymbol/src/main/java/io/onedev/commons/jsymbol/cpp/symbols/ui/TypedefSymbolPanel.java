@@ -7,16 +7,16 @@ import org.apache.wicket.markup.html.panel.Panel;
 
 import io.onedev.commons.jsymbol.cpp.symbols.TypedefSymbol;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 @SuppressWarnings("serial")
 public class TypedefSymbolPanel extends Panel {
 
 	private final TypedefSymbol typedefSymbol;
 	
-	private final Range highlight;
+	private final LinearRange highlight;
 	
-	public TypedefSymbolPanel(String id, TypedefSymbol typedefSymbol, Range highlight) {
+	public TypedefSymbolPanel(String id, TypedefSymbol typedefSymbol, LinearRange highlight) {
 		super(id);
 		this.typedefSymbol = typedefSymbol;
 		this.highlight = highlight;

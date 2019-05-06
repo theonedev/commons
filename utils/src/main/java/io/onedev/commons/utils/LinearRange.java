@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import javax.annotation.Nullable;
 
-public class Range implements Serializable {
+public class LinearRange implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -12,7 +12,7 @@ public class Range implements Serializable {
 	
 	private final int to;
 	
-	public Range(int from, int to) {
+	public LinearRange(int from, int to) {
 		this.from = from;
 		this.to = to;
 	}
@@ -45,7 +45,7 @@ public class Range implements Serializable {
 	}
 	
 	@Nullable
-	public static Range match(String text, String matchWith, boolean fromStart, boolean caseSensitive, boolean ignoreSpaces) {
+	public static LinearRange match(String text, String matchWith, boolean fromStart, boolean caseSensitive, boolean ignoreSpaces) {
 		String normalizedText = text;
 		String normalizedMatchWith = matchWith;
 		if (!caseSensitive) {
@@ -60,9 +60,9 @@ public class Range implements Serializable {
 		int end = start + normalizedMatchWith.length();
 		if (fromStart && start == 0 || !fromStart && start != -1) {
 			if (ignoreSpaces) 
-				return new Range(getIndex(text, start), getIndex(text, end));
+				return new LinearRange(getIndex(text, start), getIndex(text, end));
 			else
-				return new Range(start, end);
+				return new LinearRange(start, end);
 		} else {
 			return null;
 		}

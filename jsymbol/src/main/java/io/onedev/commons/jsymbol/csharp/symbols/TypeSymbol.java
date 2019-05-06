@@ -8,11 +8,11 @@ import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.request.resource.PackageResourceReference;
 
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.csharp.symbols.ui.TypeSymbolPanel;
 import io.onedev.commons.jsymbol.csharp.symbols.ui.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 public class TypeSymbol extends CSharpSymbol {
 
@@ -26,7 +26,7 @@ public class TypeSymbol extends CSharpSymbol {
 	
 	private final EnumSet<CSharpSymbol.Modifier> modifiers;
 
-	public TypeSymbol(@Nullable CSharpSymbol parent, String typeName, TokenPosition position, TokenPosition scope,
+	public TypeSymbol(@Nullable CSharpSymbol parent, String typeName, PlanarRange position, PlanarRange scope,
 			Kind kind, @Nullable String typeParams, EnumSet<CSharpSymbol.Modifier> modifiers) {
 		super(parent, typeName, position, scope);
 
@@ -48,7 +48,7 @@ public class TypeSymbol extends CSharpSymbol {
 	}
 
 	@Override
-	public Component render(String componentId, Range highlight) {
+	public Component render(String componentId, LinearRange highlight) {
 		return new TypeSymbolPanel(componentId, this, highlight);
 	}
 

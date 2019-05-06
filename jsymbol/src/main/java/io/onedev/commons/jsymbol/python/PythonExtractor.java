@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 
 import io.onedev.commons.jsymbol.AbstractSymbolExtractor;
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.python.Python3Parser.Async_stmtContext;
 import io.onedev.commons.jsymbol.python.Python3Parser.ClassdefContext;
 import io.onedev.commons.jsymbol.python.Python3Parser.Compound_stmtContext;
@@ -122,14 +122,14 @@ public class PythonExtractor extends AbstractSymbolExtractor<PythonSymbol> {
 				if (importStmt.import_name() != null) {
 					Import_nameContext importName = importStmt.import_name();
 					for (Dotted_as_nameContext dottedAsName: importName.dotted_as_names().dotted_as_name()) {
-						TokenPosition scope = Utils.getTokenPosition(dottedAsName);
+						PlanarRange scope = Utils.getTextRange(dottedAsName);
 						if (dottedAsName.NAME() != null) {
-							TokenPosition position = Utils.getTokenPosition(dottedAsName.NAME().getSymbol());
+							PlanarRange position = Utils.getTextRange(dottedAsName.NAME().getSymbol());
 							QualifiedName name = new QualifiedName(dottedAsName.NAME().getText(), null, null);
 							symbols.add(new ImportedSymbol(parentSymbol, name, position, scope));
 						} else {
 							TerminalNode name = dottedAsName.dotted_name().NAME(dottedAsName.dotted_name().NAME().size()-1);
-							TokenPosition position = Utils.getTokenPosition(name.getSymbol());
+							PlanarRange position = Utils.getTextRange(name.getSymbol());
 							symbols.add(new ImportedSymbol(parentSymbol, new QualifiedName(dottedAsName.dotted_name().getText(), "."), 
 									position, scope));
 						}
@@ -137,14 +137,14 @@ public class PythonExtractor extends AbstractSymbolExtractor<PythonSymbol> {
 				} else if (importStmt.import_from() != null && importStmt.import_from().import_as_names() != null) {
 					for (Import_as_nameContext importAsName: 
 							importStmt.import_from().import_as_names().import_as_name()) {
-						TokenPosition scope = Utils.getTokenPosition(importAsName);
+						PlanarRange scope = Utils.getTextRange(importAsName);
 						TerminalNode name;
 						if (importAsName.NAME().size()>1) {
 							name = importAsName.NAME().get(importAsName.NAME().size()-1);
 						} else {
 							name = importAsName.NAME().get(0);
 						}
-						TokenPosition position = Utils.getTokenPosition(name.getSymbol());
+						PlanarRange position = Utils.getTextRange(name.getSymbol());
 						symbols.add(new ImportedSymbol(parentSymbol, new QualifiedName(name.getText()), 
 								position, scope));
 					}
@@ -171,8 +171,8 @@ public class PythonExtractor extends AbstractSymbolExtractor<PythonSymbol> {
 	}
 
 	private void extract(FuncdefContext funcDef, List<PythonSymbol> symbols, PythonSymbol parentSymbol) {
-		TokenPosition position = Utils.getTokenPosition(funcDef.NAME().getSymbol());
-		TokenPosition scope = Utils.getTokenPosition(funcDef);
+		PlanarRange position = Utils.getTextRange(funcDef.NAME().getSymbol());
+		PlanarRange scope = Utils.getTextRange(funcDef);
 		String params = funcDef.parameters().getText();
 		MethodSymbol methodSymbol = new MethodSymbol(parentSymbol, funcDef.NAME().getText(), position, scope, params);
 		symbols.add(methodSymbol);
@@ -213,8 +213,8 @@ public class PythonExtractor extends AbstractSymbolExtractor<PythonSymbol> {
 	}
 	
 	private void extract(ClassdefContext classDef, List<PythonSymbol> symbols, PythonSymbol parentSymbol) {
-		TokenPosition position = Utils.getTokenPosition(classDef.NAME().getSymbol());
-		TokenPosition scope = Utils.getTokenPosition(classDef);
+		PlanarRange position = Utils.getTextRange(classDef.NAME().getSymbol());
+		PlanarRange scope = Utils.getTextRange(classDef);
 		String params;
 		if (classDef.arglist() != null)
 			params = "(" + classDef.arglist().getText() + ")";
@@ -324,7 +324,7 @@ public class PythonExtractor extends AbstractSymbolExtractor<PythonSymbol> {
 					symbol = getChild(symbols, parentSymbol, rootToken.getText());
 			}
 			if (symbol == null) {
-				TokenPosition position = Utils.getTokenPosition(rootToken);
+				PlanarRange position = Utils.getTextRange(rootToken);
 				symbol = new VariableSymbol(parentSymbol, rootToken.getText(), position, null, 
 						parentSymbol instanceof ClassSymbol);
 				symbols.add(symbol);
@@ -337,7 +337,7 @@ public class PythonExtractor extends AbstractSymbolExtractor<PythonSymbol> {
 				Token token = tokenPath.get(i);
 				PythonSymbol childSymbol = getChild(symbols, symbol, token.getText());
 				if (childSymbol == null) {
-					TokenPosition position = Utils.getTokenPosition(token);
+					PlanarRange position = Utils.getTextRange(token);
 					childSymbol = new VariableSymbol(symbol, token.getText(), position, null, true);
 					
 					/*

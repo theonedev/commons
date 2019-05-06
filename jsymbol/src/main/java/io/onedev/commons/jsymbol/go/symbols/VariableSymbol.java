@@ -6,11 +6,11 @@ import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.request.resource.PackageResourceReference;
 
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.go.symbols.ui.VariableSymbolPanel;
 import io.onedev.commons.jsymbol.go.symbols.ui.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 public class VariableSymbol extends GolangSymbol {
 
@@ -20,7 +20,7 @@ public class VariableSymbol extends GolangSymbol {
 	
 	private final boolean searchable;
 	
-	public VariableSymbol(@Nullable GolangSymbol parent, String name, @Nullable String type, TokenPosition position, 
+	public VariableSymbol(@Nullable GolangSymbol parent, String name, @Nullable String type, PlanarRange position, 
 			boolean searchable) {
 		super(parent, name, position, null);
 
@@ -42,7 +42,7 @@ public class VariableSymbol extends GolangSymbol {
 	}
 
 	@Override
-	public Component render(String componentId, Range highlight) {
+	public Component render(String componentId, LinearRange highlight) {
 		return new VariableSymbolPanel(componentId, this, highlight);
 	}
 

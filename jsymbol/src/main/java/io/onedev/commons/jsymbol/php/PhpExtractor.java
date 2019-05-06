@@ -24,7 +24,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 
 import io.onedev.commons.jsymbol.AbstractSymbolExtractor;
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.php.PHPParser.ActualArgumentContext;
 import io.onedev.commons.jsymbol.php.PHPParser.ArgumentsContext;
 import io.onedev.commons.jsymbol.php.PHPParser.BlockStatementContext;
@@ -129,7 +129,7 @@ public class PhpExtractor extends AbstractSymbolExtractor<PhpSymbol> {
 						if (newNamespaceSymbol != null) {
 							if (namespaceSymbol != null) {
 								Preconditions.checkState(namespaceStartToken != null && statementStopToken != null);
-								namespaceSymbol.setScope(getTokenPosition(tokens, namespaceStartToken, statementStopToken));
+								namespaceSymbol.setScope(getTextRange(tokens, namespaceStartToken, statementStopToken));
 							}
 							namespaceSymbol = newNamespaceSymbol;
 							namespaceStartToken = topStatement.namespaceDeclaration().start;
@@ -147,19 +147,19 @@ public class PhpExtractor extends AbstractSymbolExtractor<PhpSymbol> {
 		}
 		if (namespaceSymbol != null) {
 			Preconditions.checkState(namespaceStartToken != null && statementStopToken != null);
-			namespaceSymbol.setScope(getTokenPosition(tokens, namespaceStartToken, statementStopToken));
+			namespaceSymbol.setScope(getTextRange(tokens, namespaceStartToken, statementStopToken));
 		}
 		return symbols;
 	}
 	
-	private TokenPosition getTokenPosition(List<? extends Token> tokens, ParserRuleContext context) {
-		return getTokenPosition(tokens, context.start, context.stop);
+	private PlanarRange getTextRange(List<? extends Token> tokens, ParserRuleContext context) {
+		return getTextRange(tokens, context.start, context.stop);
 	}
 	
-	private TokenPosition getTokenPosition(List<? extends Token> tokens, Token start, Token stop) {
+	private PlanarRange getTextRange(List<? extends Token> tokens, Token start, Token stop) {
 		if (stop.getText() == null)
 			stop = tokens.get(stop.getTokenIndex()-1);
-		return Utils.getTokenPosition(start, stop);
+		return Utils.getTextRange(start, stop);
 	}
 	
 	@Nullable
@@ -178,8 +178,8 @@ public class PhpExtractor extends AbstractSymbolExtractor<PhpSymbol> {
 				qualifiedName = new QualifiedName(namespaceName, null, null);
 			else
 				qualifiedName = new QualifiedName(namespaceName, Joiner.on("\\").join(prefixes)+"\\", null);
-			TokenPosition position = getTokenPosition(tokens, namespaceDeclaration.namespaceNameList());
-			TokenPosition scope = getTokenPosition(tokens, namespaceDeclaration);
+			PlanarRange position = getTextRange(tokens, namespaceDeclaration.namespaceNameList());
+			PlanarRange scope = getTextRange(tokens, namespaceDeclaration);
 			namespaceSymbol = new NamespaceSymbol(null, qualifiedName, position, scope);
 			symbols.add(namespaceSymbol);
 		}
@@ -255,7 +255,7 @@ public class PhpExtractor extends AbstractSymbolExtractor<PhpSymbol> {
 					VariableSymbol varSymbol = findGlobalVariable(symbols, varName);
 					if (varSymbol == null) {
 						varSymbol = new VariableSymbol(null, varName, Visibility.PUBLIC, 
-								Utils.getTokenPosition(globalVar.VarName().getSymbol()));
+								Utils.getTextRange(globalVar.VarName().getSymbol()));
 						symbols.add(varSymbol);
 					}
 				}
@@ -268,7 +268,7 @@ public class PhpExtractor extends AbstractSymbolExtractor<PhpSymbol> {
 					VariableSymbol varSymbol = findGlobalVariable(symbols, varName);
 					if (varSymbol == null) {
 						varSymbol = new VariableSymbol(null, varName, Visibility.PUBLIC, 
-								Utils.getTokenPosition(variableInitializer.VarName().getSymbol()));
+								Utils.getTextRange(variableInitializer.VarName().getSymbol()));
 						symbols.add(varSymbol);
 					}
 				}
@@ -325,20 +325,20 @@ public class PhpExtractor extends AbstractSymbolExtractor<PhpSymbol> {
 											String name = StringUtils.stripEnd(StringUtils.stripStart(
 													argExprString.getText(), "'"), "'");
 											symbols.add(new ConstantSymbol(namespaceSymbol, name, Visibility.PUBLIC,
-													getTokenPosition(tokens, argExprString)));
+													getTextRange(tokens, argExprString)));
 										} else if (argExprString.DoubleQuote().size() != 0 
 												&& !argExprString.getText().contains("$")) {
 											String name = StringUtils.stripEnd(StringUtils.stripStart(
 													argExprString.getText(), "\""), "\"");
 											symbols.add(new ConstantSymbol(namespaceSymbol, name, Visibility.PUBLIC,
-													getTokenPosition(tokens, argExprString)));
+													getTextRange(tokens, argExprString)));
 										}
 									} else if (argExprChild instanceof ConstantContext) {
 										ConstantContext argExprConstant = (ConstantContext) argExprChild;
 										if (argExprConstant.literalConstant() != null 
 												&& argExprConstant.literalConstant().stringConstant() != null) {
 											symbols.add(new ConstantSymbol(namespaceSymbol, argExprConstant.getText(), 
-													Visibility.PUBLIC, getTokenPosition(tokens, argExprConstant)));
+													Visibility.PUBLIC, getTextRange(tokens, argExprConstant)));
 										}
 									}
 								}
@@ -362,7 +362,7 @@ public class PhpExtractor extends AbstractSymbolExtractor<PhpSymbol> {
 								VariableSymbol variableSymbol = findGlobalVariable(symbols, varName.getText());
 								if (variableSymbol == null) {
 									variableSymbol = new VariableSymbol(null, varName.getText(), 
-											Visibility.PUBLIC, Utils.getTokenPosition(varName.getSymbol()));
+											Visibility.PUBLIC, Utils.getTextRange(varName.getSymbol()));
 									symbols.add(variableSymbol);
 								}
 							}
@@ -389,7 +389,7 @@ public class PhpExtractor extends AbstractSymbolExtractor<PhpSymbol> {
 	private void extract(List<? extends Token> tokens, GlobalConstantDeclarationContext globalConstantDeclaration, 
 			List<PhpSymbol> symbols, PhpSymbol parentSymbol) {
 		for (IdentifierInititalizerContext identifierInitializer: globalConstantDeclaration.identifierInititalizer()) {
-			TokenPosition position = getTokenPosition(tokens, identifierInitializer.identifier());
+			PlanarRange position = getTextRange(tokens, identifierInitializer.identifier());
 			String name = identifierInitializer.identifier().getText();
 			symbols.add(new ConstantSymbol(parentSymbol, name, Visibility.PUBLIC, position));
 		}
@@ -400,8 +400,8 @@ public class PhpExtractor extends AbstractSymbolExtractor<PhpSymbol> {
 		NamespaceSymbol namespaceSymbol = findNamespaceParent(parentSymbol);
 		IdentifierContext functionIdentifier = functionDeclaration.identifier();
 		String params = describe(functionDeclaration.formalParameterList(), source);
-		TokenPosition position = getTokenPosition(tokens, functionIdentifier);
-		TokenPosition scope = getTokenPosition(tokens, functionDeclaration);
+		PlanarRange position = getTextRange(tokens, functionIdentifier);
+		PlanarRange scope = getTextRange(tokens, functionDeclaration);
 		String functionName = functionIdentifier.getText();
 		String returnType;
 		if (functionDeclaration.functionReturnType() != null)
@@ -467,8 +467,8 @@ public class PhpExtractor extends AbstractSymbolExtractor<PhpSymbol> {
 		} else {
 			kind = TypeSymbol.Kind.INTERFACE;
 		}
-		typeSymbol = new TypeSymbol(namespaceSymbol, identifier.getText(), kind, getTokenPosition(tokens, identifier), 
-				getTokenPosition(tokens, classDeclaration));
+		typeSymbol = new TypeSymbol(namespaceSymbol, identifier.getText(), kind, getTextRange(tokens, identifier), 
+				getTextRange(tokens, classDeclaration));
 		symbols.add(typeSymbol);
 
 		for (ClassStatementContext classStatement: classDeclaration.classStatement()) {
@@ -479,7 +479,7 @@ public class PhpExtractor extends AbstractSymbolExtractor<PhpSymbol> {
 				for (VariableInitializerContext variableInitializer: classStatement.variableInitializer()) {
 					TerminalNode varName = variableInitializer.VarName();
 					symbols.add(new VariableSymbol(typeSymbol, varName.getText(), visibility, 
-							Utils.getTokenPosition(varName.getSymbol())));
+							Utils.getTextRange(varName.getSymbol())));
 				}
 			} else if (classStatement.Const() != null) {
 				for (IdentifierInititalizerContext identifierInitializer: classStatement.identifierInititalizer()) {
@@ -488,13 +488,13 @@ public class PhpExtractor extends AbstractSymbolExtractor<PhpSymbol> {
 					if (classStatement.memberModifiers() != null)
 						visibility = getVisibility(classStatement.memberModifiers());
 					symbols.add(new ConstantSymbol(typeSymbol, constIdentifier.getText(), visibility, 
-							getTokenPosition(tokens, constIdentifier)));
+							getTextRange(tokens, constIdentifier)));
 				}
 			} else if (classStatement.Function() != null) {
 				IdentifierContext functionIdentifier = classStatement.identifier();
 				String params = describe(classStatement.formalParameterList(), source);
-				TokenPosition position = getTokenPosition(tokens, functionIdentifier);
-				TokenPosition scope = getTokenPosition(tokens, classStatement);
+				PlanarRange position = getTextRange(tokens, functionIdentifier);
+				PlanarRange scope = getTextRange(tokens, classStatement);
 				String functionName = functionIdentifier.getText();
 				Visibility visibility=  Visibility.PUBLIC;
 				if (classStatement.memberModifiers() != null)
@@ -543,12 +543,12 @@ public class PhpExtractor extends AbstractSymbolExtractor<PhpSymbol> {
 					if (useGroupElement.As() != null) {
 						IdentifierContext identifier = useGroupElement.identifier(1);
 						symbols.add(new ImportedSymbol(parentSymbol, identifier.getText(), 
-								getTokenPosition(tokens, identifier), null));
+								getTextRange(tokens, identifier), null));
 					}
 				}
 			} else if (useDeclarationContent.identifier().size() != 0){
 				IdentifierContext identifier = useDeclarationContent.identifier(0);
-				symbols.add(new ImportedSymbol(parentSymbol, identifier.getText(), getTokenPosition(tokens, identifier), 
+				symbols.add(new ImportedSymbol(parentSymbol, identifier.getText(), getTextRange(tokens, identifier), 
 						null));
 			}
 		}

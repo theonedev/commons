@@ -9,16 +9,16 @@ import org.apache.wicket.markup.html.panel.Panel;
 
 import io.onedev.commons.jsymbol.cpp.symbols.SpecialFunctionSymbol;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 @SuppressWarnings("serial")
 public class SpecialFunctionSymbolPanel extends Panel {
 
 	private final SpecialFunctionSymbol specialFunction;
 	
-	private final Range highlight;
+	private final LinearRange highlight;
 	
-	public SpecialFunctionSymbolPanel(String id, SpecialFunctionSymbol specialFunction, Range highlight) {
+	public SpecialFunctionSymbolPanel(String id, SpecialFunctionSymbol specialFunction, LinearRange highlight) {
 		super(id);
 		this.specialFunction = specialFunction;
 		this.highlight = highlight;

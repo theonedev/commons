@@ -6,10 +6,10 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.request.resource.PackageResourceReference;
 
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.java.symbols.ui.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 /**
  * This symbol represents a Java package
@@ -21,12 +21,12 @@ public class CompilationUnitSymbol extends JavaSymbol {
 	
 	private static final long serialVersionUID = 1L;
 	
-	public CompilationUnitSymbol(String packageName, TokenPosition position, TokenPosition scope) {
+	public CompilationUnitSymbol(String packageName, PlanarRange position, PlanarRange scope) {
 		super(null, packageName, position, scope);
 	}
 	
 	@Override
-	public Component render(String componentId, Range highlight) {
+	public Component render(String componentId, LinearRange highlight) {
 		return new Label(componentId, getName());
 	}
 

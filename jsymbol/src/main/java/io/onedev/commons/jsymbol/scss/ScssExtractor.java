@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.onedev.commons.jsymbol.AbstractSymbolExtractor;
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.scss.ScssParser.BlockContext;
 import io.onedev.commons.jsymbol.scss.ScssParser.ElementContext;
 import io.onedev.commons.jsymbol.scss.ScssParser.ElseIfStatementContext;
@@ -110,7 +110,7 @@ public class ScssExtractor extends AbstractSymbolExtractor<ScssSymbol> {
 				if (suffix.length() == 0)
 					suffix = null;
 				QualifiedName name = new QualifiedName(unqualifiedName, prefix, suffix); 
-				TokenPosition position = Utils.getTokenPosition(element.identifier());
+				PlanarRange position = Utils.getTextRange(element.identifier());
 				if (element.HASH() != null) 
 					symbols.add(new IdSymbol(parentSymbol, name, position));
 				else if (element.DOT() != null)
@@ -120,7 +120,7 @@ public class ScssExtractor extends AbstractSymbolExtractor<ScssSymbol> {
 		
 		String selectorText = source.substring(selector.start.getStartIndex(), selector.stop.getStopIndex()+1);
 		SelectorSymbol selectorSymbol = new SelectorSymbol(parentSymbol, selectorText, 
-				Utils.getTokenPosition(selector));
+				Utils.getTextRange(selector));
 		symbols.add(selectorSymbol);
 		return selectorSymbol;
 	}
@@ -137,7 +137,7 @@ public class ScssExtractor extends AbstractSymbolExtractor<ScssSymbol> {
 						nested.selectors().directive().start.getStartIndex(), 
 						nested.selectors().directive().stop.getStopIndex()+1);
 				SelectorSymbol directiveSymbol = new SelectorSymbol(parentSymbol, directiveText, 
-						Utils.getTokenPosition(nested.selectors().directive()));
+						Utils.getTextRange(nested.selectors().directive()));
 				symbols.add(directiveSymbol);
 				extract(nested.stylesheet(), symbols, directiveSymbol, source);
 			}
@@ -170,7 +170,7 @@ public class ScssExtractor extends AbstractSymbolExtractor<ScssSymbol> {
 							ruleset.selectors().directive().start.getStartIndex(), 
 							ruleset.selectors().directive().stop.getStopIndex()+1);
 					SelectorSymbol directiveSymbol = new SelectorSymbol(parentSymbol, directiveText, 
-							Utils.getTokenPosition(ruleset.selectors().directive()));
+							Utils.getTextRange(ruleset.selectors().directive()));
 					symbols.add(directiveSymbol);
 					extract(ruleset.block(), symbols, directiveSymbol, source);
 				}
@@ -189,8 +189,8 @@ public class ScssExtractor extends AbstractSymbolExtractor<ScssSymbol> {
 			}
 			boolean local = findEnclosingFunction(parentSymbol) != null || findEnclosingMixin(parentSymbol) != null;
 			MixinSymbol mixinSymbol = new MixinSymbol(parentSymbol, name, params,
-					Utils.getTokenPosition(mixinDeclaration.Identifier().getSymbol()), 
-					Utils.getTokenPosition(mixinDeclaration), local);
+					Utils.getTextRange(mixinDeclaration.Identifier().getSymbol()), 
+					Utils.getTextRange(mixinDeclaration), local);
 			symbols.add(mixinSymbol);
 			extract(mixinDeclaration.block(), symbols, mixinSymbol, source);
 		} else if (statement.functionDeclaration() != null) {
@@ -207,8 +207,8 @@ public class ScssExtractor extends AbstractSymbolExtractor<ScssSymbol> {
 			}
 			boolean local = findEnclosingFunction(parentSymbol) != null || findEnclosingMixin(parentSymbol) != null;
 			FunctionSymbol functionSymbol = new FunctionSymbol(parentSymbol, name, params,
-					Utils.getTokenPosition(functionDeclaration.Identifier().getSymbol()), 
-					Utils.getTokenPosition(functionDeclaration), local);
+					Utils.getTextRange(functionDeclaration.Identifier().getSymbol()), 
+					Utils.getTextRange(functionDeclaration), local);
 			symbols.add(functionSymbol);
 			if (functionDeclaration.functionBody() != null) {
 				for (FunctionStatementContext functionStatement: 
@@ -221,10 +221,10 @@ public class ScssExtractor extends AbstractSymbolExtractor<ScssSymbol> {
 			VariableDeclarationContext variableDeclaration = statement.variableDeclaration();
 			TerminalNode identifier = variableDeclaration.variableName().Identifier(); 
 			String name = identifier.getText();
-			TokenPosition position = Utils.getTokenPosition(identifier.getSymbol());
+			PlanarRange position = Utils.getTextRange(identifier.getSymbol());
 			boolean local = findEnclosingFunction(parentSymbol) != null || findEnclosingMixin(parentSymbol) != null;
 			VariableSymbol variableSymbol = new VariableSymbol(parentSymbol, name, position, 
-					Utils.getTokenPosition(variableDeclaration), local);
+					Utils.getTextRange(variableDeclaration), local);
 			symbols.add(variableSymbol);
 		} else if (statement.includeDeclaration() != null) {
 			if (statement.includeDeclaration().block() != null)

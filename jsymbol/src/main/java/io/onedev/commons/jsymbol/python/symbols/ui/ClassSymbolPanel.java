@@ -5,16 +5,16 @@ import org.apache.wicket.markup.html.panel.Panel;
 
 import io.onedev.commons.jsymbol.python.symbols.ClassSymbol;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 @SuppressWarnings("serial")
 public class ClassSymbolPanel extends Panel {
 
 	private final ClassSymbol symbol;
 	
-	private final Range highlight;
+	private final LinearRange highlight;
 	
-	public ClassSymbolPanel(String id, ClassSymbol symbol, Range highlight) {
+	public ClassSymbolPanel(String id, ClassSymbol symbol, LinearRange highlight) {
 		super(id);
 		this.symbol = symbol;
 		this.highlight = highlight;

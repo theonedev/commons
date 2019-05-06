@@ -6,12 +6,12 @@ import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.request.resource.PackageResourceReference;
 
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.php.symbols.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
 import io.onedev.commons.jsymbol.util.QualifiedName;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 public class FunctionSymbol extends PhpSymbol {
 
@@ -24,7 +24,7 @@ public class FunctionSymbol extends PhpSymbol {
 	private final String returnType;
 
 	public FunctionSymbol(PhpSymbol parent, String name, Visibility visibility, String params, 
-			@Nullable String returnType, TokenPosition position, TokenPosition scope) {
+			@Nullable String returnType, PlanarRange position, PlanarRange scope) {
 		super(parent, name, position, scope);
 		this.visibility = visibility;
 		this.params = params;
@@ -77,7 +77,7 @@ public class FunctionSymbol extends PhpSymbol {
 	}
 
 	@Override
-	public Component render(String componentId, Range highlight) {
+	public Component render(String componentId, LinearRange highlight) {
 		QualifiedName qualifiedName;
 		if (returnType != null)
 			qualifiedName = new QualifiedName(getName(), null, params + returnType);

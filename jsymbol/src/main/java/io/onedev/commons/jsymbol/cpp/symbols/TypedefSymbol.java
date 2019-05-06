@@ -5,11 +5,11 @@ import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.request.resource.PackageResourceReference;
 
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.cpp.symbols.ui.TypedefSymbolPanel;
 import io.onedev.commons.jsymbol.cpp.symbols.ui.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 public class TypedefSymbol extends CppSymbol {
 
@@ -21,7 +21,7 @@ public class TypedefSymbol extends CppSymbol {
 	
 	private Modifier modifier;
 	
-	public TypedefSymbol(CppSymbol parent, String name, boolean local, String type, TokenPosition position, Modifier modifier, boolean isTemp) {
+	public TypedefSymbol(CppSymbol parent, String name, boolean local, String type, PlanarRange position, Modifier modifier, boolean isTemp) {
 		super(parent, name, local, position, null);
 		this.type = type;
 		this.modifier=modifier;
@@ -80,7 +80,7 @@ public class TypedefSymbol extends CppSymbol {
 	}
 
 	@Override
-	public Component render(String componentId, Range highlight) {
+	public Component render(String componentId, LinearRange highlight) {
 		return new TypedefSymbolPanel(componentId, this, highlight);
 	}
 

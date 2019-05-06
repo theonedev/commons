@@ -9,7 +9,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import com.google.common.base.Splitter;
 
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 import io.onedev.commons.utils.StringUtils;
 import io.onedev.commons.utils.stringmatch.ChildAwareMatcher;
 import io.onedev.commons.utils.stringmatch.Matcher;
@@ -91,14 +91,14 @@ public class PathUtils {
 			return relativePath;
     }
     
-    public @Nullable static Range matchSegments(String path, String match, boolean ignoreExt) {
+    public @Nullable static LinearRange matchSegments(String path, String match, boolean ignoreExt) {
     	int beginIndex = path.indexOf(match);
     	while (beginIndex != -1) {
     		int endIndex = beginIndex+match.length();
     		char leftCh = beginIndex==0?'/':path.charAt(beginIndex-1);
     		char rightCh = endIndex==path.length()?'/':path.charAt(endIndex);
     		if (leftCh == '/' && (rightCh=='/' || ignoreExt&&rightCh=='.'))
-    			return new Range(beginIndex, endIndex);
+    			return new LinearRange(beginIndex, endIndex);
     		beginIndex = path.indexOf(match, beginIndex+1);
     	}
     	return null;

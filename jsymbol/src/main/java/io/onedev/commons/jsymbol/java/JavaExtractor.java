@@ -26,7 +26,7 @@ import com.github.javaparser.ast.type.TypeParameter;
 import com.google.common.base.Joiner;
 
 import io.onedev.commons.jsymbol.AbstractSymbolExtractor;
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.java.symbols.CompilationUnitSymbol;
 import io.onedev.commons.jsymbol.java.symbols.FieldSymbol;
 import io.onedev.commons.jsymbol.java.symbols.JavaSymbol;
@@ -110,8 +110,8 @@ public class JavaExtractor extends AbstractSymbolExtractor<JavaSymbol> {
 	private void processConstructorDeclaration(ConstructorDeclaration constructorDeclaration, TypeSymbol parent, 
 			List<JavaSymbol> symbols) {
 		String methodName = constructorDeclaration.getNameAsString();
-		TokenPosition position = getPosition(constructorDeclaration.getName());
-		TokenPosition scope = getPosition(constructorDeclaration);
+		PlanarRange position = getPosition(constructorDeclaration.getName());
+		PlanarRange scope = getPosition(constructorDeclaration);
 		String methodParams;
 		if (constructorDeclaration.getParameters().isEmpty()) {
 			methodParams = null;
@@ -143,8 +143,8 @@ public class JavaExtractor extends AbstractSymbolExtractor<JavaSymbol> {
 	private void processMethodDeclaration(MethodDeclaration methodDeclaration, TypeSymbol parent, 
 			List<JavaSymbol> symbols) {
 		String methodName = methodDeclaration.getNameAsString();
-		TokenPosition position = getPosition(methodDeclaration.getName());
-		TokenPosition scope = getPosition(methodDeclaration);
+		PlanarRange position = getPosition(methodDeclaration.getName());
+		PlanarRange scope = getPosition(methodDeclaration);
 		String type = methodDeclaration.getType().toString();
 		String methodParams;
 		if (methodDeclaration.getParameters().isEmpty()) {
@@ -177,8 +177,8 @@ public class JavaExtractor extends AbstractSymbolExtractor<JavaSymbol> {
 	private void processAnnotationMemberDeclaration(AnnotationMemberDeclaration annotationMemberDeclaration, TypeSymbol parent, 
 			List<JavaSymbol> symbols) {
 		String methodName = annotationMemberDeclaration.getNameAsString();
-		TokenPosition position = getPosition(annotationMemberDeclaration.getName());
-		TokenPosition scope = getPosition(annotationMemberDeclaration);
+		PlanarRange position = getPosition(annotationMemberDeclaration.getName());
+		PlanarRange scope = getPosition(annotationMemberDeclaration);
 		String type = annotationMemberDeclaration.getType().toString();
 		MethodSymbol symbol = new MethodSymbol(parent, methodName, position, scope, type, null, null, 
 				annotationMemberDeclaration.getModifiers());
@@ -189,8 +189,8 @@ public class JavaExtractor extends AbstractSymbolExtractor<JavaSymbol> {
 			List<JavaSymbol> symbols) {
 		for (VariableDeclarator variableDeclarator: fieldDeclaration.getVariables()) {
 			String fieldName = variableDeclarator.getNameAsString();
-			TokenPosition position = getPosition(variableDeclarator.getName());
-			TokenPosition scope = getPosition(variableDeclarator);
+			PlanarRange position = getPosition(variableDeclarator.getName());
+			PlanarRange scope = getPosition(variableDeclarator);
 			String type = variableDeclarator.getType().toString();
 			FieldSymbol symbol = new FieldSymbol(parent, fieldName, position, scope, type, 
 					fieldDeclaration.getModifiers());
@@ -201,15 +201,15 @@ public class JavaExtractor extends AbstractSymbolExtractor<JavaSymbol> {
 	private void processEnumConstantDeclaration(EnumConstantDeclaration enumConstantDeclaration, TypeSymbol parent, 
 			List<JavaSymbol> symbols) {
 		String fieldName = enumConstantDeclaration.getNameAsString();
-		TokenPosition position = getPosition(enumConstantDeclaration.getName());
-		TokenPosition scope = getPosition(enumConstantDeclaration);
+		PlanarRange position = getPosition(enumConstantDeclaration.getName());
+		PlanarRange scope = getPosition(enumConstantDeclaration);
 		FieldSymbol symbol = new FieldSymbol(parent, fieldName, position, scope, null, 
 				EnumSet.noneOf(Modifier.class));
 		symbols.add(symbol);
 	}
 	
-	private TokenPosition getPosition(Node node) {
-		return new TokenPosition(node.getBegin().get().line-1, node.getBegin().get().column-1, 
+	private PlanarRange getPosition(Node node) {
+		return new PlanarRange(node.getBegin().get().line-1, node.getBegin().get().column-1, 
 				node.getEnd().get().line-1, node.getEnd().get().column);
 	}
 	

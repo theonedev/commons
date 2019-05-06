@@ -5,12 +5,12 @@ import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.request.resource.PackageResourceReference;
 
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.less.symbols.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
 import io.onedev.commons.jsymbol.util.QualifiedName;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 public class ClassSymbol extends LessSymbol {
 
@@ -18,7 +18,7 @@ public class ClassSymbol extends LessSymbol {
 
 	private final QualifiedName name;
 	
-	public ClassSymbol(LessSymbol parent, QualifiedName name, TokenPosition position) {
+	public ClassSymbol(LessSymbol parent, QualifiedName name, PlanarRange position) {
 		super(parent, name.getUnqualified(), position, null);
 		this.name = name;
 	}
@@ -47,7 +47,7 @@ public class ClassSymbol extends LessSymbol {
 	}
 
 	@Override
-	public Component render(String componentId, Range highlight) {
+	public Component render(String componentId, LinearRange highlight) {
 		return new HighlightableLabel(componentId, name, highlight);
 	}
 

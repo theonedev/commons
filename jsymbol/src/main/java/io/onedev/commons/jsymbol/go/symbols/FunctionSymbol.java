@@ -6,11 +6,11 @@ import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.request.resource.PackageResourceReference;
 
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.go.symbols.ui.FunctionSymbolPanel;
 import io.onedev.commons.jsymbol.go.symbols.ui.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 public class FunctionSymbol extends GolangSymbol {
 
@@ -23,8 +23,8 @@ public class FunctionSymbol extends GolangSymbol {
 	private final String receiver;
 	
 	public FunctionSymbol(@Nullable GolangSymbol parent, String methodName, String functionParams, 
-			@Nullable String returnType, @Nullable String receiver, TokenPosition position, 
-			@Nullable TokenPosition scope) {
+			@Nullable String returnType, @Nullable String receiver, PlanarRange position, 
+			@Nullable PlanarRange scope) {
 		super(parent, methodName, position, scope);
 
 		this.type = returnType;
@@ -45,7 +45,7 @@ public class FunctionSymbol extends GolangSymbol {
 	}
 
 	@Override
-	public Component render(String componentId, Range highlight) {
+	public Component render(String componentId, LinearRange highlight) {
 		return new FunctionSymbolPanel(componentId, this, highlight);
 	}
 

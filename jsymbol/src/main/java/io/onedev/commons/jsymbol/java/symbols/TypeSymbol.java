@@ -11,11 +11,11 @@ import org.apache.wicket.request.resource.PackageResourceReference;
 
 import com.github.javaparser.ast.Modifier;
 
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.java.symbols.ui.TypeSymbolPanel;
 import io.onedev.commons.jsymbol.java.symbols.ui.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 public class TypeSymbol extends JavaSymbol {
 
@@ -29,7 +29,7 @@ public class TypeSymbol extends JavaSymbol {
 	
 	private final EnumSet<Modifier> modifiers;
 
-	public TypeSymbol(@Nullable JavaSymbol parent, String typeName, TokenPosition position, TokenPosition scope,
+	public TypeSymbol(@Nullable JavaSymbol parent, String typeName, PlanarRange position, PlanarRange scope,
 			Kind kind, @Nullable String typeParams, EnumSet<Modifier> modifiers) {
 		super(parent, typeName, position, scope);
 
@@ -51,7 +51,7 @@ public class TypeSymbol extends JavaSymbol {
 	}
 
 	@Override
-	public Component render(String componentId, Range highlight) {
+	public Component render(String componentId, LinearRange highlight) {
 		return new TypeSymbolPanel(componentId, this, highlight);
 	}
 

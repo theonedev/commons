@@ -7,12 +7,12 @@ import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.request.resource.PackageResourceReference;
 
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.scss.symbols.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
 import io.onedev.commons.jsymbol.util.QualifiedName;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 public class MixinSymbol extends ScssSymbol {
 
@@ -22,8 +22,8 @@ public class MixinSymbol extends ScssSymbol {
 	
 	private final boolean local;
 
-	public MixinSymbol(ScssSymbol parent, String name, @Nullable String params, TokenPosition position, 
-			TokenPosition scope, boolean local) {
+	public MixinSymbol(ScssSymbol parent, String name, @Nullable String params, PlanarRange position, 
+			PlanarRange scope, boolean local) {
 		super(parent, name, position, scope);
 		this.params = params;
 		this.local = local;
@@ -52,7 +52,7 @@ public class MixinSymbol extends ScssSymbol {
 	}
 
 	@Override
-	public Component render(String componentId, Range highlight) {
+	public Component render(String componentId, LinearRange highlight) {
 		QualifiedName name;
 		if (params != null)
 			name = new QualifiedName(getName(), "@mixin ", params);

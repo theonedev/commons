@@ -11,11 +11,11 @@ import org.apache.wicket.request.resource.PackageResourceReference;
 
 import com.github.javaparser.ast.Modifier;
 
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.java.symbols.ui.MethodSymbolPanel;
 import io.onedev.commons.jsymbol.java.symbols.ui.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 public class MethodSymbol extends JavaSymbol {
 
@@ -29,7 +29,7 @@ public class MethodSymbol extends JavaSymbol {
 
 	private final EnumSet<Modifier> modifiers;
 	
-	public MethodSymbol(TypeSymbol parent, String methodName, TokenPosition position, TokenPosition scope,
+	public MethodSymbol(TypeSymbol parent, String methodName, PlanarRange position, PlanarRange scope,
 			@Nullable String type, @Nullable String methodParams, @Nullable String typeParams, 
 			EnumSet<Modifier> modifiers) {
 		super(parent, methodName, position, scope);
@@ -83,7 +83,7 @@ public class MethodSymbol extends JavaSymbol {
 	}
 
 	@Override
-	public Component render(String componentId, Range highlight) {
+	public Component render(String componentId, LinearRange highlight) {
 		return new MethodSymbolPanel(componentId, this, highlight);
 	}
 

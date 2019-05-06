@@ -8,16 +8,16 @@ import org.apache.wicket.markup.html.panel.Panel;
 
 import io.onedev.commons.jsymbol.java.symbols.MethodSymbol;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 @SuppressWarnings("serial")
 public class MethodSymbolPanel extends Panel {
 
 	private final MethodSymbol methodSymbol;
 	
-	private final Range highlight;
+	private final LinearRange highlight;
 	
-	public MethodSymbolPanel(String id, MethodSymbol methodSymbol, Range highlight) {
+	public MethodSymbolPanel(String id, MethodSymbol methodSymbol, LinearRange highlight) {
 		super(id);
 		this.methodSymbol = methodSymbol;
 		this.highlight = highlight;

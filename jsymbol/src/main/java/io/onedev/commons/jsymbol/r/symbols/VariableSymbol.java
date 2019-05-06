@@ -5,11 +5,11 @@ import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.request.resource.PackageResourceReference;
 
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.r.symbols.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 public class VariableSymbol extends RSymbol {
 
@@ -17,7 +17,7 @@ public class VariableSymbol extends RSymbol {
 
 	private boolean local;
 	
-	public VariableSymbol(RSymbol parent, String name, TokenPosition position, TokenPosition scope, 
+	public VariableSymbol(RSymbol parent, String name, PlanarRange position, PlanarRange scope, 
 			boolean local) {
 		super(parent, name, position, scope);
 		this.local = local;
@@ -42,7 +42,7 @@ public class VariableSymbol extends RSymbol {
 	}
 
 	@Override
-	public Component render(String componentId, Range highlight) {
+	public Component render(String componentId, LinearRange highlight) {
 		return new HighlightableLabel(componentId, getName(), highlight);
 	}
 

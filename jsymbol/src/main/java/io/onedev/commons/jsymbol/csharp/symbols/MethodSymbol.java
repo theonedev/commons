@@ -8,12 +8,12 @@ import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.request.resource.PackageResourceReference;
 
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.csharp.symbols.ui.MethodSymbolPanel;
 import io.onedev.commons.jsymbol.csharp.symbols.ui.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
 import io.onedev.commons.jsymbol.util.QualifiedName;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 public class MethodSymbol extends CSharpSymbol {
 
@@ -33,8 +33,8 @@ public class MethodSymbol extends CSharpSymbol {
 	
 	private final EnumSet<CSharpSymbol.Modifier> modifiers;
 
-	public MethodSymbol(@Nullable CSharpSymbol parent, Kind kind, String methodName, TokenPosition position, 
-			TokenPosition scope, @Nullable String typeParams, @Nullable String returnType, 
+	public MethodSymbol(@Nullable CSharpSymbol parent, Kind kind, String methodName, PlanarRange position, 
+			PlanarRange scope, @Nullable String typeParams, @Nullable String returnType, 
 			@Nullable String methodParams, @Nullable String methodPrefix, EnumSet<CSharpSymbol.Modifier> modifiers) {
 		super(parent, methodName, position, scope);
 
@@ -46,8 +46,8 @@ public class MethodSymbol extends CSharpSymbol {
 		this.modifiers = modifiers;
 	}
 	
-	public MethodSymbol(@Nullable CSharpSymbol parent, Kind kind, QualifiedName qualifiedName, TokenPosition position, 
-			TokenPosition scope, @Nullable String typeParams, @Nullable String returnType, 
+	public MethodSymbol(@Nullable CSharpSymbol parent, Kind kind, QualifiedName qualifiedName, PlanarRange position, 
+			PlanarRange scope, @Nullable String typeParams, @Nullable String returnType, 
 			@Nullable String methodParams, @Nullable String methodPrefix, EnumSet<CSharpSymbol.Modifier> modifiers) {
 		super(parent, qualifiedName, position, scope);
 
@@ -84,7 +84,7 @@ public class MethodSymbol extends CSharpSymbol {
 	}
 
 	@Override
-	public Component render(String componentId, Range highlight) {
+	public Component render(String componentId, LinearRange highlight) {
 		return new MethodSymbolPanel(componentId, this, highlight);
 	}
 

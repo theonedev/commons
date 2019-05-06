@@ -6,16 +6,16 @@ import org.apache.wicket.markup.html.panel.Panel;
 
 import io.onedev.commons.jsymbol.flowscript.symbols.FunctionSymbol;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 @SuppressWarnings("serial")
 public class FunctionSymbolPanel extends Panel {
 
 	private final FunctionSymbol symbol;
 	
-	private final Range highlight;
+	private final LinearRange highlight;
 	
-	public FunctionSymbolPanel(String id, FunctionSymbol symbol, Range highlight) {
+	public FunctionSymbolPanel(String id, FunctionSymbol symbol, LinearRange highlight) {
 		super(id);
 		this.symbol = symbol;
 		this.highlight = highlight;

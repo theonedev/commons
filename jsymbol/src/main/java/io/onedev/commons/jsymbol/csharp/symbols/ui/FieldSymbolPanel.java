@@ -7,16 +7,16 @@ import org.apache.wicket.markup.html.panel.Panel;
 
 import io.onedev.commons.jsymbol.csharp.symbols.FieldSymbol;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 @SuppressWarnings("serial")
 public class FieldSymbolPanel extends Panel {
 
 	private final FieldSymbol fieldSymbol;
 	
-	private final Range highlight;
+	private final LinearRange highlight;
 	
-	public FieldSymbolPanel(String id, FieldSymbol fieldSymbol, Range highlight) {
+	public FieldSymbolPanel(String id, FieldSymbol fieldSymbol, LinearRange highlight) {
 		super(id);
 		this.fieldSymbol = fieldSymbol;
 		this.highlight = highlight;

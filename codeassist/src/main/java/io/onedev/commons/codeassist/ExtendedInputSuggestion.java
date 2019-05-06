@@ -2,24 +2,24 @@ package io.onedev.commons.codeassist;
 
 import javax.annotation.Nullable;
 
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 class ExtendedInputSuggestion extends InputSuggestion {
 
 	private static final long serialVersionUID = 1L;
 	
-	private final Range replaceRange;
+	private final LinearRange replaceRange;
 	
 	private final String mandatories;
 
-	public ExtendedInputSuggestion(Range replaceRange, String replaceContent, int caret, 
-			@Nullable String description, @Nullable Range match, String mandatories) {
+	public ExtendedInputSuggestion(LinearRange replaceRange, String replaceContent, int caret, 
+			@Nullable String description, @Nullable LinearRange match, String mandatories) {
 		super(replaceContent, caret, description, match);
 		this.replaceRange = replaceRange;
 		this.mandatories = mandatories;
 	}
 
-	public Range getReplaceRange() {
+	public LinearRange getReplaceRange() {
 		return replaceRange;
 	}
 

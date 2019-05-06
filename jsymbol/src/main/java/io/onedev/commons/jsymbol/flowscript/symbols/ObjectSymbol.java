@@ -8,7 +8,7 @@ import org.apache.wicket.request.resource.PackageResourceReference;
 import io.onedev.commons.jsymbol.flowscript.symbols.ui.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 public class ObjectSymbol extends FlowScriptSymbol {
 
@@ -31,7 +31,7 @@ public class ObjectSymbol extends FlowScriptSymbol {
 	}
 
 	@Override
-	public Component render(String componentId, Range highlight) {
+	public Component render(String componentId, LinearRange highlight) {
 		return new HighlightableLabel(componentId, getName(), highlight);
 	}
 

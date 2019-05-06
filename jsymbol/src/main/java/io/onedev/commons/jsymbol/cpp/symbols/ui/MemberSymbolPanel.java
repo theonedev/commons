@@ -7,16 +7,16 @@ import org.apache.wicket.markup.html.panel.Panel;
 
 import io.onedev.commons.jsymbol.cpp.symbols.MemberSymbol;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 @SuppressWarnings("serial")
 public class MemberSymbolPanel extends Panel {
 
 	private final MemberSymbol memberSymbol;
 	
-	private final Range highlight;
+	private final LinearRange highlight;
 	
-	public MemberSymbolPanel(String id, MemberSymbol memberSymbol, Range highlight) {
+	public MemberSymbolPanel(String id, MemberSymbol memberSymbol, LinearRange highlight) {
 		super(id);
 		this.memberSymbol = memberSymbol;
 		this.highlight = highlight;

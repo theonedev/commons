@@ -7,11 +7,11 @@ import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.request.resource.PackageResourceReference;
 
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.cpp.symbols.ui.VariableSymbolPanel;
 import io.onedev.commons.jsymbol.cpp.symbols.ui.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 public class VariableSymbol extends CppSymbol {
 
@@ -23,7 +23,7 @@ public class VariableSymbol extends CppSymbol {
 	
 	private List<Modifier> modifiers;
 	
-	public VariableSymbol(CppSymbol parent, String name, boolean local, String type, TokenPosition position, List<Modifier> modifiers, boolean isTemp) {
+	public VariableSymbol(CppSymbol parent, String name, boolean local, String type, PlanarRange position, List<Modifier> modifiers, boolean isTemp) {
 		super(parent, name, local, position, null);
 		this.type = type;
 		this.modifiers=modifiers;
@@ -100,7 +100,7 @@ public class VariableSymbol extends CppSymbol {
 	}
 
 	@Override
-	public Component render(String componentId, Range highlight) {
+	public Component render(String componentId, LinearRange highlight) {
 		return new VariableSymbolPanel(componentId, this, highlight);
 	}
 

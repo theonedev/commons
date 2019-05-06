@@ -9,7 +9,7 @@ import org.apache.wicket.request.resource.PackageResourceReference;
 import io.onedev.commons.jsymbol.flowscript.symbols.ui.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 /**
  * This symbol represents a ES6 class definition
@@ -22,7 +22,7 @@ public class ClassSymbol extends FlowScriptSymbol {
 	private static final long serialVersionUID = 1L;
 	
 	@Override
-	public Component render(String componentId, Range highlight) {
+	public Component render(String componentId, LinearRange highlight) {
 		if (getName() != null)
 			return new HighlightableLabel(componentId, getName(), highlight);
 		else

@@ -7,11 +7,11 @@ import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.request.resource.PackageResourceReference;
 
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.cpp.symbols.ui.FunctionSymbolPanel;
 import io.onedev.commons.jsymbol.cpp.symbols.ui.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 public class FunctionSymbol extends CppSymbol {
 
@@ -28,7 +28,7 @@ public class FunctionSymbol extends CppSymbol {
     private boolean isTemp;
 	
 	public FunctionSymbol(CppSymbol parent, String name, boolean local, boolean definition, @Nullable String params, 
-			@Nullable String type, TokenPosition position, TokenPosition scope, Modifier modifier, boolean isTemp) {
+			@Nullable String type, PlanarRange position, PlanarRange scope, Modifier modifier, boolean isTemp) {
 		super(parent, name, local, position, scope);
 		
 		this.definition = definition;
@@ -101,7 +101,7 @@ public class FunctionSymbol extends CppSymbol {
 	}
 
 	@Override
-	public Component render(String componentId, Range highlight) {
+	public Component render(String componentId, LinearRange highlight) {
 		return new FunctionSymbolPanel(componentId, this, highlight);
 	}
 

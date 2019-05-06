@@ -5,11 +5,11 @@ import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.request.resource.PackageResourceReference;
 
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.cpp.symbols.ui.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 public class MacroSymbol extends CppSymbol {
 
@@ -17,7 +17,7 @@ public class MacroSymbol extends CppSymbol {
 	
 	private Modifier modifier;
 	
-	public MacroSymbol(CppSymbol parent, String name, boolean local, TokenPosition position ,Modifier modifier) {
+	public MacroSymbol(CppSymbol parent, String name, boolean local, PlanarRange position ,Modifier modifier) {
 		super(parent, name, local, position, null);
 		this.modifier=modifier;
 	}
@@ -53,7 +53,7 @@ public class MacroSymbol extends CppSymbol {
 	}
 
 	@Override
-	public Component render(String componentId, Range highlight) {
+	public Component render(String componentId, LinearRange highlight) {
 		return new HighlightableLabel(componentId, getName(), highlight);
 	}
 

@@ -2,7 +2,7 @@ package io.onedev.commons.codeassist;
 
 import javax.annotation.Nullable;
 
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 public class InputCompletion extends InputStatus {
 
@@ -12,10 +12,10 @@ public class InputCompletion extends InputStatus {
 	
 	private final String description;
 	
-	private final Range match;
+	private final LinearRange match;
 	
 	public InputCompletion(String label, String content, int caret,
-			@Nullable String description, @Nullable Range match) {
+			@Nullable String description, @Nullable LinearRange match) {
 		super(content, caret);
 		this.label = label;
 		this.description = description;
@@ -30,7 +30,7 @@ public class InputCompletion extends InputStatus {
 		return description;
 	}
 	
-	public Range getMatch() {
+	public LinearRange getMatch() {
 		return match;
 	}
 

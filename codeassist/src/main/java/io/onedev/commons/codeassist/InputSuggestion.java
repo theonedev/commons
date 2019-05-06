@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import javax.annotation.Nullable;
 
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 public class InputSuggestion implements Serializable {
 	
@@ -16,7 +16,7 @@ public class InputSuggestion implements Serializable {
 	
 	private final String description;
 	
-	private final Range match;
+	private final LinearRange match;
 	
 	/**
 	 * Construct the input suggestion.
@@ -30,18 +30,18 @@ public class InputSuggestion implements Serializable {
 	 * @param match
 	 * 			optionally specifies range of the string being matched against user input
 	 */
-	public InputSuggestion(String content, int caret, @Nullable String description, @Nullable Range match) {
+	public InputSuggestion(String content, int caret, @Nullable String description, @Nullable LinearRange match) {
 		this.content = content;
 		this.caret = caret;
 		this.description = description;
 		this.match = match;
 	}
 	
-	public InputSuggestion(String content, @Nullable String description, @Nullable Range match) {
+	public InputSuggestion(String content, @Nullable String description, @Nullable LinearRange match) {
 		this(content, -1, description, match);
 	}
 	
-	public InputSuggestion(String content, @Nullable Range match) {
+	public InputSuggestion(String content, @Nullable LinearRange match) {
 		this(content, null, match);
 	}
 	
@@ -55,7 +55,7 @@ public class InputSuggestion implements Serializable {
 	}
 
 	@Nullable
-	public Range getMatch() {
+	public LinearRange getMatch() {
 		return match;
 	}
 
@@ -89,9 +89,9 @@ public class InputSuggestion implements Serializable {
 			builder.append(ch);
 		}
 		
-		Range newMatch;
+		LinearRange newMatch;
 		if (newStart != -1 && newEnd != -1)
-			newMatch = new Range(newStart, newEnd);
+			newMatch = new LinearRange(newStart, newEnd);
 		else
 			newMatch = null;
 		return new InputSuggestion(builder.toString(), getCaret(), getDescription(), newMatch);

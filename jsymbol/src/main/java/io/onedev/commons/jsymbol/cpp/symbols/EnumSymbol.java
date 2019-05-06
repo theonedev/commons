@@ -5,11 +5,11 @@ import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.request.resource.PackageResourceReference;
 
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.cpp.symbols.ui.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 public class EnumSymbol extends CppSymbol {
 
@@ -19,8 +19,8 @@ public class EnumSymbol extends CppSymbol {
 	
 	private Modifier modifier;
 	
-	public EnumSymbol(CppSymbol parent, String name, boolean local, TokenPosition position, 
-			TokenPosition scope, Modifier modifier, boolean isTemp) {
+	public EnumSymbol(CppSymbol parent, String name, boolean local, PlanarRange position, 
+			PlanarRange scope, Modifier modifier, boolean isTemp) {
 		super(parent, name, local, position, scope);
 		this.modifier = modifier;
 		this.isTemp = isTemp;
@@ -75,7 +75,7 @@ public class EnumSymbol extends CppSymbol {
 	}
 
 	@Override
-	public Component render(String componentId, Range highlight) {
+	public Component render(String componentId, LinearRange highlight) {
 		return new HighlightableLabel(componentId, getName(), highlight);
 	}
 

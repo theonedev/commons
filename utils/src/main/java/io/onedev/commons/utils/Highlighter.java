@@ -7,11 +7,11 @@ import java.util.regex.Pattern;
 
 public class Highlighter {
 
-	public static String highlightRanges(String text, List<Range> ranges, 
+	public static String highlightRanges(String text, List<LinearRange> ranges, 
 			Transformer<String> matchedTransformer, Transformer<String> unmatchedTransformer) {
 		StringBuffer buffer = new StringBuffer();
     	int start = 0;
-    	for (Range range: RangeUtils.merge(ranges)) {
+    	for (LinearRange range: RangeUtils.merge(ranges)) {
     		buffer.append(unmatchedTransformer.transform(text.substring(start, range.getFrom())));
     		buffer.append(matchedTransformer.transform(text.substring(range.getFrom(), range.getTo())));
     		start = range.getTo();
@@ -22,11 +22,11 @@ public class Highlighter {
 
 	public static String highlightPatterns(String text, List<Pattern> patterns, 
 			Transformer<String> matchedTransformer, Transformer<String> unmatchedTransformer) {
-		List<Range> ranges = new ArrayList<>();
+		List<LinearRange> ranges = new ArrayList<>();
 		for (Pattern pattern: patterns) {
 	    	Matcher matcher = pattern.matcher(text);
 	    	while (matcher.find()) 
-	    		ranges.add(new Range(matcher.start(), matcher.end()));
+	    		ranges.add(new LinearRange(matcher.start(), matcher.end()));
 		}
 		return highlightRanges(text, ranges, matchedTransformer, unmatchedTransformer);
 	}
@@ -38,7 +38,7 @@ public class Highlighter {
 			normalizedText = text.toLowerCase();
 		else
 			normalizedText = text;
-		List<Range> ranges = new ArrayList<>();
+		List<LinearRange> ranges = new ArrayList<>();
 		for (String literal: literals) {
 			String normalizedLiteral;
 			if (!caseSensitive)
@@ -47,7 +47,7 @@ public class Highlighter {
 				normalizedLiteral = literal;
 			int index = normalizedText.indexOf(normalizedLiteral);
 			while (index != -1) {
-				Range range = new Range(index, index+normalizedLiteral.length());
+				LinearRange range = new LinearRange(index, index+normalizedLiteral.length());
 				ranges.add(range);
 				index = normalizedText.indexOf(normalizedLiteral, range.getTo());
 			}

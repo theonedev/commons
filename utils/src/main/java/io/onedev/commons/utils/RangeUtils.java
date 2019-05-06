@@ -6,16 +6,16 @@ import java.util.List;
 
 public class RangeUtils {
 	
-	public static List<Range> merge(Collection<Range> ranges) {
-		List<Range> sorted = new ArrayList<>(ranges);
+	public static List<LinearRange> merge(Collection<LinearRange> ranges) {
+		List<LinearRange> sorted = new ArrayList<>(ranges);
 		sorted.sort((o1, o2) -> o1.getFrom() - o2.getFrom());
-		List<Range> merged = new ArrayList<>();
-		Range current = null;
-		for (Range range: sorted) {
+		List<LinearRange> merged = new ArrayList<>();
+		LinearRange current = null;
+		for (LinearRange range: sorted) {
 			if (current == null) {
 				current = range;
 			} else if (range.getFrom() <= current.getTo()) {
-				current = new Range(current.getFrom(), Math.max(current.getTo(), range.getTo()));
+				current = new LinearRange(current.getFrom(), Math.max(current.getTo(), range.getTo()));
 			} else {
 				merged.add(current);
 				current = range;

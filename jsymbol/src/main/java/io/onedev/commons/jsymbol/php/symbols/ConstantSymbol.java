@@ -4,11 +4,11 @@ import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.request.resource.PackageResourceReference;
 
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.php.symbols.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 public class ConstantSymbol extends PhpSymbol {
 
@@ -16,7 +16,7 @@ public class ConstantSymbol extends PhpSymbol {
 	
 	private final Visibility visibility;
 
-	public ConstantSymbol(PhpSymbol parent, String name, Visibility visibility, TokenPosition position) {
+	public ConstantSymbol(PhpSymbol parent, String name, Visibility visibility, PlanarRange position) {
 		super(parent, name, position, null);
 		this.visibility = visibility;
 	}
@@ -50,7 +50,7 @@ public class ConstantSymbol extends PhpSymbol {
 	}
 
 	@Override
-	public Component render(String componentId, Range highlight) {
+	public Component render(String componentId, LinearRange highlight) {
 		return new HighlightableLabel(componentId, getName(), highlight);
 	}
 	

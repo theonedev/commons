@@ -5,17 +5,17 @@ import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.request.resource.PackageResourceReference;
 
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.scss.symbols.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 public class SelectorSymbol extends ScssSymbol {
 
 	private static final long serialVersionUID = 1L;
 
-	public SelectorSymbol(ScssSymbol parent, String name, TokenPosition position) {
+	public SelectorSymbol(ScssSymbol parent, String name, PlanarRange position) {
 		super(parent, name, position, null);
 	}
 
@@ -43,7 +43,7 @@ public class SelectorSymbol extends ScssSymbol {
 	}
 
 	@Override
-	public Component render(String componentId, Range highlight) {
+	public Component render(String componentId, LinearRange highlight) {
 		return new HighlightableLabel(componentId, getName(), highlight);
 	}
 

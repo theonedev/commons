@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 public class WildcardUtils {
 	
@@ -86,18 +86,18 @@ public class WildcardUtils {
         return -1;
     }
     
-    public static List<Range> getLiteralRanges(String pattern) {
-		List<Range> literalRanges = new ArrayList<>();
+    public static List<LinearRange> getLiteralRanges(String pattern) {
+		List<LinearRange> literalRanges = new ArrayList<>();
 		int pos = 0;
 		int index = pattern.indexOf('*');
 		while (index != -1) {
 			if (index>pos)
-				literalRanges.add(new Range(pos, index));
+				literalRanges.add(new LinearRange(pos, index));
 			pos = index+1;
 			index = pattern.indexOf('*', pos);
 		}
 		if (pattern.length()>pos)
-			literalRanges.add(new Range(pos, pattern.length()));
+			literalRanges.add(new LinearRange(pos, pattern.length()));
     	return literalRanges;
     }
     
@@ -120,13 +120,13 @@ public class WildcardUtils {
 			normalizedText = str.toLowerCase();
 			normalizedPattern = pattern.toLowerCase();
 		}
-		List<Range> literalRanges = getLiteralRanges(normalizedPattern);
+		List<LinearRange> literalRanges = getLiteralRanges(normalizedPattern);
 
 		StringBuilder appliedText = new StringBuilder(pattern);
 		int first = -1;
 		int last = 0;
 		int pos = 0;
-		for (Range literalRange: literalRanges) {
+		for (LinearRange literalRange: literalRanges) {
 			String literal = normalizedPattern.substring(literalRange.getFrom(), literalRange.getTo());
 			int index = indexOf(normalizedText, literal, pos);
 			if (index != -1) {
@@ -159,16 +159,16 @@ public class WildcardUtils {
 		} else {
 			last = appliedText.length();
 		}
-		return new PatternApplied(appliedText.toString(), new Range(first, last));
+		return new PatternApplied(appliedText.toString(), new LinearRange(first, last));
     }
 
     @Nullable
-    public static Range rangeOfMatch(String pattern, String str) {
-		List<Range> literalRanges = getLiteralRanges(pattern);
+    public static LinearRange rangeOfMatch(String pattern, String str) {
+		List<LinearRange> literalRanges = getLiteralRanges(pattern);
 
 		int first = -1;
 		int pos = 0;
-		for (Range literalRange: literalRanges) {
+		for (LinearRange literalRange: literalRanges) {
 			String literal = pattern.substring(literalRange.getFrom(), literalRange.getTo());
 			int index = indexOf(str, literal, pos);
 			if (index != -1) {
@@ -179,7 +179,7 @@ public class WildcardUtils {
 				return null;
 			}
 		}
-		return new Range(first, pos);
+		return new LinearRange(first, pos);
     }
 
 }

@@ -5,12 +5,12 @@ import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.request.resource.PackageResourceReference;
 
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.php.symbols.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
 import io.onedev.commons.jsymbol.util.QualifiedName;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 public class NamespaceSymbol extends PhpSymbol {
 
@@ -18,7 +18,7 @@ public class NamespaceSymbol extends PhpSymbol {
 
 	private final QualifiedName qualifiedName;
 	
-	public NamespaceSymbol(PhpSymbol parent, QualifiedName qualifiedName, TokenPosition position, TokenPosition scope) {
+	public NamespaceSymbol(PhpSymbol parent, QualifiedName qualifiedName, PlanarRange position, PlanarRange scope) {
 		super(parent, qualifiedName.getUnqualified(), position, scope);
 		this.qualifiedName = qualifiedName;
 	}
@@ -47,7 +47,7 @@ public class NamespaceSymbol extends PhpSymbol {
 	}
 	
 	@Override
-	public Component render(String componentId, Range highlight) {
+	public Component render(String componentId, LinearRange highlight) {
 		return new HighlightableLabel(componentId, qualifiedName, highlight);
 	}
 	

@@ -6,12 +6,12 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.LoadableDetachableModel;
 
 import io.onedev.commons.utils.HtmlUtils;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 @SuppressWarnings("serial")
 public class HighlightableLabel extends Label {
 
-	public HighlightableLabel(String id, @Nullable String label, @Nullable Range highlight) {
+	public HighlightableLabel(String id, @Nullable String label, @Nullable LinearRange highlight) {
 		super(id, new LoadableDetachableModel<String>() {
 
 			@Override
@@ -37,7 +37,7 @@ public class HighlightableLabel extends Label {
 		});
 	}
 
-	public HighlightableLabel(String id, @Nullable QualifiedName qualifiedName, @Nullable Range highlight) {
+	public HighlightableLabel(String id, @Nullable QualifiedName qualifiedName, @Nullable LinearRange highlight) {
 		super(id, new LoadableDetachableModel<String>() {
 
 			@Override

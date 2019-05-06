@@ -7,16 +7,16 @@ import org.apache.wicket.markup.html.panel.Panel;
 import io.onedev.commons.jsymbol.flowscript.symbols.MethodAccess;
 import io.onedev.commons.jsymbol.flowscript.symbols.MethodSymbol;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 @SuppressWarnings("serial")
 public class MethodSymbolPanel extends Panel {
 
 	private final MethodSymbol symbol;
 	
-	private final Range highlight;
+	private final LinearRange highlight;
 	
-	public MethodSymbolPanel(String id, MethodSymbol symbol, Range highlight) {
+	public MethodSymbolPanel(String id, MethodSymbol symbol, LinearRange highlight) {
 		super(id);
 		this.symbol = symbol;
 		this.highlight = highlight;

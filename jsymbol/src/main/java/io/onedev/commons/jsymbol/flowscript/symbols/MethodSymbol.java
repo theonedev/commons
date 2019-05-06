@@ -8,7 +8,7 @@ import org.apache.wicket.request.resource.PackageResourceReference;
 import io.onedev.commons.jsymbol.flowscript.symbols.ui.MethodSymbolPanel;
 import io.onedev.commons.jsymbol.flowscript.symbols.ui.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 public class MethodSymbol extends FlowScriptSymbol {
 
@@ -35,7 +35,7 @@ public class MethodSymbol extends FlowScriptSymbol {
 	}
 
 	@Override
-	public Component render(String componentId, Range highlight) {
+	public Component render(String componentId, LinearRange highlight) {
 		return new MethodSymbolPanel(componentId, this, highlight);
 	}
 

@@ -23,7 +23,7 @@ import io.onedev.commons.codeassist.grammar.TerminalElementSpec;
 import io.onedev.commons.codeassist.parser.EarleyParser;
 import io.onedev.commons.codeassist.parser.ParseExpect;
 import io.onedev.commons.codeassist.parser.TerminalExpect;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 import io.onedev.commons.utils.StringUtils;
 
 public abstract class CodeAssist implements Serializable {
@@ -121,7 +121,7 @@ public abstract class CodeAssist implements Serializable {
 				String matchWith = terminalExpect.getUnmatchedText();
 				for (String prefix: expectedElementSpec.scanPrefixes().getLiterals()) {
 					if (prefix.toLowerCase().startsWith(matchWith.toLowerCase())) {
-						Range match = new Range(0, matchWith.length());
+						LinearRange match = new LinearRange(0, matchWith.length());
 						Optional<String> description = describe(terminalExpect, prefix);
 						if (description != null)
 							inputSuggestions.add(new InputSuggestion(prefix, -1, description.orNull(), match));
@@ -164,7 +164,7 @@ public abstract class CodeAssist implements Serializable {
 			List<String> mandatoryList = getMandatoriesAfter(terminalExpect, elementSpec);
 			for (InputSuggestion inputSuggestion: inputSuggestions) {
 				String replaceContent = inputSuggestion.getContent();
-				Range replaceRange = new Range(replaceBegin, replaceEnd);
+				LinearRange replaceRange = new LinearRange(replaceBegin, replaceEnd);
 				if (grammar.canAppend(contentBeforeReplaceBegin, replaceContent)) { 
 					String mandatories = "";
 					if (elementSpec.matches(grammar, replaceContent) && replaceEnd == inputContent.length()) {

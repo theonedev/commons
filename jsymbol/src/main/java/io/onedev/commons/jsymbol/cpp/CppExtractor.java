@@ -51,7 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.onedev.commons.jsymbol.AbstractSymbolExtractor;
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.cpp.symbols.ClassSymbol;
 import io.onedev.commons.jsymbol.cpp.symbols.CppSymbol;
 import io.onedev.commons.jsymbol.cpp.symbols.EnumSymbol;
@@ -113,7 +113,7 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
 		        IASTPreprocessorMacroDefinition[] definition = translationUnit.getMacroDefinitions();
 	            String macrodef = "";
 	            MacroSymbol macro = null;
-	            TokenPosition token = null;
+	            PlanarRange token = null;
 	            boolean isLocal = findEnclosingHeader(fileSymbol) == null;
 	            String temp = "";
 	            int revise = 0,length = fileContent.length(), len = 0;
@@ -231,8 +231,8 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
        	  String params = "", type = "", name = "", params1 = "";
        	  StringBuilder parameter = new StringBuilder();
        	  parameter.append("");
-       	  TokenPosition token = null;
-       	  TokenPosition scope = null;
+       	  PlanarRange token = null;
+       	  PlanarRange scope = null;
        	  boolean variable = false;
        	  boolean definition = nodeFunction instanceof CPPASTFunctionDefinition;
        	  boolean varFun = false;
@@ -247,7 +247,7 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
 	      }
 	      scope = getScope(nodeFunction, strLineLength);
 	      if(!definition){
-	    	  scope = new TokenPosition(scope.getFromLine(), scope.getFromCh(), scope.getToLine(), scope.getToCh()-1);
+	    	  scope = new PlanarRange(scope.getFromRow(), scope.getFromColumn(), scope.getToRow(), scope.getToColumn()-1);
 	      }
        	  for(IASTNode ob : node)
        	  {
@@ -428,8 +428,8 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
     	String name = "";
     	String temp = "";
     	MemberSymbol member = null;
-    	TokenPosition token = null;
-    	TokenPosition scope = null;
+    	PlanarRange token = null;
+    	PlanarRange scope = null;
     	boolean isTypedef = false;
     	boolean isNameNull = false;
     	boolean isLocal = findEnclosingHeader(fileSymbol) == null;
@@ -465,8 +465,8 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
     				if(ob1 instanceof CPPASTName || ob1 instanceof CPPASTTemplateId){
     	    	    	if(isNameNull){
     	    	    		name = "(anonymous)";
-    	    	    		int toCh = getAnonymousTokenPosition(ob.getRawSignature(),scope.getFromCh());
-    	    	    		token = new TokenPosition(scope.getFromLine(),scope.getFromCh(),scope.getFromLine(),toCh);
+    	    	    		int toCh = getAnonymousTextRange(ob.getRawSignature(),scope.getFromColumn());
+    	    	    		token = new PlanarRange(scope.getFromRow(),scope.getFromColumn(),scope.getToRow(), toCh);
     	    	    	    symbol = new EnumSymbol(fileSymbol, name, isLocal, token, scope,modifier, isTemp);
     	    	    	    tempSymbols.add(symbol);
     	    	    	}
@@ -576,7 +576,7 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
     	boolean isFriend = false;
     	int backup = visibility;
     	boolean privateBackup = isPrivate;
-    	TokenPosition token = null;
+    	PlanarRange token = null;
     	boolean isTypedef = false;
     	boolean isLocal = findEnclosingHeader(fileSymbol) == null;
     	Modifier modifier = Modifier.NORMAL;
@@ -885,10 +885,10 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
     	int tempVisibility = 0;
     	int judge = 0;
     	boolean isNameNull = false;
-        TokenPosition token = null;
+        PlanarRange token = null;
     	List<CppSymbol> typesymbols = new ArrayList<>();
     	boolean isLocal = findEnclosingHeader(fileSymbol) == null;
-    	TokenPosition scope = null;
+    	PlanarRange scope = null;
     	List<Modifier> modifiers = new ArrayList<>();
     	Modifier modifier = getModifier(visibility);
     	for(IASTNode ob : node){
@@ -945,8 +945,8 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
         			if(ob1 instanceof CPPASTName || ob1 instanceof CPPASTTemplateId){
         				if(isNameNull){
         					name = "(anonymous)";
-        					int toCh = getAnonymousTokenPosition(ob.getRawSignature(),scope.getFromCh());
-        					token = new TokenPosition(scope.getFromLine(),scope.getFromCh(),scope.getFromLine(),toCh);
+        					int toCh = getAnonymousTextRange(ob.getRawSignature(),scope.getFromColumn());
+        					token = new PlanarRange(scope.getFromRow(),scope.getFromColumn(),scope.getFromRow(),toCh);
         				}
         				else{
     					    name = ob1.getRawSignature();
@@ -1083,8 +1083,8 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
     	NamespaceSymbol nameSymbol = null;
     	String name = "";
     	String temp = "";
-        TokenPosition token = null;
-        TokenPosition scope = null;
+        PlanarRange token = null;
+        PlanarRange scope = null;
         scope = getScope(nameNode,strLineLength);
         temp = nameNode.getRawSignature();
         boolean isLocal = findEnclosingHeader(fileSymbol) == null;
@@ -1103,8 +1103,8 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
     			}
     			if("".equals(name)){
     				name = "(anonymous)";
-    				int toCh = getAnonymousTokenPosition(nameNode.getRawSignature(),scope.getFromCh());
-    			    token = new TokenPosition(scope.getFromLine(),scope.getFromCh(),scope.getFromLine(),toCh);
+    				int toCh = getAnonymousTextRange(nameNode.getRawSignature(),scope.getFromColumn());
+    			    token = new PlanarRange(scope.getFromRow(),scope.getFromColumn(),scope.getFromRow(),toCh);
     			}else
     			{
     			    token = getPosition(ob,strLineLength);
@@ -1267,9 +1267,9 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
     }
     
     /*
-     * TokenPosition method will gain declaration position in source file.
+     * TextRange method will gain declaration position in source file.
      * */
-    public TokenPosition getPosition(IASTNode node, int[] strLineLength){
+    public PlanarRange getPosition(IASTNode node, int[] strLineLength){
     	if(null != node && !"".equals(node.getRawSignature())){// if string "" equals node.getRawSignature(),it will throw NPE
     	    int fromLine, toLine, fromCh, length;
     	    fromLine = node.getFileLocation().getStartingLineNumber();
@@ -1278,7 +1278,7 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
     	    fromCh = fromCh - getLinesLength(fromLine - 1, strLineLength);
     	    String name = node.getRawSignature();
     	    length = name.contains("(")?(name.indexOf("(")+1):name.length();
-    	    TokenPosition token = new TokenPosition(fromLine-1,fromCh,toLine-1,fromCh+length);
+    	    PlanarRange token = new PlanarRange(fromLine-1,fromCh,toLine-1,fromCh+length);
     	    return token;
     	}
     	else{
@@ -1288,7 +1288,7 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
     /*
      * getAnonymous method will gain anonymous symbol's toCh.
      * */
-    public int getAnonymousTokenPosition(String str,int fromCh){
+    public int getAnonymousTextRange(String str,int fromCh){
         int toCh = 0;
         while(!" ".equals(str.substring(toCh,toCh+1)) && !"\n".equals(str.substring(toCh,toCh+1)) && !"\r".equals(str.substring(toCh,toCh+1))){
             ++toCh;
@@ -1298,7 +1298,7 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
     /*
      * getScope method will gain node's scope in source file.
      * */
-    public TokenPosition getScope(IASTNode node, int[] strLineLength){
+    public PlanarRange getScope(IASTNode node, int[] strLineLength){
     	if(null != node && !"".equals(node.getRawSignature())){
     	    int fromLine, toLine, fromCh, toCh ;
     	    fromLine = node.getFileLocation().getStartingLineNumber();
@@ -1307,7 +1307,7 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
     	    toCh = fromCh + node.getFileLocation().getNodeLength();
     	    fromCh = fromCh - getLinesLength(fromLine - 1, strLineLength);
     	    toCh = toCh - getLinesLength(toLine - 1, strLineLength);
-    	    TokenPosition token = new TokenPosition(fromLine-1,fromCh,toLine-1,toCh);
+    	    PlanarRange token = new PlanarRange(fromLine-1,fromCh,toLine-1,toCh);
     	    return token;
     	}
     	else

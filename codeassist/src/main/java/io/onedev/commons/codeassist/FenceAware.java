@@ -9,7 +9,7 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import io.onedev.commons.codeassist.grammar.Grammar;
 import io.onedev.commons.codeassist.parser.TerminalExpect;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 public abstract class FenceAware {
 	
@@ -46,13 +46,13 @@ public abstract class FenceAware {
 			for (InputSuggestion suggestion: suggestions) {
 				String content = suggestion.getContent();
 				int caret = suggestion.getCaret();
-				Range match = suggestion.getMatch();
+				LinearRange match = suggestion.getMatch();
 				if (!content.startsWith(open)) { 
 					content = open + content + close;
 					if (caret != -1) 
 						caret += open.length();
 					if (match != null)
-						match = new Range(match.getFrom()+open.length(), match.getTo()+open.length());
+						match = new LinearRange(match.getFrom()+open.length(), match.getTo()+open.length());
 				}
 				if (terminalExpect.getElementSpec().matches(grammar, content))				
 					fencedSuggestions.add(new InputSuggestion(content, caret, suggestion.getDescription(), match));
@@ -74,7 +74,7 @@ public abstract class FenceAware {
 		if (unfencedMatchWith.length() != 0) {
 			String content = open + unfencedMatchWith + close;
 			if (terminalExpect.getElementSpec().matches(grammar, content)) {
-				Range match = new Range(1, content.length()-1);
+				LinearRange match = new LinearRange(1, content.length()-1);
 				return new InputSuggestion(content, -1, getFencingDescription(), match);
 			} else {
 				return null;

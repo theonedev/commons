@@ -5,11 +5,11 @@ import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.request.resource.PackageResourceReference;
 
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.python.symbols.ui.MethodSymbolPanel;
 import io.onedev.commons.jsymbol.python.symbols.ui.icons.IconLocator;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 /**
  * Represents a method declaration
@@ -22,7 +22,7 @@ public class MethodSymbol extends PythonSymbol {
 	
 	private final String parameters;
 	
-	public MethodSymbol(PythonSymbol parent, String name, TokenPosition position, TokenPosition scope, 
+	public MethodSymbol(PythonSymbol parent, String name, PlanarRange position, PlanarRange scope, 
 			String parameters) {
 		super(parent, name, position, scope);
 		this.parameters = parameters;
@@ -33,7 +33,7 @@ public class MethodSymbol extends PythonSymbol {
 	}
 
 	@Override
-	public Component render(String componentId, Range highlight) {
+	public Component render(String componentId, LinearRange highlight) {
 		return new MethodSymbolPanel(componentId, this, highlight);
 	}
 

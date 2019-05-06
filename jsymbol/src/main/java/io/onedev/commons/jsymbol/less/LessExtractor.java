@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.onedev.commons.jsymbol.AbstractSymbolExtractor;
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.less.LessParser.BlockContext;
 import io.onedev.commons.jsymbol.less.LessParser.ElementContext;
 import io.onedev.commons.jsymbol.less.LessParser.MixinDefinitionContext;
@@ -97,7 +97,7 @@ public class LessExtractor extends AbstractSymbolExtractor<LessSymbol> {
 				if (suffix.length() == 0)
 					suffix = null;
 				QualifiedName name = new QualifiedName(unqualifiedName, prefix, suffix); 
-				TokenPosition position = Utils.getTokenPosition(element.identifier());
+				PlanarRange position = Utils.getTextRange(element.identifier());
 				if (element.HASH() != null) 
 					symbols.add(new IdSymbol(parentSymbol, name, position));
 				else if (element.DOT() != null)
@@ -107,7 +107,7 @@ public class LessExtractor extends AbstractSymbolExtractor<LessSymbol> {
 		
 		String selectorText = source.substring(selector.start.getStartIndex(), selector.stop.getStopIndex()+1);
 		SelectorSymbol selectorSymbol = new SelectorSymbol(parentSymbol, selectorText, 
-				Utils.getTokenPosition(selector));
+				Utils.getTextRange(selector));
 		symbols.add(selectorSymbol);
 		return selectorSymbol;
 	}
@@ -122,7 +122,7 @@ public class LessExtractor extends AbstractSymbolExtractor<LessSymbol> {
 						ruleset.selectors().directive().start.getStartIndex(), 
 						ruleset.selectors().directive().stop.getStopIndex()+1);
 				SelectorSymbol directiveSymbol = new SelectorSymbol(parentSymbol, directiveText, 
-						Utils.getTokenPosition(ruleset.selectors().directive()));
+						Utils.getTextRange(ruleset.selectors().directive()));
 				symbols.add(directiveSymbol);
 				extract(ruleset.block(), symbols, directiveSymbol, source);
 			}
@@ -143,8 +143,8 @@ public class LessExtractor extends AbstractSymbolExtractor<LessSymbol> {
 			
 			String params = "(" + mixinDefinition.ignoreInsideParens().getText() + ")";
 			MixinSymbol mixinSymbol = new MixinSymbol(parentSymbol, mixinName, prefix, params,
-					Utils.getTokenPosition(selectors), 
-					Utils.getTokenPosition(mixinDefinition));
+					Utils.getTextRange(selectors), 
+					Utils.getTextRange(mixinDefinition));
 			symbols.add(mixinSymbol);
 			extract(mixinDefinition.block(), symbols, mixinSymbol, source);
 		} else if (statement.variableDeclaration() != null) {
@@ -152,10 +152,10 @@ public class LessExtractor extends AbstractSymbolExtractor<LessSymbol> {
 			TerminalNode identifier = variableDeclaration.variableName().Identifier(); 
 			if (identifier != null) {
 				String name = identifier.getText();
-				TokenPosition position = Utils.getTokenPosition(identifier.getSymbol());
+				PlanarRange position = Utils.getTextRange(identifier.getSymbol());
 				boolean local = findEnclosingMixin(parentSymbol) != null;
 				VariableSymbol variableSymbol = new VariableSymbol(parentSymbol, name, position, 
-						Utils.getTokenPosition(variableDeclaration), local);
+						Utils.getTextRange(variableDeclaration), local);
 				symbols.add(variableSymbol);
 			}
 		}

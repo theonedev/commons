@@ -1,7 +1,7 @@
 package io.onedev.commons.jsymbol.java.symbols;
 
 import io.onedev.commons.jsymbol.Symbol;
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 
 public abstract class JavaSymbol extends Symbol {
 
@@ -11,11 +11,11 @@ public abstract class JavaSymbol extends Symbol {
 	
 	private final JavaSymbol parent;
 	
-	private final TokenPosition position;
+	private final PlanarRange position;
 	
-	private final TokenPosition scope;
+	private final PlanarRange scope;
 	
-	public JavaSymbol(JavaSymbol parent, String name, TokenPosition position, TokenPosition scope) {
+	public JavaSymbol(JavaSymbol parent, String name, PlanarRange position, PlanarRange scope) {
 		this.parent = parent;
 		this.name = name;
 		this.position = position;
@@ -33,12 +33,12 @@ public abstract class JavaSymbol extends Symbol {
 	}
 
 	@Override
-	public TokenPosition getPosition() {
+	public PlanarRange getPosition() {
 		return position;
 	}
 
 	@Override
-	public TokenPosition getScope() {
+	public PlanarRange getScope() {
 		return scope;
 	}
 

@@ -7,16 +7,16 @@ import org.apache.wicket.markup.html.panel.Panel;
 
 import io.onedev.commons.jsymbol.go.symbols.VariableSymbol;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 @SuppressWarnings("serial")
 public class VariableSymbolPanel extends Panel {
 
 	private final VariableSymbol variableSymbol;
 	
-	private final Range highlight;
+	private final LinearRange highlight;
 	
-	public VariableSymbolPanel(String id, VariableSymbol variableSymbol, Range highlight) {
+	public VariableSymbolPanel(String id, VariableSymbol variableSymbol, LinearRange highlight) {
 		super(id);
 		this.variableSymbol = variableSymbol;
 		this.highlight = highlight;

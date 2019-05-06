@@ -8,7 +8,7 @@ import org.apache.wicket.request.resource.PackageResourceReference;
 
 import io.onedev.commons.jsymbol.cpp.symbols.ui.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 /**
  * This symbol represents C source file in order to show in which source file a symbol is defined
@@ -55,7 +55,7 @@ public class SourceFileSymbol extends CppSymbol {
 	}
 
 	@Override
-	public Component render(String componentId, Range highlight) {
+	public Component render(String componentId, LinearRange highlight) {
 		return new Label(componentId, getName());
 	}
 

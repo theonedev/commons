@@ -3,7 +3,7 @@ package io.onedev.commons.jsymbol.csharp.symbols;
 import javax.annotation.Nullable;
 
 import io.onedev.commons.jsymbol.Symbol;
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.util.QualifiedName;
 
 public abstract class CSharpSymbol extends Symbol {
@@ -17,20 +17,20 @@ public abstract class CSharpSymbol extends Symbol {
 	
 	private final CSharpSymbol parent;
 	
-	private final TokenPosition position;
+	private final PlanarRange position;
 	
-	private final TokenPosition scope;
+	private final PlanarRange scope;
 	
-	public CSharpSymbol(CSharpSymbol parent, String qualifiedName, @Nullable TokenPosition position, 
-			@Nullable TokenPosition scope) {
+	public CSharpSymbol(CSharpSymbol parent, String qualifiedName, @Nullable PlanarRange position, 
+			@Nullable PlanarRange scope) {
 		this.parent = parent;
 		this.position = position;
 		this.scope = scope;
 		this.qualifiedName = new QualifiedName(qualifiedName, "~", "::", ".");
 	}
 
-	public CSharpSymbol(CSharpSymbol parent, QualifiedName qualifiedName, @Nullable TokenPosition position, 
-			@Nullable TokenPosition scope) {
+	public CSharpSymbol(CSharpSymbol parent, QualifiedName qualifiedName, @Nullable PlanarRange position, 
+			@Nullable PlanarRange scope) {
 		this.parent = parent;
 		this.position = position;
 		this.scope = scope;
@@ -52,12 +52,12 @@ public abstract class CSharpSymbol extends Symbol {
 	}
 
 	@Override
-	public TokenPosition getPosition() {
+	public PlanarRange getPosition() {
 		return position;
 	}
 
 	@Override
-	public TokenPosition getScope() {
+	public PlanarRange getScope() {
 		return scope;
 	}
 

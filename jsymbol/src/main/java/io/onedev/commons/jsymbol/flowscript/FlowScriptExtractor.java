@@ -91,7 +91,7 @@ import com.google.common.base.Preconditions;
 import com.sonar.sslr.api.RecognitionException;
 
 import io.onedev.commons.jsymbol.AbstractSymbolExtractor;
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.flowscript.symbols.ClassSymbol;
 import io.onedev.commons.jsymbol.flowscript.symbols.FlowScriptSymbol;
 import io.onedev.commons.jsymbol.flowscript.symbols.FunctionSymbol;
@@ -1202,7 +1202,7 @@ public class FlowScriptExtractor extends AbstractSymbolExtractor<FlowScriptSymbo
 		return null;
 	}
 
-	private TokenPosition getPosition(IdentifierTree identifier) {
+	private PlanarRange getPosition(IdentifierTree identifier) {
 		return identifier != null ? getPosition(identifier.identifierToken()) : null;
 	}
 
@@ -1943,16 +1943,16 @@ public class FlowScriptExtractor extends AbstractSymbolExtractor<FlowScriptSymbo
 		
 	}
 	
-	private TokenPosition getPosition(SyntaxToken from, SyntaxToken to) {
-		return new TokenPosition(from.line()-1, from.column(), to.endLine()-1, to.endColumn());
+	private PlanarRange getPosition(SyntaxToken from, SyntaxToken to) {
+		return new PlanarRange(from.line()-1, from.column(), to.endLine()-1, to.endColumn());
 	}
 
-	private TokenPosition getPosition(IdentifierTreeImpl identifier) {
+	private PlanarRange getPosition(IdentifierTreeImpl identifier) {
 		return identifier != null ? getPosition(identifier.identifierToken()) : null;
 	}
 
-	private TokenPosition getPosition(SyntaxToken token) {
-		return new TokenPosition(token.line() -1 , token.column(), token.endLine() -1, token.endColumn());
+	private PlanarRange getPosition(SyntaxToken token) {
+		return new PlanarRange(token.line() -1 , token.column(), token.endLine() -1, token.endColumn());
 	}
 
 	private void processBlockTree(BlockTreeImpl child, FlowScriptSymbol parent, List<FlowScriptSymbol> symbols) {

@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.onedev.commons.jsymbol.AbstractSymbolExtractor;
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.go.GolangParser.ConstSpecContext;
 import io.onedev.commons.jsymbol.go.GolangParser.DeclarationContext;
 import io.onedev.commons.jsymbol.go.GolangParser.FieldDeclContext;
@@ -77,16 +77,16 @@ public class GolangExtractor extends AbstractSymbolExtractor<GolangSymbol> {
 			} else if (topLevelDecl.methodDecl() != null) {
 				MethodDeclContext methodDecl = topLevelDecl.methodDecl();
 				String funcName = methodDecl.IDENTIFIER().getText();
-				TokenPosition position = Utils.getTokenPosition(methodDecl.IDENTIFIER().getSymbol());
-				TokenPosition scope = Utils.getTokenPosition(methodDecl);
+				PlanarRange position = Utils.getTextRange(methodDecl.IDENTIFIER().getSymbol());
+				PlanarRange scope = Utils.getTextRange(methodDecl);
 				String receiver = methodDecl.receiver().parameters().parameterList().parameterDecl(0).type().getText();
 				extract(methodDecl.functionOrSignature(), symbols, null, funcName, receiver, position, scope, 
 						fileContent);
 			} else if (topLevelDecl.functionDecl() != null) {
 				FunctionDeclContext functionDecl = topLevelDecl.functionDecl();
 				String funcName = functionDecl.IDENTIFIER().getText();
-				TokenPosition position = Utils.getTokenPosition(functionDecl.IDENTIFIER().getSymbol());
-				TokenPosition scope = Utils.getTokenPosition(functionDecl);
+				PlanarRange position = Utils.getTextRange(functionDecl.IDENTIFIER().getSymbol());
+				PlanarRange scope = Utils.getTextRange(functionDecl);
 				extract(functionDecl.functionOrSignature(), symbols, null, funcName, null, position, scope, 
 						fileContent);
 			}
@@ -140,7 +140,7 @@ public class GolangExtractor extends AbstractSymbolExtractor<GolangSymbol> {
 						type = null;
 					for (TerminalNode identifier: constSpec.identifierList().IDENTIFIER()) {
 						String varName = identifier.getText();
-						TokenPosition position = Utils.getTokenPosition(identifier.getSymbol());
+						PlanarRange position = Utils.getTextRange(identifier.getSymbol());
 						symbols.add(new VariableSymbol(parentSymbol, varName, type, position, true));
 					}
 				}
@@ -155,7 +155,7 @@ public class GolangExtractor extends AbstractSymbolExtractor<GolangSymbol> {
 						type = null;
 					for (TerminalNode identifier: varSpec.identifierList().IDENTIFIER()) {
 						String varName = identifier.getText();
-						TokenPosition position = Utils.getTokenPosition(identifier.getSymbol());
+						PlanarRange position = Utils.getTextRange(identifier.getSymbol());
 						symbols.add(new VariableSymbol(parentSymbol, varName, type, position, true));
 					}
 				}
@@ -164,8 +164,8 @@ public class GolangExtractor extends AbstractSymbolExtractor<GolangSymbol> {
 			TypeDeclContext typeDecl = declaration.typeDecl();
 			for (TypeSpecContext typeSpec: typeDecl.typeSpec()) {
 				String typeName = typeSpec.IDENTIFIER().getText();
-				TokenPosition position = Utils.getTokenPosition(typeSpec.IDENTIFIER().getSymbol());
-				TokenPosition scope = Utils.getTokenPosition(typeSpec);
+				PlanarRange position = Utils.getTextRange(typeSpec.IDENTIFIER().getSymbol());
+				PlanarRange scope = Utils.getTextRange(typeSpec);
 				boolean isIntf = typeSpec.type().typeLit() != null && typeSpec.type().typeLit().interfaceType() != null;
 				TypeSymbol typeSymbol = new TypeSymbol(parentSymbol, typeName, position, scope, isIntf, true);
 				symbols.add(typeSymbol);				
@@ -180,13 +180,13 @@ public class GolangExtractor extends AbstractSymbolExtractor<GolangSymbol> {
 				StructTypeContext structType = type.typeLit().structType();
 				for (FieldDeclContext fieldDecl: structType.fieldDecl()) {
 					if (fieldDecl.anonymousField() != null) {
-						TokenPosition fieldPosition = Utils.getTokenPosition(fieldDecl.anonymousField().typeName());
+						PlanarRange fieldPosition = Utils.getTextRange(fieldDecl.anonymousField().typeName());
 						String fieldName = fieldDecl.anonymousField().typeName().getText();
 						symbols.add(new VariableSymbol(parentSymbol, fieldName, null, fieldPosition, false));
 					} else if (fieldDecl.type() != null) { // type might be null due to semantic prediction
 						for (TerminalNode identifier: fieldDecl.identifierList().IDENTIFIER()) {
 							String fieldName = identifier.getText();
-							TokenPosition fieldPosition = Utils.getTokenPosition(identifier.getSymbol());
+							PlanarRange fieldPosition = Utils.getTextRange(identifier.getSymbol());
 							VariableSymbol variableSymbol = new VariableSymbol(parentSymbol, fieldName, null, 
 									fieldPosition, true);
 							symbols.add(variableSymbol);
@@ -194,7 +194,7 @@ public class GolangExtractor extends AbstractSymbolExtractor<GolangSymbol> {
 								variableSymbol.setType(describe(fieldDecl.type(), source));
 						}
 					} else {
-						TokenPosition fieldPosition = Utils.getTokenPosition(fieldDecl.identifierList());
+						PlanarRange fieldPosition = Utils.getTextRange(fieldDecl.identifierList());
 						String fieldName = fieldDecl.identifierList().getText();
 						symbols.add(new VariableSymbol(parentSymbol, fieldName, null, fieldPosition, false));
 					}
@@ -205,7 +205,7 @@ public class GolangExtractor extends AbstractSymbolExtractor<GolangSymbol> {
 				for (MethodSpecContext methodSpec: interfaceType.methodSpec()) {
 					if (methodSpec.typeName() != null) {
 						String interfaceName = methodSpec.typeName().getText();
-						TokenPosition position = Utils.getTokenPosition(methodSpec.typeName());
+						PlanarRange position = Utils.getTextRange(methodSpec.typeName());
 						symbols.add(new TypeSymbol(parentSymbol, interfaceName, position, null, true, false));
 					} else if (methodSpec.signature() != null) { // signature might be null due to semantic prediction
 						ParametersContext parameters = methodSpec.signature().parameters();
@@ -217,13 +217,13 @@ public class GolangExtractor extends AbstractSymbolExtractor<GolangSymbol> {
 							returnType = null;
 						}
 						String methodName = methodSpec.IDENTIFIER().getText();
-						TokenPosition position = Utils.getTokenPosition(methodSpec.IDENTIFIER().getSymbol());
-						TokenPosition scope = Utils.getTokenPosition(methodSpec);
+						PlanarRange position = Utils.getTextRange(methodSpec.IDENTIFIER().getSymbol());
+						PlanarRange scope = Utils.getTextRange(methodSpec);
 						symbols.add(new FunctionSymbol(parentSymbol, methodName, functionParams, returnType, null, 
 								position, scope));
 					} else {
 						String interfaceName = methodSpec.IDENTIFIER().getText();
-						TokenPosition position = Utils.getTokenPosition(methodSpec.IDENTIFIER().getSymbol());
+						PlanarRange position = Utils.getTextRange(methodSpec.IDENTIFIER().getSymbol());
 						symbols.add(new TypeSymbol(parentSymbol, interfaceName, position, null, true, false));
 					}
 				}
@@ -237,8 +237,8 @@ public class GolangExtractor extends AbstractSymbolExtractor<GolangSymbol> {
 	}
 	
 	private void extract(FunctionOrSignatureContext functionOrSignature, List<GolangSymbol> symbols, 
-			GolangSymbol parentSymbol, String funcName, String receiver, TokenPosition position, 
-			TokenPosition scope, String source) {
+			GolangSymbol parentSymbol, String funcName, String receiver, PlanarRange position, 
+			PlanarRange scope, String source) {
 		if (functionOrSignature.function() != null) {
 			FunctionContext function = functionOrSignature.function();
 			String functionParams = describe(function.signature().parameters(), source);

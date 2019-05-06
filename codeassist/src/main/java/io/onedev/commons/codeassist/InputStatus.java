@@ -2,7 +2,7 @@ package io.onedev.commons.codeassist;
 
 import java.io.Serializable;
 
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 public class InputStatus implements Serializable {
 	
@@ -37,7 +37,7 @@ public class InputStatus implements Serializable {
 		return content.substring(caret, content.length());
 	}
 	
-	public String replace(Range range, String replaceWith) {
+	public String replace(LinearRange range, String replaceWith) {
 		return content.substring(0, range.getFrom()) + replaceWith + content.substring(range.getTo());
 	}
 	

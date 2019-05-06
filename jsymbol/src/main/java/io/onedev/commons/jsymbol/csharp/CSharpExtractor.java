@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Joiner;
 
 import io.onedev.commons.jsymbol.AbstractSymbolExtractor;
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.csharp.CSharpParser.All_member_modifierContext;
 import io.onedev.commons.jsymbol.csharp.CSharpParser.All_member_modifiersContext;
 import io.onedev.commons.jsymbol.csharp.CSharpParser.Arg_declarationContext;
@@ -117,8 +117,8 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 							}
 						}
 						if (namespaceSymbol == null) {
-							TokenPosition position = Utils.getTokenPosition(identifier);
-							TokenPosition scope = Utils.getTokenPosition(namespaceDeclaration);
+							PlanarRange position = Utils.getTextRange(identifier);
+							PlanarRange scope = Utils.getTextRange(namespaceDeclaration);
 							namespaceSymbol = new NamespaceSymbol(newParentSymbol, namespaceName, position, scope);
 							symbols.add(namespaceSymbol);
 						}
@@ -148,8 +148,8 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 	private void extract(Method_declarationContext methodDeclaration, List<CSharpSymbol> symbols, 
 			CSharpSymbol parentSymbol, EnumSet<CSharpSymbol.Modifier> modifiers, String type) {
 		String methodName = getText(methodDeclaration.method_member_name());
-		TokenPosition position = Utils.getTokenPosition(methodDeclaration.method_member_name());
-		TokenPosition scope = Utils.getTokenPosition(methodDeclaration);
+		PlanarRange position = Utils.getTextRange(methodDeclaration.method_member_name());
+		PlanarRange scope = Utils.getTextRange(methodDeclaration);
 		String typeParams = getTypeParameters(methodDeclaration.type_parameter_list());
 		String methodParams = getMethodParams(methodDeclaration.formal_parameter_list());
 		symbols.add(new MethodSymbol(parentSymbol, MethodSymbol.Kind.NORMAL_METHOD, methodName, position, scope, 
@@ -205,8 +205,8 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 					constantDeclaration.constant_declarators().constant_declarator()) {
 				IdentifierContext identifier = constantDeclarator.identifier();
 				String fieldName = getText(identifier);
-				TokenPosition position = Utils.getTokenPosition(identifier);
-				TokenPosition scope = Utils.getTokenPosition(constantDeclarator);
+				PlanarRange position = Utils.getTextRange(identifier);
+				PlanarRange scope = Utils.getTextRange(constantDeclarator);
 				symbols.add(new FieldSymbol(parentSymbol, FieldSymbol.Kind.NORMAL_FIELD, fieldName, position, scope, 
 						type, null, modifiers));
 			}
@@ -222,8 +222,8 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 					propertyName = "this";
 				
 				String indexParams = "[" + getMethodParams(indexerDeclaration.formal_parameter_list()) + "]";
-				TokenPosition position = Utils.getTokenPosition(indexerDeclaration.THIS().getSymbol());
-				TokenPosition scope = Utils.getTokenPosition(typedMemberDeclaration);
+				PlanarRange position = Utils.getTextRange(indexerDeclaration.THIS().getSymbol());
+				PlanarRange scope = Utils.getTextRange(typedMemberDeclaration);
 				symbols.add(new FieldSymbol(parentSymbol, FieldSymbol.Kind.PROPERTY, propertyName, position, scope, 
 						type, indexParams, modifiers));
 			} else if (typedMemberDeclaration.method_declaration() != null) {
@@ -231,8 +231,8 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 			} else if (typedMemberDeclaration.property_declaration() != null) {
 				Property_declarationContext propertyDeclaration = typedMemberDeclaration.property_declaration();
 				String propertyName = getText(propertyDeclaration.member_name());
-				TokenPosition position = Utils.getTokenPosition(propertyDeclaration.member_name());
-				TokenPosition scope = Utils.getTokenPosition(propertyDeclaration);
+				PlanarRange position = Utils.getTextRange(propertyDeclaration.member_name());
+				PlanarRange scope = Utils.getTextRange(propertyDeclaration);
 				symbols.add(new FieldSymbol(parentSymbol, FieldSymbol.Kind.PROPERTY, propertyName, position, scope, 
 						type, null, modifiers));
 			} else if (typedMemberDeclaration.field_declaration() != null) {
@@ -240,8 +240,8 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 				for (Variable_declaratorContext variableDeclarator: 
 						fieldDeclaration.variable_declarators().variable_declarator()) {
 					String fieldName = getText(variableDeclarator.identifier());
-					TokenPosition position = Utils.getTokenPosition(variableDeclarator.identifier());
-					TokenPosition scope = Utils.getTokenPosition(variableDeclarator);
+					PlanarRange position = Utils.getTextRange(variableDeclarator.identifier());
+					PlanarRange scope = Utils.getTextRange(variableDeclarator);
 					symbols.add(new FieldSymbol(parentSymbol, FieldSymbol.Kind.NORMAL_FIELD, fieldName, position, scope, 
 							type, null, modifiers));
 				}
@@ -253,8 +253,8 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 					methodParamList.add(getText(argDeclaration.type()));
 				}
 				String methodParams = Joiner.on(", ").join(methodParamList);
-				TokenPosition position = Utils.getTokenPosition(operatorDeclaration.overloadable_operator());
-				TokenPosition scope = Utils.getTokenPosition(operatorDeclaration);
+				PlanarRange position = Utils.getTextRange(operatorDeclaration.overloadable_operator());
+				PlanarRange scope = Utils.getTextRange(operatorDeclaration);
 				symbols.add(new MethodSymbol(parentSymbol, MethodSymbol.Kind.OPERATOR, methodName, position, scope, 
 						null, type, methodParams, "operator", modifiers));
 			}
@@ -263,16 +263,16 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 			String type = getText(eventDeclaration.type()) + "(...)";
 			if (eventDeclaration.member_name() != null) {
 				String eventName = getText(eventDeclaration.member_name());
-				TokenPosition position = Utils.getTokenPosition(eventDeclaration.member_name());
-				TokenPosition scope = Utils.getTokenPosition(eventDeclaration);
+				PlanarRange position = Utils.getTextRange(eventDeclaration.member_name());
+				PlanarRange scope = Utils.getTextRange(eventDeclaration);
 				symbols.add(new FieldSymbol(parentSymbol, FieldSymbol.Kind.EVENT, eventName, position, scope, type, 
 						null, modifiers));
 			} else {
 				for (Variable_declaratorContext variableDeclarator: 
 						eventDeclaration.variable_declarators().variable_declarator()) {
 					String eventName = getText(variableDeclarator.identifier());
-					TokenPosition position = Utils.getTokenPosition(variableDeclarator.identifier());
-					TokenPosition scope = Utils.getTokenPosition(variableDeclarator);
+					PlanarRange position = Utils.getTextRange(variableDeclarator.identifier());
+					PlanarRange scope = Utils.getTextRange(variableDeclarator);
 					symbols.add(new FieldSymbol(parentSymbol, FieldSymbol.Kind.EVENT, eventName, position, scope, type, 
 							null, modifiers));
 				}
@@ -287,14 +287,14 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 				prefix = "explicit " + prefix;
 			QualifiedName name = getQualifiedName(conversionOperatorDeclarator.type(), source);
 			String methodParams = getText(conversionOperatorDeclarator.arg_declaration().type());
-			TokenPosition position = Utils.getTokenPosition(conversionOperatorDeclarator.type());
-			TokenPosition scope = Utils.getTokenPosition(commonMemberDeclaration);
+			PlanarRange position = Utils.getTextRange(conversionOperatorDeclarator.type());
+			PlanarRange scope = Utils.getTextRange(commonMemberDeclaration);
 			symbols.add(new MethodSymbol(parentSymbol, MethodSymbol.Kind.OPERATOR, name, position, scope, 
 					null, null, methodParams, prefix, modifiers));
 		} else if (commonMemberDeclaration.constructor_declaration() != null) {
 			Constructor_declarationContext constructorDeclaration = commonMemberDeclaration.constructor_declaration();
-			TokenPosition position = Utils.getTokenPosition(constructorDeclaration.identifier());
-			TokenPosition scope = Utils.getTokenPosition(constructorDeclaration);
+			PlanarRange position = Utils.getTextRange(constructorDeclaration.identifier());
+			PlanarRange scope = Utils.getTextRange(constructorDeclaration);
 			String name = getText(constructorDeclaration.identifier());
 			String methodParams = getMethodParams(constructorDeclaration.formal_parameter_list());
 			symbols.add(new MethodSymbol(parentSymbol, MethodSymbol.Kind.NORMAL_METHOD, name, position, scope, 
@@ -317,8 +317,8 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 	private void extract(Class_definitionContext classDefinition, List<CSharpSymbol> symbols, 
 			@Nullable CSharpSymbol parentSymbol, EnumSet<CSharpSymbol.Modifier> modifiers, String source) {
 		String typeName = getText(classDefinition.identifier());
-		TokenPosition position = Utils.getTokenPosition(classDefinition.identifier());
-		TokenPosition scope = Utils.getTokenPosition(classDefinition);
+		PlanarRange position = Utils.getTextRange(classDefinition.identifier());
+		PlanarRange scope = Utils.getTextRange(classDefinition);
 		String typeParams = getTypeParameters(classDefinition.type_parameter_list());
 		TypeSymbol symbol = new TypeSymbol(parentSymbol, typeName, position, scope, Kind.CLASS, typeParams, modifiers);
 		if (classDefinition.class_body().class_member_declarations() != null) {
@@ -329,8 +329,8 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 				if (classMemberDeclaration.destructor_definition() != null) {
 					Destructor_definitionContext destructorDefinition = 
 							classMemberDeclaration.destructor_definition();
-					TokenPosition memberPosition = Utils.getTokenPosition(destructorDefinition.identifier());
-					TokenPosition memberScope = Utils.getTokenPosition(destructorDefinition);
+					PlanarRange memberPosition = Utils.getTextRange(destructorDefinition.identifier());
+					PlanarRange memberScope = Utils.getTextRange(destructorDefinition);
 					symbols.add(new MethodSymbol(symbol, MethodSymbol.Kind.NORMAL_METHOD, "~"+typeName, 
 							memberPosition, memberScope, null, null, null, null, memberModifiers));
 				} else {
@@ -345,8 +345,8 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 	private void extract(Delegate_definitionContext delegateDefinition, List<CSharpSymbol> symbols, 
 			@Nullable CSharpSymbol parentSymbol, EnumSet<CSharpSymbol.Modifier> modifiers) {
 		String delegateName = getText(delegateDefinition.identifier());
-		TokenPosition scope = Utils.getTokenPosition(delegateDefinition);
-		TokenPosition position = Utils.getTokenPosition(delegateDefinition.identifier());
+		PlanarRange scope = Utils.getTextRange(delegateDefinition);
+		PlanarRange position = Utils.getTextRange(delegateDefinition.identifier());
 		String returnType = getReturnType(delegateDefinition.return_type());
 		String typeParams = getTypeParameters(delegateDefinition.variant_type_parameter_list());
 		String methodParams = getMethodParams(delegateDefinition.formal_parameter_list());
@@ -358,8 +358,8 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 	private void extract(Interface_definitionContext interfaceDefinition, List<CSharpSymbol> symbols, 
 			@Nullable CSharpSymbol parentSymbol, EnumSet<CSharpSymbol.Modifier> modifiers) {
 		String typeName = getText(interfaceDefinition.identifier());
-		TokenPosition scope = Utils.getTokenPosition(interfaceDefinition);
-		TokenPosition position = Utils.getTokenPosition(interfaceDefinition.identifier());
+		PlanarRange scope = Utils.getTextRange(interfaceDefinition);
+		PlanarRange position = Utils.getTextRange(interfaceDefinition.identifier());
 		String typeParams = getTypeParameters(interfaceDefinition.variant_type_parameter_list());
 		TypeSymbol symbol = new TypeSymbol(parentSymbol, typeName, position, scope, Kind.INTERFACE, typeParams, 
 				modifiers);
@@ -368,16 +368,16 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 		EnumSet<CSharpSymbol.Modifier> memberModifiers = EnumSet.noneOf(CSharpSymbol.Modifier.class);
 		for (Interface_member_declarationContext interfaceMemberDeclaration: 
 				interfaceDefinition.interface_body().interface_member_declaration()) {
-			TokenPosition memberScope = Utils.getTokenPosition(interfaceMemberDeclaration);
+			PlanarRange memberScope = Utils.getTextRange(interfaceMemberDeclaration);
 			if (interfaceMemberDeclaration.VOID() != null) {
-				TokenPosition memberPosition = Utils.getTokenPosition(interfaceMemberDeclaration.identifier());
+				PlanarRange memberPosition = Utils.getTextRange(interfaceMemberDeclaration.identifier());
 				String methodName = getText(interfaceMemberDeclaration.identifier());
 				String memberTypeParams = getTypeParameters(interfaceMemberDeclaration.type_parameter_list());
 				String methodParams = getMethodParams(interfaceMemberDeclaration.formal_parameter_list());
 				symbols.add(new MethodSymbol(symbol, MethodSymbol.Kind.NORMAL_METHOD, methodName, memberPosition, 
 						memberScope, memberTypeParams, "void", methodParams, null, memberModifiers));
 			} else if (interfaceMemberDeclaration.EVENT() != null) {
-				TokenPosition memberPosition = Utils.getTokenPosition(interfaceMemberDeclaration.identifier());
+				PlanarRange memberPosition = Utils.getTextRange(interfaceMemberDeclaration.identifier());
 				String eventName = getText(interfaceMemberDeclaration.identifier());
 				String memberType = getText(interfaceMemberDeclaration.type()) + "(...)";
 				symbols.add(new FieldSymbol(symbol, FieldSymbol.Kind.EVENT, eventName, memberPosition, memberScope, 
@@ -386,16 +386,16 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 				String memberType = getText(interfaceMemberDeclaration.type());
 				if (interfaceMemberDeclaration.THIS() != null) {
 					String indexParams = getMethodParams(interfaceMemberDeclaration.formal_parameter_list());
-					TokenPosition propertyPosition = Utils.getTokenPosition(interfaceMemberDeclaration.THIS().getSymbol());
+					PlanarRange propertyPosition = Utils.getTextRange(interfaceMemberDeclaration.THIS().getSymbol());
 					symbols.add(new FieldSymbol(symbol, FieldSymbol.Kind.PROPERTY, "this", propertyPosition, 
 							memberScope, memberType, indexParams, memberModifiers));
 				} else if (interfaceMemberDeclaration.interface_accessors() != null) {
 					String propertyName = getText(interfaceMemberDeclaration.identifier());
-					TokenPosition propertyPosition = Utils.getTokenPosition(interfaceMemberDeclaration.identifier());
+					PlanarRange propertyPosition = Utils.getTextRange(interfaceMemberDeclaration.identifier());
 					symbols.add(new FieldSymbol(symbol, FieldSymbol.Kind.PROPERTY, propertyName, propertyPosition, 
 							memberScope, memberType, null, memberModifiers));
 				} else {
-					TokenPosition memberPosition = Utils.getTokenPosition(interfaceMemberDeclaration.identifier());
+					PlanarRange memberPosition = Utils.getTextRange(interfaceMemberDeclaration.identifier());
 					String methodName = getText(interfaceMemberDeclaration.identifier());
 					String memberTypeParams = getTypeParameters(interfaceMemberDeclaration.type_parameter_list());
 					String methodParams = getMethodParams(interfaceMemberDeclaration.formal_parameter_list());
@@ -409,8 +409,8 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 	private void extract(Struct_definitionContext structDefinition, List<CSharpSymbol> symbols, 
 			@Nullable CSharpSymbol parentSymbol, EnumSet<CSharpSymbol.Modifier> modifiers, String source) {
 		String typeName = getText(structDefinition.identifier());
-		TokenPosition position = Utils.getTokenPosition(structDefinition.identifier());
-		TokenPosition scope = Utils.getTokenPosition(structDefinition);		
+		PlanarRange position = Utils.getTextRange(structDefinition.identifier());
+		PlanarRange scope = Utils.getTextRange(structDefinition);		
 		String typeParams = getTypeParameters(structDefinition.type_parameter_list());
 		TypeSymbol symbol = new TypeSymbol(parentSymbol, typeName, position, scope, Kind.STRUCT, typeParams, modifiers);
 		for (Struct_member_declarationContext structMemberDeclaration: 
@@ -424,8 +424,8 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 				for (Fixed_size_buffer_declaratorContext fixedSizeBufferDeclarator: 
 						structMemberDeclaration.fixed_size_buffer_declarator()) {
 					String memberName = getText(fixedSizeBufferDeclarator.identifier());
-					TokenPosition memberPosition = Utils.getTokenPosition(fixedSizeBufferDeclarator.identifier());
-					TokenPosition memberScope = Utils.getTokenPosition(fixedSizeBufferDeclarator);
+					PlanarRange memberPosition = Utils.getTextRange(fixedSizeBufferDeclarator.identifier());
+					PlanarRange memberScope = Utils.getTextRange(fixedSizeBufferDeclarator);
 					symbols.add(new FieldSymbol(symbol, FieldSymbol.Kind.NORMAL_FIELD, memberName, memberPosition, 
 							memberScope, memberType, null, memberModifiers));
 				}
@@ -438,13 +438,13 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 	private void extract(Enum_definitionContext enumDefinition, List<CSharpSymbol> symbols, 
 			@Nullable CSharpSymbol parentSymbol, EnumSet<CSharpSymbol.Modifier> modifiers) {
 		String typeName = getText(enumDefinition.identifier());
-		TokenPosition position = Utils.getTokenPosition(enumDefinition.identifier());
-		TokenPosition scope = Utils.getTokenPosition(enumDefinition);		
+		PlanarRange position = Utils.getTextRange(enumDefinition.identifier());
+		PlanarRange scope = Utils.getTextRange(enumDefinition);		
 		TypeSymbol symbol = new TypeSymbol(parentSymbol, typeName, position, scope, Kind.ENUM, null, modifiers);
 		for (Enum_member_declarationContext enumMemberDeclaration: 
 				enumDefinition.enum_body().enum_member_declaration()) {
 			String itemName = getText(enumMemberDeclaration.identifier());
-			TokenPosition itemPosition = Utils.getTokenPosition(enumMemberDeclaration.identifier());
+			PlanarRange itemPosition = Utils.getTextRange(enumMemberDeclaration.identifier());
 			symbols.add(new FieldSymbol(symbol, FieldSymbol.Kind.ENUM_ITEM, itemName, itemPosition, itemPosition, 
 					null, null, EnumSet.noneOf(CSharpSymbol.Modifier.class)));
 		}

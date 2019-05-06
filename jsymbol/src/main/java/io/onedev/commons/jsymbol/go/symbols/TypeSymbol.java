@@ -6,11 +6,11 @@ import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.request.resource.PackageResourceReference;
 
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.go.symbols.ui.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 public class TypeSymbol extends GolangSymbol {
 
@@ -20,15 +20,15 @@ public class TypeSymbol extends GolangSymbol {
 	
 	private final boolean searchable;
 
-	public TypeSymbol(@Nullable GolangSymbol parent, String name, TokenPosition position, 
-			TokenPosition scope, boolean intf, boolean searchable) {
+	public TypeSymbol(@Nullable GolangSymbol parent, String name, PlanarRange position, 
+			PlanarRange scope, boolean intf, boolean searchable) {
 		super(parent, name, position, scope);
 		this.intf = intf;
 		this.searchable = searchable;
 	}
 	
 	@Override
-	public Component render(String componentId, Range highlight) {
+	public Component render(String componentId, LinearRange highlight) {
 		return new HighlightableLabel(componentId, getName(), highlight);
 	}
 

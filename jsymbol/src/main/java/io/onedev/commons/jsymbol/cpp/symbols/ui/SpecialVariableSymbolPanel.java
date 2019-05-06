@@ -6,16 +6,16 @@ import org.apache.wicket.markup.html.panel.Panel;
 
 import io.onedev.commons.jsymbol.cpp.symbols.SpecialVariableSymbol;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 @SuppressWarnings("serial")
 public class SpecialVariableSymbolPanel extends Panel {
 
 	private final SpecialVariableSymbol specialVariableSymbol;
 	
-	private final Range highlight;
+	private final LinearRange highlight;
 	
-	public SpecialVariableSymbolPanel(String id, SpecialVariableSymbol specialVariableSymbol, Range highlight) {
+	public SpecialVariableSymbolPanel(String id, SpecialVariableSymbol specialVariableSymbol, LinearRange highlight) {
 		super(id);
 		this.specialVariableSymbol = specialVariableSymbol;
 		this.highlight = highlight;

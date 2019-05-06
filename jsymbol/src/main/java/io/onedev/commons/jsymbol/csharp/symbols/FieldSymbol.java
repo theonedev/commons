@@ -8,11 +8,11 @@ import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.request.resource.PackageResourceReference;
 
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.csharp.symbols.ui.FieldSymbolPanel;
 import io.onedev.commons.jsymbol.csharp.symbols.ui.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 public class FieldSymbol extends CSharpSymbol {
 
@@ -28,7 +28,7 @@ public class FieldSymbol extends CSharpSymbol {
 	
 	private final EnumSet<Modifier> modifiers;
 	
-	public FieldSymbol(CSharpSymbol parent, Kind kind, String fieldName, TokenPosition position, TokenPosition scope, 
+	public FieldSymbol(CSharpSymbol parent, Kind kind, String fieldName, PlanarRange position, PlanarRange scope, 
 			@Nullable String type, @Nullable String indexParams, EnumSet<Modifier> modifiers) {
 		super(parent, fieldName, position, scope);
 		
@@ -67,7 +67,7 @@ public class FieldSymbol extends CSharpSymbol {
 	}
 
 	@Override
-	public Component render(String componentId, Range highlight) {
+	public Component render(String componentId, LinearRange highlight) {
 		return new FieldSymbolPanel(componentId, this, highlight);
 	}
 

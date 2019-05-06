@@ -8,7 +8,8 @@ import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.image.Image;
 
 import io.onedev.commons.jsymbol.java.symbols.CompilationUnitSymbol;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
+import io.onedev.commons.utils.PlanarRange;
 
 /**
  * Represents a symbol definition extracted from source file
@@ -58,7 +59,7 @@ public abstract class Symbol implements Serializable {
 	 * 			position of the symbol, or <tt>null</tt> if the symbol does not have a position
 	 */
 	@Nullable
-	public abstract TokenPosition getPosition();
+	public abstract PlanarRange getPosition();
 
 	/**
 	 * Get scope of the symbol. If cursor moves into this scope, corresponding symbol will be highlighted in outline. 
@@ -68,7 +69,7 @@ public abstract class Symbol implements Serializable {
 	 * 			scope of the symbol, or <tt>null</tt> if the symbol does not have a scope
 	 */
     @Nullable
-    public abstract TokenPosition getScope();
+    public abstract PlanarRange getScope();
     
     /**
      * Whether or not this symbol is local to its namespace. A local symbol can not be accessed outside of its 
@@ -127,7 +128,7 @@ public abstract class Symbol implements Serializable {
 	 * @return
 	 * 			a wicket component to be displayed in web UI for the symbol
 	 */
-	public abstract Component render(String componentId, @Nullable Range highlight);
+	public abstract Component render(String componentId, @Nullable LinearRange highlight);
 	
 	/**
 	 * Get the non-passthrough parent in outline

@@ -11,11 +11,11 @@ import org.apache.wicket.request.resource.PackageResourceReference;
 
 import com.github.javaparser.ast.Modifier;
 
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.java.symbols.ui.FieldSymbolPanel;
 import io.onedev.commons.jsymbol.java.symbols.ui.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 public class FieldSymbol extends JavaSymbol {
 
@@ -25,7 +25,7 @@ public class FieldSymbol extends JavaSymbol {
 	
 	private final EnumSet<Modifier> modifiers;
 	
-	public FieldSymbol(TypeSymbol parent, String fieldName, TokenPosition position, TokenPosition scope, 
+	public FieldSymbol(TypeSymbol parent, String fieldName, PlanarRange position, PlanarRange scope, 
 			@Nullable String type, EnumSet<Modifier> modifiers) {
 		super(parent, fieldName, position, scope);
 		
@@ -54,7 +54,7 @@ public class FieldSymbol extends JavaSymbol {
 	}
 
 	@Override
-	public Component render(String componentId, Range highlight) {
+	public Component render(String componentId, LinearRange highlight) {
 		return new FieldSymbolPanel(componentId, this, highlight);
 	}
 

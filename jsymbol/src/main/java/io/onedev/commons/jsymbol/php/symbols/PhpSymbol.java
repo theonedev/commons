@@ -3,7 +3,7 @@ package io.onedev.commons.jsymbol.php.symbols;
 import javax.annotation.Nullable;
 
 import io.onedev.commons.jsymbol.Symbol;
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 
 public abstract class PhpSymbol extends Symbol {
 
@@ -13,11 +13,11 @@ public abstract class PhpSymbol extends Symbol {
 
 	private final String name;
 	
-	private final TokenPosition position;
+	private final PlanarRange position;
 	
-	private TokenPosition scope;
+	private PlanarRange scope;
 	
-	public PhpSymbol(PhpSymbol parent, String name, @Nullable TokenPosition position, @Nullable TokenPosition scope) {
+	public PhpSymbol(PhpSymbol parent, String name, @Nullable PlanarRange position, @Nullable PlanarRange scope) {
 		this.parent = parent;
 		this.name = name;
 		this.position = position;
@@ -35,16 +35,16 @@ public abstract class PhpSymbol extends Symbol {
 	}
 
 	@Override
-	public TokenPosition getPosition() {
+	public PlanarRange getPosition() {
 		return position;
 	}
  
 	@Override
-	public TokenPosition getScope() {
+	public PlanarRange getScope() {
 		return scope;
 	}
 
-	public void setScope(TokenPosition scope) {
+	public void setScope(PlanarRange scope) {
 		this.scope = scope;
 	}
 	

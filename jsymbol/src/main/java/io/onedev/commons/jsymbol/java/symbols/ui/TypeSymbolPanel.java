@@ -6,16 +6,16 @@ import org.apache.wicket.markup.html.panel.Panel;
 
 import io.onedev.commons.jsymbol.java.symbols.TypeSymbol;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
-import io.onedev.commons.utils.Range;
+import io.onedev.commons.utils.LinearRange;
 
 @SuppressWarnings("serial")
 public class TypeSymbolPanel extends Panel {
 
 	private final TypeSymbol typeSymbol;
 	
-	private final Range highlight;
+	private final LinearRange highlight;
 	
-	public TypeSymbolPanel(String id, TypeSymbol typeSymbol, Range highlight) {
+	public TypeSymbolPanel(String id, TypeSymbol typeSymbol, LinearRange highlight) {
 		super(id);
 		this.typeSymbol = typeSymbol;
 		this.highlight = highlight;

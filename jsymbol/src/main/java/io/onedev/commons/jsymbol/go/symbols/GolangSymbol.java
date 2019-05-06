@@ -3,7 +3,7 @@ package io.onedev.commons.jsymbol.go.symbols;
 import javax.annotation.Nullable;
 
 import io.onedev.commons.jsymbol.Symbol;
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 
 public abstract class GolangSymbol extends Symbol {
 
@@ -13,11 +13,11 @@ public abstract class GolangSymbol extends Symbol {
 	
 	private final String name;
 	
-	private final TokenPosition position;
+	private final PlanarRange position;
 	
-	private final TokenPosition scope;	
+	private final PlanarRange scope;	
 	
-	public GolangSymbol(GolangSymbol parent, String name, @Nullable TokenPosition position, @Nullable TokenPosition scope) {
+	public GolangSymbol(GolangSymbol parent, String name, @Nullable PlanarRange position, @Nullable PlanarRange scope) {
 		this.parent = parent;
 		this.position = position;
 		this.scope = scope;
@@ -39,12 +39,12 @@ public abstract class GolangSymbol extends Symbol {
 	}
 	
 	@Override
-	public TokenPosition getPosition() {
+	public PlanarRange getPosition() {
 		return position;
 	}
 
 	@Override
-	public TokenPosition getScope() {
+	public PlanarRange getScope() {
 		return scope;
 	}
 

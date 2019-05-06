@@ -1,7 +1,7 @@
 package io.onedev.commons.jsymbol.flowscript.symbols;
 
 import io.onedev.commons.jsymbol.Symbol;
-import io.onedev.commons.jsymbol.TokenPosition;
+import io.onedev.commons.utils.PlanarRange;
 
 public abstract class FlowScriptSymbol extends Symbol {
 
@@ -11,9 +11,9 @@ public abstract class FlowScriptSymbol extends Symbol {
 	
 	private String name;
 	
-	private TokenPosition position;
+	private PlanarRange position;
 	
-	private TokenPosition scope;
+	private PlanarRange scope;
 	
 	private boolean searchable = true;
 	
@@ -53,20 +53,20 @@ public abstract class FlowScriptSymbol extends Symbol {
 	}
 
 	@Override
-	public TokenPosition getPosition() {
+	public PlanarRange getPosition() {
 		return position;
 	}
 
-	public void setPosition(TokenPosition position) {
+	public void setPosition(PlanarRange position) {
 		this.position = position;
 	}
 
 	@Override
-	public TokenPosition getScope() {
+	public PlanarRange getScope() {
 		return scope;
 	}
 
-	public void setScope(TokenPosition scope) {
+	public void setScope(PlanarRange scope) {
 		this.scope = scope;
 	}
 
