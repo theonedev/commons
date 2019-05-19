@@ -119,4 +119,10 @@ public class HtmlUtils {
 		return HtmlEscape.escapeHtml5(escapedText);
 	}
 
+	public static String formatAsHtml(String text) {
+		text = HtmlEscape.escapeHtml5(text);
+		text = StringUtils.replace(text, "\n", "<br>");
+		text = StringUtils.replace(text, " ", "&nbsp;");
+		return text;
+	}
 }
