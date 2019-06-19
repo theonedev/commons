@@ -4,13 +4,13 @@ import java.util.concurrent.Callable;
 
 import io.onedev.commons.utils.ExceptionUtils;
 
-public class ConstrainedRunner {
+public class CapacityRunner {
 	
 	private final int capacity;
 	
 	private int active;
 	
-	public ConstrainedRunner(int capacity) {
+	public CapacityRunner(int capacity) {
 		this.capacity = capacity;
 	}
 	
@@ -47,10 +47,6 @@ public class ConstrainedRunner {
 			}
 			
 		});
-	}
-	
-	public synchronized boolean hasCapacity() {
-		return active < capacity;
 	}
 	
 }
