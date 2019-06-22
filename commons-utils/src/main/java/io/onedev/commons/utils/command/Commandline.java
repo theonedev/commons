@@ -116,14 +116,16 @@ public class Commandline  {
 			logger = Commandline.logger;
 		
         if (logger.isDebugEnabled()) {
-    		logger.trace("Executing command: " + this);
-    		logger.trace("Command working directory: " + 
-    				processBuilder.directory().getAbsolutePath());
-    		StringBuffer buffer = new StringBuffer();
-    		for (Map.Entry<String, String> entry: processBuilder.environment().entrySet())
-    			buffer.append("	" + entry.getKey() + "=" + entry.getValue() + "\n");
-    		logger.trace("Command execution environments:\n" + 
-    				StringUtils.stripEnd(buffer.toString(), "\n"));
+    		logger.debug("Executing command: " + this);
+    		if (logger.isTraceEnabled()) {
+        		logger.trace("Command working directory: " + 
+        				processBuilder.directory().getAbsolutePath());
+        		StringBuffer buffer = new StringBuffer();
+        		for (Map.Entry<String, String> entry: processBuilder.environment().entrySet())
+        			buffer.append("	" + entry.getKey() + "=" + entry.getValue() + "\n");
+        		logger.trace("Command execution environments:\n" + 
+        				StringUtils.stripEnd(buffer.toString(), "\n"));
+    		}
     	}
 
     	return processBuilder;
@@ -133,6 +135,10 @@ public class Commandline  {
 		return execute(stdout, stderr, stdin, null);
 	}
 			
+	public ExecuteResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr, @Nullable Logger logger) {
+		return execute(stdout, stderr, null, logger);
+	}
+	
 	public ExecuteResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr, @Nullable InputStream stdin, 
 			@Nullable Logger logger) {
 		return execute(stdout, stderr, stdin, new ProcessKiller() {
@@ -212,7 +218,7 @@ public class Commandline  {
 	 * 			execution result
 	 */
     public ExecuteResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr) {
-    	return execute(stdout, stderr, null);
+    	return execute(stdout, stderr, null, null);
     }
 
 }
