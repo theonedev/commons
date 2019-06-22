@@ -165,12 +165,13 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
      * 			Collection of files matching specified path pattern. Directories will not be included even 
      * 			if its path matches the pattern
      */
-    public static Collection<File> listFiles(File baseDir, String pathPattern) {
+    public static Collection<File> listFiles(File baseDir, Collection<String> includes, Collection<String> excludes) {
     	Collection<File> files = new ArrayList<File>();
     	
     	DirectoryScanner scanner = new DirectoryScanner();
     	scanner.setBasedir(baseDir);
-    	scanner.setIncludes(new String[]{pathPattern});
+    	scanner.setIncludes(includes.toArray(new String[0]));
+    	scanner.setExcludes(excludes.toArray(new String[0]));
     	scanner.scan();
     	
     	for (String path: scanner.getIncludedFiles()) 
