@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Nullable;
 
@@ -23,6 +24,8 @@ import io.onedev.commons.utils.StringUtils;
 public class Commandline  {
 	
     static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
+    
+    private static final int MAX_ERROR_LEN = 1024;
 
 	private static final Logger logger = LoggerFactory.getLogger(Commandline.class);
 
@@ -173,16 +176,26 @@ public class Commandline  {
         	throw new RuntimeException(e);
         }
 
-    	final StringBuffer errorMessage = new StringBuffer();
+    	AtomicReference<String> errorMessageRef = new AtomicReference<>(null);
 		OutputStream errorMessageCollector = null;
 		if (stderr != null) {
 			errorMessageCollector = new LineConsumer(stderr.getEncoding()) {
 
 				@Override
 				public void consume(String line) {
-					if (errorMessage.length() != 0)
-						errorMessage.append("\n");
-					errorMessage.append(line);
+					String errorMessage = errorMessageRef.get();
+					if (errorMessage != null) {
+						if (errorMessage.length() < MAX_ERROR_LEN) {
+							if (errorMessage.length() != 0)
+								errorMessage += "\n";
+							errorMessage += line;
+							errorMessageRef.set(errorMessage);
+						} else if (!errorMessage.endsWith("\n...")) {
+							errorMessageRef.set(errorMessage + "\n...");
+						}
+					} else {
+						errorMessageRef.set(line);
+					}
 					stderr.consume(line);
 				}
 				
@@ -201,8 +214,9 @@ public class Commandline  {
 			streamPumper.waitFor();
 		}
 
-        if (errorMessage.length() != 0)
-        	result.setErrorMessage(errorMessage.toString());
+        String errorMessage = errorMessageRef.get();
+        if (errorMessage != null && StringUtils.isNotBlank(errorMessage))
+        	result.setErrorMessage(errorMessage);
         
         return result;
     }
