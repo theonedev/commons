@@ -88,7 +88,7 @@ public class Commandline  {
         return this;
     }
     
-	private ProcessBuilder createProcessBuilder(@Nullable Logger logger) {
+	private ProcessBuilder createProcessBuilder() {
 		File workingDir = this.workingDir;
 		if (workingDir == null)
 			workingDir = new File(".");
@@ -115,9 +115,6 @@ public class Commandline  {
         
         processBuilder.environment().putAll(environments);
         
-		if (logger == null)
-			logger = Commandline.logger;
-		
         if (logger.isDebugEnabled()) {
     		logger.debug("Executing command: " + this);
     		if (logger.isTraceEnabled()) {
@@ -134,16 +131,11 @@ public class Commandline  {
     	return processBuilder;
     }
     
-	public ExecuteResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr, @Nullable InputStream stdin) {
-		return execute(stdout, stderr, stdin, null);
-	}
-			
-	public ExecuteResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr, @Nullable Logger logger) {
-		return execute(stdout, stderr, null, logger);
+	public ExecuteResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr) {
+		return execute(stdout, stderr, null);
 	}
 	
-	public ExecuteResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr, @Nullable InputStream stdin, 
-			@Nullable Logger logger) {
+	public ExecuteResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr, @Nullable InputStream stdin) {
 		return execute(stdout, stderr, stdin, new ProcessKiller() {
 			
 			@Override
@@ -151,7 +143,7 @@ public class Commandline  {
 				process.destroy();
 			}
 			
-		}, logger);
+		});
 	}
 	
 	/**
@@ -167,10 +159,10 @@ public class Commandline  {
 	 * 			execution result
 	 */
 	public ExecuteResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr, @Nullable InputStream stdin, 
-			ProcessKiller processKiller, @Nullable Logger logger) {
+			ProcessKiller processKiller) {
     	Process process;
         try {
-        	ProcessBuilder processBuilder = createProcessBuilder(logger);
+        	ProcessBuilder processBuilder = createProcessBuilder();
         	process = processBuilder.redirectErrorStream(stderr == null).start();
         } catch (IOException e) {
         	throw new RuntimeException(e);
@@ -221,18 +213,4 @@ public class Commandline  {
         return result;
     }
     
-	/**
-	 * Execute the command.
-	 * 
-	 * @param stdout
-	 * 			output stream to write standard output, caller is responsible for closing the stream
-	 * @param stderr
-	 * 			line consumer to handle standard error
-	 * @return
-	 * 			execution result
-	 */
-    public ExecuteResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr) {
-    	return execute(stdout, stderr, null, null);
-    }
-
 }
