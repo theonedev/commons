@@ -145,10 +145,6 @@ public class Bootstrap {
 			
 			System.setProperty("java.io.tmpdir", tempDir.getAbsolutePath());
 
-			File cacheDir = getCacheDir();
-			if (!cacheDir.exists() && !cacheDir.mkdirs()) 
-				throw new RuntimeException("Can not create directory '" + cacheDir.getAbsolutePath() + "'");
-			
 			libCacheDir = createTempDir("libcache");
 			
 			logger.info("Launching application from '" + installDir.getAbsolutePath() + "'...");
@@ -381,10 +377,6 @@ public class Bootstrap {
 			return new File(installDir, "temp/server");
 	}
 	
-	public static File getCacheDir() {
-		return new File(installDir, "cache");
-	}
-
 	public static File getConfDir() {
 		return new File(installDir, "conf");
 	}
