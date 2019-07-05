@@ -9,8 +9,6 @@ import org.apache.commons.io.FilenameUtils;
 
 import com.google.common.base.Splitter;
 
-import io.onedev.commons.utils.LinearRange;
-import io.onedev.commons.utils.StringUtils;
 import io.onedev.commons.utils.stringmatch.ChildAwareMatcher;
 import io.onedev.commons.utils.stringmatch.Matcher;
 
@@ -199,21 +197,6 @@ public class PathUtils {
         return new String(array, 0, size - 1);  // lose trailing separator		
 	}
 	
-	public static String resolve(@Nullable String base, @Nullable String path) {
-		if (base == null)
-			base = "";
-		if (path == null)
-			path = "";
-		
-		if (path.startsWith("/")) {
-			return path;
-		} else if (base.endsWith("/")) {
-			return base + path;
-		} else {
-			return base + "/" + path;
-		}
-	}
-	
 	public static String resolveSibling(@Nullable String base, @Nullable String path) {
 		if (base == null)
 			base = "";
@@ -275,4 +258,21 @@ public class PathUtils {
 		return pathSegments2.size()==pathSegments1.size()? 0: -1;
 	}
 
+	public static String resolve(@Nullable String basePath, @Nullable String path) {
+		if (basePath == null)
+			basePath = "";
+		if (path == null)
+			path = "";
+		if (FilenameUtils.getPrefixLength(path) != 0) 
+			return path;
+		else if (basePath.endsWith("/") || basePath.endsWith("\\")) 
+			return basePath + path;
+		else 
+			return basePath + "/" + path;
+	}
+	
+	public static boolean isCurrent(@Nullable String path) {
+		return StringUtils.isBlank(path) || FilenameUtils.normalize(path).length() == 0;
+	}	
+	
 }
