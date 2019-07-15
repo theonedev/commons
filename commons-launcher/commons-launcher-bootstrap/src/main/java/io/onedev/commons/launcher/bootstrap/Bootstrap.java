@@ -150,7 +150,7 @@ public class Bootstrap {
 			logger.info("Launching application from '" + installDir.getAbsolutePath() + "'...");
 
 			List<File> libFiles = new ArrayList<File>();
-			libFiles.addAll(getLibFiles(getSiteLibDir()));
+			libFiles.addAll(getLibFiles(new File(getSiteDir(), "lib")));
 			
 			File classpathFile = new File(installDir, "boot/system.classpath");
 			if (classpathFile.exists()) {
@@ -366,10 +366,6 @@ public class Bootstrap {
 		return new File(installDir, "lib");
 	}
 	
-	public static File getSiteLibDir() {
-		return new File(getSiteDir(), "lib");
-	}
-
 	public static File getTempDir() {
 		if (command != null) 
 			return new File(installDir, "temp/" + command.getName());
