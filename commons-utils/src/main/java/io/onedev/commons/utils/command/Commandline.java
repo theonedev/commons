@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
@@ -19,9 +20,12 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 
+import io.onedev.commons.utils.Maps;
 import io.onedev.commons.utils.StringUtils;
 
 public class Commandline  {
+	
+	public static final String EXECUTION_ID_ENV = "ONEDEV_COMMAND_EXECUTION_UUID";
 	
     static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
     
@@ -139,8 +143,8 @@ public class Commandline  {
 		return execute(stdout, stderr, stdin, new ProcessKiller() {
 			
 			@Override
-			public void kill(Process process) {
-				process.destroy();
+			public void kill(Process process, String executionId) {
+				ProcessTree.get().killAll(process, Maps.newHashMap(EXECUTION_ID_ENV, executionId));
 			}
 			
 		});
@@ -160,9 +164,12 @@ public class Commandline  {
 	 */
 	public ExecuteResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr, @Nullable InputStream stdin, 
 			ProcessKiller processKiller) {
+    	String executionId = UUID.randomUUID().toString();
+    	
     	Process process;
         try {
         	ProcessBuilder processBuilder = createProcessBuilder();
+        	processBuilder.environment().put(EXECUTION_ID_ENV, executionId);
         	process = processBuilder.redirectErrorStream(stderr == null).start();
         } catch (IOException e) {
         	throw new RuntimeException(e);
@@ -200,7 +207,7 @@ public class Commandline  {
         try {
             result.setReturnCode(process.waitFor());
 		} catch (InterruptedException e) {
-			processKiller.kill(process);
+			processKiller.kill(process, executionId);
 			throw new RuntimeException(e);
 		} finally {
 			streamPumper.waitFor();
