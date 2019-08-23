@@ -19,8 +19,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.Preconditions;
 
-import javassist.util.proxy.ProxyFactory;
-
 public class ClassUtils extends org.apache.commons.lang3.ClassUtils {
 	
 	public static @Nullable InputStream getResourceAsStream(@Nullable Class<?> locator, String path) {
@@ -31,14 +29,6 @@ public class ClassUtils extends org.apache.commons.lang3.ClassUtils {
 			return locator.getClassLoader().getResourceAsStream(locator.getPackage().getName().replace(".", "/") + "/" + path);
 	}
 
-	@SuppressWarnings("unchecked")
-	public static <T> Class<T> unproxy(Class<T> clazz) {
-		Class<T> superClass = clazz;
-		while (ProxyFactory.isProxyClass(superClass))
-			superClass = (Class<T>) clazz.getSuperclass();
-		return superClass;
-	}
-	
 	public static boolean isSystemType(Class<?> type) {
 		return type.getName().startsWith("java") 
 			|| type.getName().startsWith("javax") 
