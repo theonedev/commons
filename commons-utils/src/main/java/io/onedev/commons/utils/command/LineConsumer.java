@@ -24,24 +24,11 @@ import java.io.UnsupportedEncodingException;
 
 import com.google.common.base.Charsets;
 
-/**
- * heavily inspired from LogOutputStream
- * this stream class calls back the P4Handler on each line of stdout or stderr read
- * @author : <a href="mailto:levylambert@tiscali-dsl.de">Antoine Levy-Lambert</a>
- *
- * Modified by <a href="mailto:robin@pmease.com">robin shen</a> to seperate
- * output and error handling
- *
- */
 public abstract class LineConsumer extends OutputStream {
 	
-	/**
-	 * If this property is not empty, output will be re-directed to this stream
-	 * instead of the ant log stream
-	 */
     private ByteArrayOutputStream buffer = new ByteArrayOutputStream();
     
-    private boolean skip = false;
+    private boolean reset = false;
     
     private String encoding;
     
@@ -57,59 +44,41 @@ public abstract class LineConsumer extends OutputStream {
     	return encoding;
     }
     
-    /**
-     * Write the data to the buffer and flush the buffer, if a line
-     * separator is detected.
-     *
-     * @param cc data to log (byte).
-     * @throws IOException IOException  if an I/O error occurs. In particular,
-     *             an <code>IOException</code> may be thrown if the
-     *             output stream has been closed.
-     */
     @Override
-	public void write(int cc) throws IOException {
-		final byte c = (byte) cc;
-        if ((c == '\n') || (c == '\r')) {
-            if (!skip) {
-                processBuffer();
-            }
-        } else {
-            buffer.write(cc);
-        }
-        skip = (c == '\r');
-    }
-
-    /**
-     * Converts the buffer to a string and sends it to <code>processLine</code>
-     */
-    protected void processBuffer() {
-		try {
-			consume(encoding!=null?buffer.toString(encoding):buffer.toString());
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
-		} finally {
-			buffer.reset();
+	public void write(int b) throws IOException {
+		byte c = (byte) b;
+		if (c == '\n') {
+			processBuffer();
+			reset = false;
+		} else if (c == '\r') {
+			reset = true;
+		} else {
+			if (reset) {
+				buffer.reset();
+				reset = false;
+			}
+			buffer.write(b);
 		}
     }
 
-	/**
-	 * Sub class must implement this method to handle a line of output
-	 * @param line
-	 */
+    protected void processBuffer() {
+		try {
+			consume(encoding!=null?buffer.toString(encoding):buffer.toString());
+			buffer.reset();
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
+    }
+
 	public abstract void consume(String line);
 	
 	@Override
 	public void flush() throws IOException {
-        if (buffer.size() > 0) {
+        if (buffer.size() > 0) 
             processBuffer();
-        }
         super.flush();
 	}
 
-	/**
-     * Writes all remaining
-     * @throws IOException if an I/O error occurs.
-     */
     @Override
 	public void close() throws IOException {
     	flush();
@@ -117,5 +86,3 @@ public abstract class LineConsumer extends OutputStream {
     }
     
 }
-
-
