@@ -1,6 +1,6 @@
-package io.onedev.commons.utils.stringmatch;
+package io.onedev.commons.utils.match;
 
-public class WildcardStringMatcher implements Matcher {
+public class StringMatcher implements Matcher {
 
 	@Override
 	public boolean matches(String pattern, String str) {

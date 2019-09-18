@@ -1,4 +1,4 @@
-package io.onedev.commons.utils.stringmatch;
+package io.onedev.commons.utils.match;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,9 +9,9 @@ import io.onedev.commons.utils.LinearRange;
 
 public class WildcardUtils {
 	
-	private static final Matcher PATH_MATCHER = new WildcardPathMatcher();
+	private static final Matcher PATH_MATCHER = new PathMatcher();
 	
-	private static final Matcher STRING_MATCHER = new WildcardStringMatcher();
+	private static final Matcher STRING_MATCHER = new StringMatcher();
 	
 	/**
      * Tests whether or not a given path matches a given pattern using of 
@@ -45,10 +45,6 @@ public class WildcardUtils {
      */
     public static boolean matchString(String pattern, String str) {
     	return STRING_MATCHER.matches(pattern, str);
-    }
-    
-    public static boolean hasWildcards(String str) {
-    	return (str.indexOf('*') != -1 || str.indexOf('?') != -1);
     }
     
     private static int indexOf(String str, String substr, int index) {

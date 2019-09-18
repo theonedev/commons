@@ -1,6 +1,6 @@
 package io.onedev.commons.utils.stringmatch;
 
-import static io.onedev.commons.utils.stringmatch.WildcardUtils.*;
+import static io.onedev.commons.utils.match.WildcardUtils.*;
 import static org.junit.Assert.*;
 
 import org.junit.Test;

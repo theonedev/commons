@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.onedev.commons.utils.stringmatch;
+package io.onedev.commons.utils.match;
 
 import io.onedev.commons.utils.StringUtils;
 
@@ -59,9 +59,9 @@ import io.onedev.commons.utils.StringUtils;
  *
  * @since 16.07.2003
  */
-public class WildcardPathMatcher implements Matcher {
+public class PathMatcher implements Matcher {
 
-	private static final Matcher STRING_MATCHER = new WildcardStringMatcher();
+	private static final Matcher STRING_MATCHER = new StringMatcher();
 	
     //TODO - complete JavaDoc
 
@@ -86,7 +86,10 @@ public class WildcardPathMatcher implements Matcher {
         return (path.indexOf('*') != -1 || path.indexOf('?') != -1);
     }
 
+    @Override
     public boolean matches(String pattern, String str) {
+    	if (pattern.endsWith("/"))
+    		pattern += "**";
         return doMatch(pattern, str, true);
     }
 

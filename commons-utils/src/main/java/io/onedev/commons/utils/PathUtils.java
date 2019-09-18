@@ -9,12 +9,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import com.google.common.base.Splitter;
 
-import io.onedev.commons.utils.stringmatch.ChildAwareMatcher;
-import io.onedev.commons.utils.stringmatch.Matcher;
-
 public class PathUtils {
-
-	private static final Matcher CHILDAWARE_MATCHER = new ChildAwareMatcher();
 
     /**
      * Match specified path against a collection of base paths to find out the longest match.
@@ -102,10 +97,6 @@ public class PathUtils {
     	return null;
     }
     
-	public static boolean matchChildAware(String pattern, String value) {
-		return CHILDAWARE_MATCHER.matches(pattern, value);
-	}
-
     /**
 	 * Normalize a path separated with forward slash to remove single and double dots. 
 	 * Adapted from FilenameUtils.normalize(filename)

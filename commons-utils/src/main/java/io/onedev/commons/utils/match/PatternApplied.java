@@ -1,4 +1,4 @@
-package io.onedev.commons.utils.stringmatch;
+package io.onedev.commons.utils.match;
 
 import java.io.Serializable;
 
