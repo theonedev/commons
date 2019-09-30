@@ -2,26 +2,27 @@ package io.onedev.commons.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Highlighter {
 
 	public static String highlightRanges(String text, List<LinearRange> ranges, 
-			Transformer<String> matchedTransformer, Transformer<String> unmatchedTransformer) {
+			Function<String, String> matchedTransformer, Function<String, String> unmatchedTransformer) {
 		StringBuffer buffer = new StringBuffer();
     	int start = 0;
     	for (LinearRange range: RangeUtils.merge(ranges)) {
-    		buffer.append(unmatchedTransformer.transform(text.substring(start, range.getFrom())));
-    		buffer.append(matchedTransformer.transform(text.substring(range.getFrom(), range.getTo())));
+    		buffer.append(unmatchedTransformer.apply(text.substring(start, range.getFrom())));
+    		buffer.append(matchedTransformer.apply(text.substring(range.getFrom(), range.getTo())));
     		start = range.getTo();
     	}
-    	buffer.append(unmatchedTransformer.transform(text.substring(start, text.length())));
+    	buffer.append(unmatchedTransformer.apply(text.substring(start, text.length())));
     	return buffer.toString();
 	}
 
 	public static String highlightPatterns(String text, List<Pattern> patterns, 
-			Transformer<String> matchedTransformer, Transformer<String> unmatchedTransformer) {
+			Function<String, String> matchedTransformer, Function<String, String> unmatchedTransformer) {
 		List<LinearRange> ranges = new ArrayList<>();
 		for (Pattern pattern: patterns) {
 	    	Matcher matcher = pattern.matcher(text);
@@ -32,7 +33,7 @@ public class Highlighter {
 	}
 	
 	public static String highlightLiterals(String text, List<String> literals, boolean caseSensitive,
-			Transformer<String> matchedTransformer, Transformer<String> unmatchedTransformer) {
+			Function<String, String> matchedTransformer, Function<String, String> unmatchedTransformer) {
 		String normalizedText;
 		if (!caseSensitive)
 			normalizedText = text.toLowerCase();

@@ -27,7 +27,7 @@ public class TestCodeAssist10 {
 			if (terminalExpect.getElementSpec() instanceof LexerRuleRefElementSpec) {
 				LexerRuleRefElementSpec spec = (LexerRuleRefElementSpec) terminalExpect.getElementSpec();
 				if (spec.getRuleName().equals("Value")) {
-					return new FenceAware(codeAssist.getGrammar(), "(", ")") {
+					return new FenceAware(codeAssist.getGrammar(), '(', ')') {
 
 						@Override
 						protected List<InputSuggestion> match(String matchWith) {

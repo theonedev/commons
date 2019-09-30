@@ -68,6 +68,8 @@ public class InputSuggestion implements Serializable {
 	}
 
 	public InputSuggestion escape(String chars) {
+		if (!chars.contains("\\"))
+			chars += "\\";
 		StringBuilder builder = new StringBuilder();
 		int start, end;
 		if (match != null) {

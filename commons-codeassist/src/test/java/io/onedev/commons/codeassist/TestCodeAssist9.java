@@ -32,7 +32,7 @@ public class TestCodeAssist9 {
 				if (terminalExpect.getElementSpec() instanceof LexerRuleRefElementSpec) {
 					LexerRuleRefElementSpec elementSpec = (LexerRuleRefElementSpec) terminalExpect.getElementSpec();
 					if (elementSpec.getRuleName().equals("Quoted")) {
-						return new FenceAware(getGrammar(), "\"", "\"") {
+						return new FenceAware(getGrammar(), '"', '"') {
 							
 							@Override
 							protected List<InputSuggestion> match(String unfencedMatchWith) {

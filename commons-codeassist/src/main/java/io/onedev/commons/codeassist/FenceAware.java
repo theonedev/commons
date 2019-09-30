@@ -5,24 +5,35 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import org.apache.commons.collections4.CollectionUtils;
-
 import io.onedev.commons.codeassist.grammar.Grammar;
 import io.onedev.commons.codeassist.parser.TerminalExpect;
 import io.onedev.commons.utils.LinearRange;
+import io.onedev.commons.utils.StringUtils;
 
 public abstract class FenceAware {
 	
 	private final Grammar grammar;
 	
-	private final String open;
+	private final char open;
 	
-	private final String close;
+	private final char close;
 	
-	public FenceAware(Grammar grammar, String open, String close) {
+	private final String additionalCharsToEscape;
+	
+	public FenceAware(Grammar grammar, char open, char close, String additionalCharsToEscape) {
 		this.grammar = grammar;
 		this.open = open;
 		this.close = close;
+		this.additionalCharsToEscape = additionalCharsToEscape;
+	}
+	
+	public FenceAware(Grammar grammar, char open, char close) {
+		this(grammar, open, close, "");
+	}
+	
+	public static String unfence(String value) {
+		value = value.substring(1);
+		return value.substring(0, value.length()-1);
 	}
 	
 	public List<InputSuggestion> suggest(TerminalExpect terminalExpect) {
@@ -30,37 +41,37 @@ public abstract class FenceAware {
 
 		// Ignore this case as we can always get all the fenced suggestions when 
 		// matchWith is empty
-		if (matchWith.length() != 0 && matchWith.trim().length() == 0)
+		if (matchWith.length() != 0 && matchWith.trim().length() == 0) 
 			return new ArrayList<>();
 		
-		String unfencedMatchWith = matchWith;
-		if (matchWith.startsWith(open))
-			unfencedMatchWith = unfencedMatchWith.substring(open.length());
+		if (matchWith.startsWith(String.valueOf(open)))
+			matchWith = matchWith.substring(1);
 		
-		unfencedMatchWith = unfencedMatchWith.trim();
+		matchWith = matchWith.trim();
 		
-		List<InputSuggestion> suggestions = match(unfencedMatchWith);
+		List<InputSuggestion> suggestions = match(StringUtils.unescape(matchWith));
 		if (suggestions != null) {
 			List<InputSuggestion> fencedSuggestions = new ArrayList<>();
 			
 			for (InputSuggestion suggestion: suggestions) {
+				suggestion = suggestion.escape(String.valueOf(open) + String.valueOf(close) + additionalCharsToEscape);
 				String content = suggestion.getContent();
 				int caret = suggestion.getCaret();
 				LinearRange match = suggestion.getMatch();
-				if (!content.startsWith(open)) { 
-					content = open + content + close;
-					if (caret != -1) 
-						caret += open.length();
-					if (match != null)
-						match = new LinearRange(match.getFrom()+open.length(), match.getTo()+open.length());
-				}
+				content = open + content + close;
+				if (caret != -1) 
+					caret ++;
+				if (match != null)
+					match = new LinearRange(match.getFrom()+1, match.getTo()+1);
 				if (terminalExpect.getElementSpec().matches(grammar, content))				
 					fencedSuggestions.add(new InputSuggestion(content, caret, suggestion.getDescription(), match));
 			}
 			return fencedSuggestions;
 		} else {
 			suggestions = new ArrayList<>();
-			CollectionUtils.addIgnoreNull(suggestions, suggestToFence(terminalExpect, unfencedMatchWith));
+			InputSuggestion suggestion = suggestToFence(terminalExpect, matchWith);
+			if (suggestion != null)
+				suggestions.add(suggestion);
 			return suggestions;
 		}
 	}
@@ -69,10 +80,9 @@ public abstract class FenceAware {
 		return null;
 	}
 	
-	@Nullable 
-	protected InputSuggestion suggestToFence(TerminalExpect terminalExpect, String unfencedMatchWith) {
-		if (unfencedMatchWith.length() != 0) {
-			String content = open + unfencedMatchWith + close;
+	private InputSuggestion suggestToFence(TerminalExpect terminalExpect, String matchWith) {
+		if (matchWith.length() != 0) {
+			String content = open + matchWith + close;
 			if (terminalExpect.getElementSpec().matches(grammar, content)) {
 				LinearRange match = new LinearRange(1, content.length()-1);
 				return new InputSuggestion(content, -1, getFencingDescription(), match);
@@ -80,19 +90,19 @@ public abstract class FenceAware {
 				return null;
 			}
 		} else {
-			return new InputSuggestion(open, -1, null, null);
+			return new InputSuggestion(String.valueOf(open), -1, null, null);
 		}
 	}
 	
 	/**
 	 * Match with provided string to give a list of suggestions
 	 * 
-	 * @param unfencedMatchWith
+	 * @param matchWith
 	 * 			string with fencing literals removed 
 	 * @return
 	 * 			a list of suggestions. Return <tt>null</tt> to tell CodeAssist to return a default suggestion to 
 	 * 			wrap your input with fences 
 	 */
 	@Nullable
-	protected abstract List<InputSuggestion> match(String unfencedMatchWith);
+	protected abstract List<InputSuggestion> match(String matchWith);
 }

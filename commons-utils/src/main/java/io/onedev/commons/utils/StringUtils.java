@@ -8,11 +8,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
 public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
+	private static final Pattern ESCAPE_PATTERN = Pattern.compile("\\\\(.)");
+	
 	public static String trimStart(String str) {
 		return StringUtils.stripStart(str, " \r\n\t");
 	}
@@ -280,8 +283,23 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		return splitAndTrim(string, ",\n");
 	}
 	
-	public static String describe(boolean value) {
-		return value? "Yes": "No";
+	public static String escape(String string, String charsToEscape) {
+		if (!charsToEscape.contains("\\"))
+			charsToEscape += "\\";
+		List<String> search = new ArrayList<>();
+		List<String> replaceWith = new ArrayList<>();
+		for (char ch: charsToEscape.toCharArray()) {
+			search.add(String.valueOf(ch));
+			replaceWith.add("\\" + String.valueOf(ch));
+		}
+		return replaceEach(
+				string, 
+				search.toArray(new String[search.size()]), 
+				replaceWith.toArray(new String[replaceWith.size()]));
 	}
-
+	
+	public static String unescape(String string) {
+		return ESCAPE_PATTERN.matcher(string).replaceAll("$1");
+	}
+	
 }

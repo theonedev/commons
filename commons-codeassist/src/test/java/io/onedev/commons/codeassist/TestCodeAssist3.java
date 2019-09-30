@@ -29,7 +29,7 @@ public class TestCodeAssist3 {
 			if (terminalExpect.getElementSpec() instanceof LexerRuleRefElementSpec) {
 				LexerRuleRefElementSpec spec = (LexerRuleRefElementSpec) terminalExpect.getElementSpec();
 				if (spec.getRuleName().equals("QuotedValue")) {
-					return new FenceAware(codeAssist.getGrammar(), "\"", "\"") {
+					return new FenceAware(codeAssist.getGrammar(), '"', '"') {
 
 						@Override
 						protected List<InputSuggestion> match(String matchWith) {
@@ -69,7 +69,13 @@ public class TestCodeAssist3 {
 	@Test
 	public void test() {
 		List<? extends InputStatus> suggestions;
-
+		
+		suggestions = codeAssist.suggest(new InputStatus("title: hello "), "query");
+		assertEquals(3, suggestions.size());
+		assertEquals("title: \"hello\":14", suggestions.get(0).toString());
+		assertEquals("title: hello title::19", suggestions.get(1).toString());
+		assertEquals("title: hello author::20", suggestions.get(2).toString());
+		
 		suggestions = codeAssist.suggest(new InputStatus("title: hello author:"), "query");
 		assertEquals(4, suggestions.size());
 		assertEquals("title: hello author:\"robin shen\":32", suggestions.get(0).toString());
@@ -109,12 +115,6 @@ public class TestCodeAssist3 {
 		assertEquals(2, suggestions.size());
 		assertEquals("title: \"hello\":14", suggestions.get(0).toString());
 		assertEquals("title: hello :13", suggestions.get(1).toString());
-		
-		suggestions = codeAssist.suggest(new InputStatus("title: hello "), "query");
-		assertEquals(3, suggestions.size());
-		assertEquals("title: \"hello\":14", suggestions.get(0).toString());
-		assertEquals("title: hello title::19", suggestions.get(1).toString());
-		assertEquals("title: hello author::20", suggestions.get(2).toString());
 	}
 	
 }

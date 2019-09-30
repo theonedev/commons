@@ -28,7 +28,7 @@ public class TestCodeAssist2 {
 			if (terminalExpect.getElementSpec() instanceof LexerRuleRefElementSpec) {
 				LexerRuleRefElementSpec spec = (LexerRuleRefElementSpec) terminalExpect.getElementSpec();
 				if (spec.getRuleName().equals("Value")) {
-					return new FenceAware(codeAssist.getGrammar(), "(", ")") {
+					return new FenceAware(codeAssist.getGrammar(), '(', ')') {
 
 						@Override
 						protected List<InputSuggestion> match(String matchWith) {
@@ -70,10 +70,6 @@ public class TestCodeAssist2 {
 		assertEquals("branch(feature)^:16", suggestions.get(9).toString());
 		assertEquals("branch(feature)..:17", suggestions.get(10).toString());
 		assertEquals("branch(feature)...:18", suggestions.get(11).toString());
-
-		suggestions = codeAssist.suggest(new InputStatus("message"), "query");
-		assertEquals(1, suggestions.size());
-		assertEquals("message(:8", suggestions.get(0).toString());
 		
 		suggestions = codeAssist.suggest(new InputStatus("branch"), "query");
 		assertEquals(5, suggestions.size());
@@ -82,6 +78,10 @@ public class TestCodeAssist2 {
 		assertEquals("branch(dev):11", suggestions.get(2).toString());
 		assertEquals("branch(feature1):16", suggestions.get(3).toString());
 		assertEquals("branch(feature2):16", suggestions.get(4).toString());
+
+		suggestions = codeAssist.suggest(new InputStatus("message"), "query");
+		assertEquals(1, suggestions.size());
+		assertEquals("message(:8", suggestions.get(0).toString());
 		
 		suggestions = codeAssist.suggest(new InputStatus(""), "revisionCriteria");
 		assertEquals(4, suggestions.size());
