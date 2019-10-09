@@ -30,6 +30,7 @@ public class InputCompletion extends InputStatus {
 		return description;
 	}
 	
+	@Nullable
 	public LinearRange getMatch() {
 		return match;
 	}

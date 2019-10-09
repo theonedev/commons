@@ -35,19 +35,19 @@ public class TestCodeAssist6 {
 	public void test()	{
 		List<? extends InputStatus> suggestions;
 		
+		suggestions = codeAssist.suggest(new InputStatus("is"), "rule3");
+		assertEquals(2, suggestions.size());
+		assertEquals("is not :7", suggestions.get(0).toString());
+		assertEquals("is :3", suggestions.get(1).toString());
+		
 		suggestions = codeAssist.suggest(new InputStatus("ab"), "rule2");
 		assertEquals(2, suggestions.size());
-		assertEquals("ab cd:5", suggestions.get(0).toString());
-		assertEquals("ab :3", suggestions.get(1).toString());
+		assertEquals("ab :3", suggestions.get(0).toString());
+		assertEquals("ab cd:5", suggestions.get(1).toString());
 		
 		suggestions = codeAssist.suggest(new InputStatus(""), "rule1");
 		assertEquals(1, suggestions.size());
 		assertEquals("ab cd:5", suggestions.get(0).toString());
-		
-		suggestions = codeAssist.suggest(new InputStatus("is"), "rule3");
-		assertEquals(2, suggestions.size());
-		assertEquals("is :3", suggestions.get(0).toString());
-		assertEquals("is not :7", suggestions.get(1).toString());
 	}
 	
 }

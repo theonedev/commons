@@ -24,6 +24,10 @@ public class LinearRange implements Serializable {
 	public int getTo() {
 		return to;
 	}
+	
+	public int getLength() {
+		return to - from;
+	}
 
 	@Override
 	public String toString() {
