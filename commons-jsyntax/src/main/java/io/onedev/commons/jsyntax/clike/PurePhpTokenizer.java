@@ -95,7 +95,6 @@ public abstract class PurePhpTokenizer extends ClikeTokenizer {
 			this.escapes = escapes;
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		public String process(StringStream stream, State state, String style) {
 			if (escapes != Boolean.FALSE && stream.match("${", false, false) || stream.match("{$", false, false)) {
