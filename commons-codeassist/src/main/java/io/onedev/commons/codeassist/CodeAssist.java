@@ -61,7 +61,8 @@ public abstract class CodeAssist implements Serializable {
 	 * @param tokenFile
 	 * 			generated tokens file in class path, relative to class path root
 	 */
-	public CodeAssist(Class<? extends Lexer> lexerClass, String grammarFiles[], String tokenFile, boolean findAllPaths) {
+	public CodeAssist(Class<? extends Lexer> lexerClass, String grammarFiles[], 
+			String tokenFile, boolean findAllPaths) {
 		this(new Grammar(lexerClass, grammarFiles, tokenFile), findAllPaths);
 	}
 	
@@ -171,13 +172,16 @@ public abstract class CodeAssist implements Serializable {
 					String mandatories = "";
 					if (elementSpec.matches(grammar, replaceContent) && replaceEnd == inputContent.length()) {
 						String content = replaceContent;
-						for (String mandatory: mandatoryList) {
-							if (grammar.canAppend(content, mandatory))
-								content += mandatory;
-							else if (grammar.canAppend(content + " ", mandatory))
-								content += " " + mandatory;
-							else
-								break;
+						// only append mandatories if suggestion does not care about caret
+						if (inputSuggestion.getCaret() == -1) {  
+							for (String mandatory: mandatoryList) {
+								if (grammar.canAppend(content, mandatory))
+									content += mandatory;
+								else if (grammar.canAppend(content + " ", mandatory))
+									content += " " + mandatory;
+								else
+									break;
+							}
 						}
 						mandatories = content.substring(replaceContent.length());
 					} 
@@ -189,12 +193,12 @@ public abstract class CodeAssist implements Serializable {
 							"space", null, ""));
 				}
 			}
-			
 		}
 		
 		Map<String, List<ExtendedInputSuggestion>> contentSuggestions = new LinkedHashMap<>();
 		for (ExtendedInputSuggestion suggestion: extendedSuggestions) {
-			String contentBeforeReplaceBegin = inputStatus.getContent().substring(0, suggestion.getReplaceRange().getFrom());
+			String contentBeforeReplaceBegin = inputStatus.getContent()
+					.substring(0, suggestion.getReplaceRange().getFrom());
 			if (suggestion.getContent().equals(" ") 
 					&& (contentBeforeReplaceBegin.length() == 0 || contentBeforeReplaceBegin.endsWith(" "))) {
 				// do not suggest redundant spaces even if grammar allows
