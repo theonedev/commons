@@ -34,41 +34,18 @@ public class LinearRange implements Serializable {
 		return from + "-" + to;
 	}
 	
-	private static int getIndex(String text, int indexWithoutSpaces) {
-		int index=0;
-		int pos = 0;
-		for (char ch: text.toCharArray()) {
-			if (ch != ' ') {
-				if (index == indexWithoutSpaces)
-					return pos;
-				index++;
-			}
-			pos++;
-		}
-		return pos;
-	}
-	
 	@Nullable
-	public static LinearRange match(String text, String matchWith, boolean fromStart, boolean caseSensitive, boolean ignoreSpaces) {
+	public static LinearRange match(String text, String matchWith) {
 		String normalizedText = text;
 		String normalizedMatchWith = matchWith;
-		if (!caseSensitive) {
-			normalizedText = normalizedText.toLowerCase();
-			normalizedMatchWith = normalizedMatchWith.toLowerCase();
-		}
-		if (ignoreSpaces) {
-			normalizedText = StringUtils.deleteWhitespace(normalizedText);
-			normalizedMatchWith = StringUtils.deleteWhitespace(normalizedMatchWith);
-		}
+		normalizedText = text.toLowerCase();
+		normalizedMatchWith = matchWith.toLowerCase();
+		
 		int start = normalizedText.indexOf(normalizedMatchWith);
 		int end = start + normalizedMatchWith.length();
-		if (fromStart && start == 0 || !fromStart && start != -1) {
-			if (ignoreSpaces) 
-				return new LinearRange(getIndex(text, start), getIndex(text, end));
-			else
-				return new LinearRange(start, end);
-		} else {
+		if (start != -1) 
+			return new LinearRange(start, end);
+		else 
 			return null;
-		}
 	}
 }

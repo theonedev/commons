@@ -123,8 +123,8 @@ public abstract class CodeAssist implements Serializable {
 				TerminalElementSpec expectedElementSpec = terminalExpect.getElementSpec();
 				String matchWith = terminalExpect.getUnmatchedText();
 				for (String prefix: expectedElementSpec.scanPrefixes().getLiterals()) {
-					if (prefix.toLowerCase().startsWith(matchWith.toLowerCase())) {
-						LinearRange match = new LinearRange(0, matchWith.length());
+					LinearRange match = LinearRange.match(prefix, matchWith);
+					if (match != null) {
 						Optional<String> description = describe(terminalExpect, prefix);
 						if (description != null)
 							inputSuggestions.add(new InputSuggestion(prefix, -1, description.orNull(), match));
