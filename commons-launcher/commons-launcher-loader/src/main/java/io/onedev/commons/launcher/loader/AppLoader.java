@@ -84,10 +84,9 @@ public class AppLoader implements Startable {
 	}
 
 	private Map<String, AbstractPluginModule> loadPluginModules() {
-		URLClassLoader classLoader = (URLClassLoader) AppLoader.class.getClassLoader();
-
 		Map<String, AbstractPluginModule> pluginModules = new HashMap<String, AbstractPluginModule>();
 		
+		URLClassLoader classLoader = (URLClassLoader) Thread.currentThread().getContextClassLoader();
 		for (URL url: classLoader.getURLs()) {
 			String path;
 			try {

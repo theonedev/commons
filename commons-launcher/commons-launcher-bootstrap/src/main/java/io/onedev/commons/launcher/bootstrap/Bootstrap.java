@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarFile;
 import java.util.logging.Handler;
 
@@ -49,189 +48,117 @@ public class Bootstrap {
 	
 	public static Command command;
 
-	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
 		try {
 			Locale.setDefault(Locale.US);
+			/*
+			 * Sandbox mode might be checked frequently so we cache the result here
+			 * to avoid calling File.exists() frequently.
+			 */
+			sandboxMode = new File("target/sandbox").exists();
+			prodMode = (System.getProperty("prod") != null);
 
-			File sandboxDir = new File("target/sandbox");
-			if (sandboxDir.exists()) {
-				Map<String, File> systemClasspath = 
-						(Map<String, File>) BootstrapUtils.readObject(new File(sandboxDir, "boot/system.classpath"));
-				Set<String> bootstrapKeys = 
-						(Set<String>) BootstrapUtils.readObject(new File(sandboxDir, "boot/bootstrap.keys"));
-
-				List<URL> urls = new ArrayList<URL>();
-				for (String key : bootstrapKeys) {
-					File file = systemClasspath.get(key);
-					if (file == null)
-						throw new RuntimeException("Unable to find bootstrap file for '" + key + "'.");
-					try {
-						urls.add(file.toURI().toURL());
-					} catch (MalformedURLException e) {
-						throw new RuntimeException(e);
-					}
-				}
-
-				URLClassLoader bootClassLoader = new URLClassLoader(urls.toArray(new URL[0]),
-						Bootstrap.class.getClassLoader().getParent());
-				Thread.currentThread().setContextClassLoader(bootClassLoader);
-
-				try {
-					Class<?> bootstrapClass = bootClassLoader.loadClass(Bootstrap.class.getName());
-					bootstrapClass.getMethod("boot", String[].class).invoke(null, new Object[] {args});
-				} catch (Exception e) {
-					throw BootstrapUtils.unchecked(e);
-				}
-
-			} else {
-				boot(args);
+			String path;
+			try {
+				path = Bootstrap.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+			} catch (URISyntaxException e) {
+				throw new RuntimeException(e);
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-	}
+			File loadedFrom = new File(path);
 
-	@SuppressWarnings("unchecked")
-	public static void boot(String[] args) {
-		/*
-		 * Sandbox mode might be checked frequently so we cache the result here
-		 * to avoid calling File.exists() frequently.
-		 */
-		sandboxMode = new File("target/sandbox").exists();
-		prodMode = (System.getProperty("prod") != null);
-
-		String path;
-		try {
-			path = Bootstrap.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
-		} catch (URISyntaxException e) {
-			throw new RuntimeException(e);
-		}
-		File loadedFrom = new File(path);
-
-		if (new File(loadedFrom.getParentFile(), "bootstrap.keys").exists())
-			installDir = loadedFrom.getParentFile().getParentFile();
-		else if (new File("target/sandbox").exists())
-			installDir = new File("target/sandbox");
-		else
-			throw new RuntimeException("Unable to find product directory.");
-
-		try {
-			installDir = installDir.getCanonicalFile();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-
-		if (args.length != 0) {
-			String[] commandArgs = new String[args.length-1];
-			System.arraycopy(args, 1, commandArgs, 0, commandArgs.length);
-			command = new Command(args[0], commandArgs);
-		} else {
-			command = null;
-		}
-
-		configureLogging();
-
-		try {
-	        File tempDir = getTempDir();
-			if (tempDir.exists()) {
-				logger.info("Cleaning temp directory...");
-				Files.walk(tempDir.toPath()).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
-			} 
-			
-			if (!tempDir.mkdirs())
-				throw new RuntimeException("Can not create directory '" + tempDir.getAbsolutePath() + "'");
-			
-			System.setProperty("java.io.tmpdir", tempDir.getAbsolutePath());
-
-			libCacheDir = createTempDir("libcache");
-			
-			logger.info("Launching application from '" + installDir.getAbsolutePath() + "'...");
-
-			List<File> libFiles = new ArrayList<File>();
-			libFiles.addAll(getLibFiles(new File(getSiteDir(), "lib")));
-			
-			File classpathFile = new File(installDir, "boot/system.classpath");
-			if (classpathFile.exists()) {
-				Map<String, File> systemClasspath = 
-						(Map<String, File>) BootstrapUtils.readObject(classpathFile);
-				Set<String> bootstrapKeys = 
-						(Set<String>) BootstrapUtils.readObject(new File(installDir, "boot/bootstrap.keys"));
-				for (Map.Entry<String, File> entry : systemClasspath.entrySet()) {
-					if (!bootstrapKeys.contains(entry.getKey())) {
-						libFiles.add(entry.getValue());
-					}
-				}
-			} else {
-				libFiles.addAll(getLibFiles(getLibDir()));
-			}
-
-			for (File file : libCacheDir.listFiles()) {
-				if (file.getName().endsWith(".jar"))
-					libFiles.add(file);
-			}
-
-			List<URL> urls = new ArrayList<URL>();
-
-			// load our jars first so that we can override classes in third party
-			// jars if necessary.
-			for (File file : libFiles) {
-				if (isPriorityLib(file)) {
-					try {
-						urls.add(file.toURI().toURL());
-					} catch (MalformedURLException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			}
-			for (File file : libFiles) {
-				if (!isPriorityLib(file)) {
-					try {
-						urls.add(file.toURI().toURL());
-					} catch (MalformedURLException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			}
-
-			ClassLoader appClassLoader = new URLClassLoader(urls.toArray(new URL[0]), Bootstrap.class.getClassLoader()) {
-
-				private Map<String, CachedUrl> resourceCache = new ConcurrentHashMap<String, CachedUrl>();
-
-				@Override
-				protected Class<?> findClass(String name) throws ClassNotFoundException {
-					return super.findClass(name);
-				}
-
-				@Override
-				public Class<?> loadClass(String name) throws ClassNotFoundException {
-					return super.loadClass(name);
-				}
-
-				@Override
-				public URL findResource(String name) {
-					URL url;
-					CachedUrl cachedUrl = resourceCache.get(name);
-					if (cachedUrl == null) {
-						url = super.findResource(name);
-						resourceCache.put(name, new CachedUrl(url));
-					} else {
-						url = cachedUrl.getUrl();
-					}
-					return url;
-				}
-
-			};
-			ClassLoader originClassLoader = Thread.currentThread().getContextClassLoader();
-			Thread.currentThread().setContextClassLoader(appClassLoader);
+			if (new File(loadedFrom.getParentFile(), "bootstrap.keys").exists())
+				installDir = loadedFrom.getParentFile().getParentFile();
+			else if (new File("target/sandbox").exists())
+				installDir = new File("target/sandbox");
+			else
+				throw new RuntimeException("Unable to find product directory.");
 
 			try {
+				installDir = installDir.getCanonicalFile();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+
+			if (args.length != 0) {
+				String[] commandArgs = new String[args.length-1];
+				System.arraycopy(args, 1, commandArgs, 0, commandArgs.length);
+				command = new Command(args[0], commandArgs);
+			} else {
+				command = null;
+			}
+
+			configureLogging();
+			try {
+				logger.info("Launching application from '" + installDir.getAbsolutePath() + "'...");
+
+		        File tempDir = getTempDir();
+				if (tempDir.exists()) {
+					logger.info("Cleaning temp directory...");
+					Files.walk(tempDir.toPath()).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+				} 
+				
+				if (!tempDir.mkdirs())
+					throw new RuntimeException("Can not create directory '" + tempDir.getAbsolutePath() + "'");
+				
+				System.setProperty("java.io.tmpdir", tempDir.getAbsolutePath());
+
+				libCacheDir = createTempDir("libcache");
+				
+				List<File> libFiles = new ArrayList<>();
+
+				File classpathFile = new File(installDir, "boot/system.classpath");
+				if (classpathFile.exists()) {
+					@SuppressWarnings("unchecked")
+					Map<String, File> systemClasspath = (Map<String, File>) BootstrapUtils.readObject(classpathFile);
+					@SuppressWarnings("unchecked")
+					Set<String> bootstrapKeys = (Set<String>) BootstrapUtils.readObject(
+							new File(Bootstrap.installDir, "boot/bootstrap.keys"));
+					for (Map.Entry<String, File> entry : systemClasspath.entrySet()) {
+						if (!bootstrapKeys.contains(entry.getKey())) 
+							libFiles.add(entry.getValue());
+					}					
+				} else {
+					libFiles.addAll(getLibFiles(getLibDir()));
+					cacheLibFiles(getLibDir());
+				}
+				
+				File siteLibDir = new File(getSiteDir(), "lib");
+				libFiles.addAll(getLibFiles(siteLibDir));
+				cacheLibFiles(siteLibDir);
+				libFiles.addAll(getLibFiles(libCacheDir));
+
+				List<URL> urls = new ArrayList<URL>();
+
+				// load our jars first so that we can override classes in third party
+				// jars if necessary.
+				for (File file : libFiles) {
+					if (isPriorityLib(file)) {
+						try {
+							urls.add(file.toURI().toURL());
+						} catch (MalformedURLException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				}
+				for (File file : libFiles) {
+					if (!isPriorityLib(file)) {
+						try {
+							urls.add(file.toURI().toURL());
+						} catch (MalformedURLException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				}
+
+				ClassLoader appClassLoader = new URLClassLoader(urls.toArray(new URL[0]), 
+						Bootstrap.class.getClassLoader());
+				Thread.currentThread().setContextClassLoader(appClassLoader);
+				
 				String appLoaderClassName = System.getProperty(APP_LOADER_PROPERTY_NAME);
 				if (appLoaderClassName == null)
 					appLoaderClassName = DEFAULT_APP_LOADER;
 
-				final Startable appLoader;
+				Startable appLoader;
 				try {
 					Class<?> appLoaderClass = appClassLoader.loadClass(appLoaderClassName);
 					appLoader = (Startable) appLoaderClass.newInstance();
@@ -249,11 +176,12 @@ public class Bootstrap {
 						}
 					}
 				});
-			} finally {
-				Thread.currentThread().setContextClassLoader(originClassLoader);
+			} catch (Exception e) {
+				logger.error("Error booting application", e);
+				System.exit(1);
 			}
 		} catch (Exception e) {
-			logger.error("Error booting application", e);
+			e.printStackTrace();
 			System.exit(1);
 		}
 	}
@@ -298,10 +226,15 @@ public class Bootstrap {
 		for (File file : libDir.listFiles()) {
 			if (file.getName().endsWith(".jar"))
 				libFiles.add(file);
-			else if (file.getName().endsWith(".zip"))
-				BootstrapUtils.unzip(file, libCacheDir);
 		}
 		return libFiles;
+	}
+	
+	private static void cacheLibFiles(File libDir) {
+		for (File file: libDir.listFiles()) {
+			if (file.getName().endsWith(".zip"))
+				BootstrapUtils.unzip(file, libCacheDir);
+		}
 	}
 	
 	private static void configureLogging() {
@@ -383,18 +316,6 @@ public class Bootstrap {
 	
 	public static File getPluginsDir() {
 		return new File(installDir, "plugins");
-	}
-	
-	private static class CachedUrl {
-		private final URL url;
-
-		public CachedUrl(URL url) {
-			this.url = url;
-		}
-
-		public URL getUrl() {
-			return url;
-		}
 	}
 	
 }
