@@ -475,7 +475,7 @@ public class XmlTokenizer extends AbstractTokenizer<XmlTokenizer.State> {
 	@Override
 	public boolean accept(String fileName) {
 		// this tokenizer should only process xml files to avoid conflicting with HtmlMixedTokenizer
-		return acceptExtensions(fileName, "xml", "xsl", "xsd");
+		return fileName.equals(".onedev-buildspec") || acceptExtensions(fileName, "xml", "xsl", "xsd");
 	}
 
 	@Override
