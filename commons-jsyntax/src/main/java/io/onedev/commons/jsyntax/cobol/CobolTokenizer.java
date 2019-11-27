@@ -189,7 +189,7 @@ public class CobolTokenizer extends AbstractTokenizer<CobolTokenizer.State> {
 	
 	@Override
 	public boolean accept(String fileName) {
-		return acceptExtensions(fileName, "cpy", "cob");
+		return acceptExtensions(fileName, "cpy", "cob", "cbl", "pco");
 	}
 
 	@Override
