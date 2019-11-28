@@ -4,7 +4,7 @@ import java.util.regex.Pattern;
 
 public class UrlUtils {
 
-	private static final Pattern SCHEME_PATTERN = Pattern.compile("^\\w+\\:\\/\\/.*");
+	private static final Pattern SCHEME_PATTERN = Pattern.compile("(mailto:|^\\w+\\:\\/\\/)");
 	
 	public static boolean isRelative(String url) {
 		return !url.startsWith("/") && !SCHEME_PATTERN.matcher(url).find();
