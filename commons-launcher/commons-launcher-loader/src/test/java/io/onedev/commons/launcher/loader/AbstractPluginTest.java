@@ -5,18 +5,12 @@ import static org.mockito.Mockito.spy;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.Executors;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 
 import com.google.common.collect.ImmutableSet;
-
-import io.onedev.commons.launcher.loader.AbstractPlugin;
-import io.onedev.commons.launcher.loader.DefaultPluginManager;
-import io.onedev.commons.launcher.loader.Plugin;
-import io.onedev.commons.launcher.loader.PluginManager;
 
 public class AbstractPluginTest {
 
@@ -68,7 +62,7 @@ public class AbstractPluginTest {
 		plugins.add(plugin1);
 		plugins.add(plugin2);
 		plugins.add(plugin3);
-		pluginManager = new DefaultPluginManager(plugins, Executors.newCachedThreadPool());
+		pluginManager = new DefaultPluginManager(plugins);
 	}
 	
 	@Test

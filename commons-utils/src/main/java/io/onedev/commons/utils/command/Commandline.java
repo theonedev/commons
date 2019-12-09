@@ -18,8 +18,6 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-
 import io.onedev.commons.utils.Maps;
 import io.onedev.commons.utils.StringUtils;
 
@@ -32,7 +30,7 @@ public class Commandline  {
     private static final int MAX_ERROR_LEN = 1024;
 
 	private static final Logger logger = LoggerFactory.getLogger(Commandline.class);
-
+	
     private String executable;
     
     private List<String> arguments = new ArrayList<String>();
@@ -42,7 +40,6 @@ public class Commandline  {
     private Map<String, String> environments = new HashMap<String, String>();
     
     public Commandline(String executable) {
-    	Preconditions.checkNotNull(executable);
         this.executable = executable.replace('/', File.separatorChar).replace('\\', File.separatorChar);
     }
     
@@ -201,7 +198,8 @@ public class Commandline  {
 			};
 		}
     	
-        ProcessStreamPumper streamPumper = new ProcessStreamPumper(process, stdout, errorMessageCollector, stdin);
+        ProcessStreamPumper streamPumper = new ProcessStreamPumper(
+        		process, stdout, errorMessageCollector, stdin);
         
         ExecuteResult result = new ExecuteResult(this);
         try {

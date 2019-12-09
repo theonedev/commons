@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import javax.annotation.Nullable;
@@ -13,6 +15,8 @@ import io.onedev.commons.utils.ExceptionUtils;
 public class ProcessStreamPumper {
 
     private static final int BUFFER_SIZE = 64*1024;
+    
+    private static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
     
     private final Future<?> stdoutPumper;
 
@@ -67,7 +71,7 @@ public class ProcessStreamPumper {
     private Future<?> createPump(final InputStream input, @Nullable final OutputStream output, 
     		final boolean closeInputWhenExhausted, final boolean closeOutputWhenExhausted) {
     	
-    	return Commandline.EXECUTOR_SERVICE.submit(new Runnable() {
+    	return EXECUTOR.submit(new Runnable() {
 
 			public void run() {
 		        byte[] buf = new byte[BUFFER_SIZE];

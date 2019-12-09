@@ -7,7 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -20,8 +19,6 @@ public class DefaultPluginManager implements PluginManager {
 	// use linked hash map here to keep plugins in order
 	private final Map<String, Plugin> pluginMap = new LinkedHashMap<String, Plugin>();
 
-	private final ExecutorService executorService;
-	
 	/**
 	 * Construct plugin map in dependency order. Plugins without dependencies comes first in the 
 	 * linked hash map.
@@ -29,7 +26,7 @@ public class DefaultPluginManager implements PluginManager {
 	 * @param plugins
 	 */
 	@Inject
-	public DefaultPluginManager(Set<Plugin> plugins, ExecutorService executorService) {
+	public DefaultPluginManager(Set<Plugin> plugins) {
 		for (Plugin plugin: plugins)
 			pluginMap.put(plugin.getId(), plugin);
 		
@@ -39,8 +36,6 @@ public class DefaultPluginManager implements PluginManager {
 			pluginMap.remove(id);
 			pluginMap.put(id, plugin);
 		}
-		
-		this.executorService = executorService;
 	}
 
 	@Override
@@ -55,8 +50,6 @@ public class DefaultPluginManager implements PluginManager {
 
 	@Override
 	public void stop() {
-		executorService.shutdown();
-		
 		for (Plugin plugin: pluginMap.values())
 			plugin.preStop();
 		List<Plugin> reversed = new ArrayList<Plugin>(pluginMap.values());

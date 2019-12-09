@@ -1,15 +1,9 @@
 package io.onedev.commons.launcher.loader;
 
 import java.util.Collection;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
-
-import javax.inject.Singleton;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
-import com.google.inject.Provider;
 import com.google.inject.multibindings.Multibinder;
 
 public class AppLoaderModule extends AbstractModule {
@@ -38,18 +32,6 @@ public class AppLoaderModule extends AbstractModule {
 	    
 	    bind(PluginManager.class).to(DefaultPluginManager.class);
 	    bind(ImplementationRegistry.class).to(DefaultImplementationRegistry.class);
-	    
-	    bind(ForkJoinPool.class).toInstance(new ForkJoinPool());
-	    
-	    bind(ExecutorService.class).toProvider(new Provider<ExecutorService>() {
-
-			@Override
-			public ExecutorService get() {
-				return Executors.newCachedThreadPool();
-			}
-	    	
-	    }).in(Singleton.class);
-	    
 	    bind(ListenerRegistry.class).to(DefaultListenerRegistry.class);
 	}
 
