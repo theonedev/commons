@@ -18,7 +18,6 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.onedev.commons.utils.Maps;
 import io.onedev.commons.utils.StringUtils;
 
 public class Commandline  {
@@ -141,7 +140,9 @@ public class Commandline  {
 			
 			@Override
 			public void kill(Process process, String executionId) {
-				ProcessTree.get().killAll(process, Maps.newHashMap(EXECUTION_ID_ENV, executionId));
+				Map<String, String> envs = new HashMap<>();
+				envs.put(EXECUTION_ID_ENV, executionId);
+				ProcessTree.get().killAll(process, envs);
 			}
 			
 		});
