@@ -309,13 +309,13 @@ public class Bootstrap {
 	public static File getConfDir() {
 		return new File(installDir, "conf");
 	}
-
+	
 	public static File getSiteDir() {
 		return new File(installDir, "site");
 	}
 	
-	public static File getPluginsDir() {
-		return new File(installDir, "plugins");
+	public static boolean isInDocker() {
+		return new File(installDir, "IN_DOCKER").exists();
 	}
 	
 }
