@@ -1,8 +1,8 @@
 package io.onedev.commons.jsyntax.webserver;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
-import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 
 import fi.iki.elonen.NanoHTTPD;
@@ -27,7 +27,7 @@ public class WebServer extends NanoHTTPD {
 	
 	private String readFile(String fileName) {
 		try {
-			return Resources.toString(Resources.getResource(WebServer.class, fileName), Charsets.UTF_8);
+			return Resources.toString(Resources.getResource(WebServer.class, fileName), StandardCharsets.UTF_8);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

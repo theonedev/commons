@@ -47,114 +47,88 @@
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>org.reflections</groupId>
-			<artifactId>reflections</artifactId>
-			<version>0.9.11</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.google.guava</groupId>
-					<artifactId>guava</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.wicket</groupId>
-			<artifactId>wicket-core</artifactId>
-			<version>${wicket.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.wicket</groupId>
-			<artifactId>wicket-extensions</artifactId>
-			<version>${wicket.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.antlr</groupId>
 			<artifactId>antlr4</artifactId>
-			<version>${antlr.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.findbugs</groupId>
 			<artifactId>jsr305</artifactId>
-			<version>2.0.1</version>
 		</dependency>
+		<dependency>
+			<groupId>org.reflections</groupId>
+			<artifactId>reflections</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.wicket</groupId>
+			<artifactId>wicket-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.wicket</groupId>
+			<artifactId>wicket-extensions</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.github.javaparser</groupId>
+			<artifactId>javaparser-core</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>com.ibm.icu</groupId>
+		    <artifactId>icu4j</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>org.eclipse.core</groupId>
+		    <artifactId>org.eclipse.core.contenttype</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>org.eclipse.core</groupId>
+		    <artifactId>org.eclipse.core.jobs</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>org.eclipse.core</groupId>
+		    <artifactId>org.eclipse.core.resources</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>org.eclipse.core</groupId>
+		    <artifactId>org.eclipse.core.runtime</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>org.eclipse.core</groupId>
+		    <artifactId>org.eclipse.core.filesystem</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>org.osgi</groupId>
+		    <artifactId>org.osgi.core</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>org.eclipse.equinox</groupId>
+		    <artifactId>org.eclipse.equinox.common</artifactId>
+		</dependency>		
+		<dependency>
+		    <groupId>org.eclipse.cdt</groupId>
+		    <artifactId>org.eclipse.cdt.core</artifactId>
+		</dependency>	
+		<dependency>  
+            <groupId>org.sonarsource.javascript</groupId>  
+            <artifactId>javascript-frontend</artifactId>  
+        </dependency> 
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.11</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-server</artifactId>
-			<version>${jetty.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-webapp</artifactId>
-			<version>${jetty.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.onedev</groupId>
 			<artifactId>commons-utils</artifactId>
-			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>com.github.javaparser</groupId>
-			<artifactId>javaparser-core</artifactId>
-			<version>3.0.0</version>
-		</dependency>
-		<dependency>
-		    <groupId>com.ibm.icu</groupId>
-		    <artifactId>icu4j</artifactId>
-		    <version>59.1</version>
-		</dependency>
-		<dependency>
-		    <groupId>org.eclipse.core</groupId>
-		    <artifactId>org.eclipse.core.contenttype</artifactId>
-		    <version>3.4.200.v20140207-1251</version>
-		</dependency>
-		<dependency>
-		    <groupId>org.eclipse.core</groupId>
-		    <artifactId>org.eclipse.core.jobs</artifactId>
-		    <version>3.5.300.v20130429-1813</version>
-		</dependency>
-		<dependency>
-		    <groupId>org.eclipse.core</groupId>
-		    <artifactId>org.eclipse.core.resources</artifactId>
-		    <version>3.9.1.v20140825-1431</version>
-		</dependency>
-		<dependency>
-		    <groupId>org.eclipse.core</groupId>
-		    <artifactId>org.eclipse.core.runtime</artifactId>
-		    <version>3.10.0.v20140318-2214</version>
-		</dependency>
-		<dependency>
-		    <groupId>org.eclipse.core</groupId>
-		    <artifactId>org.eclipse.core.filesystem</artifactId>
-		    <version>1.7.0.v20170406-1337</version>
-		</dependency>
-		<dependency>
-		    <groupId>org.osgi</groupId>
-		    <artifactId>org.osgi.core</artifactId>
-		    <version>6.0.0</version>
-		</dependency>
-		<dependency>
-		    <groupId>org.eclipse.equinox</groupId>
-		    <artifactId>org.eclipse.equinox.common</artifactId>
-		    <version>3.6.200.v20130402-1505</version>
-		</dependency>		
-		<dependency>
-		    <groupId>org.eclipse.cdt</groupId>
-		    <artifactId>org.eclipse.cdt.core</artifactId>
-		    <version>5.11.0.201602051005</version>
-		</dependency>	
-		<dependency>  
-            <groupId>org.sonarsource.javascript</groupId>  
-            <artifactId>javascript-frontend</artifactId>  
-            <version>4.2.0.6476</version>  
-        </dependency> 
 	</dependencies>
 	<repositories>
 		<repository>
@@ -172,9 +146,4 @@
 			</snapshots>
 		</repository>
 	</repositories>
-	<properties>
-		<jetty.version>9.4.22.v20191022</jetty.version>
-		<wicket.version>7.14.0</wicket.version>
-		<antlr.version>4.7.2</antlr.version>
-	</properties>
 </project>

@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -95,7 +96,7 @@ public class Grammar implements Serializable {
 		tokenTypesByRule.put("EOF", Token.EOF);
 		
 		try (InputStream is = getClass().getClassLoader().getResourceAsStream(tokenFile)) {
-			for (String line: IOUtils.readLines(is)) {
+			for (String line: IOUtils.readLines(is, StandardCharsets.UTF_8)) {
 				String key = StringUtils.substringBeforeLast(line, "=");
 				Integer value = Integer.valueOf(StringUtils.substringAfterLast(line, "="));
 				if (key.startsWith("'"))

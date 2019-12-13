@@ -1,6 +1,7 @@
 package io.onedev.commons.jsyntax;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,13 +13,8 @@ import javax.script.ScriptException;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
 import com.google.common.io.Resources;
-
-import io.onedev.commons.jsyntax.TokenUtils;
-import io.onedev.commons.jsyntax.Tokenized;
-import io.onedev.commons.jsyntax.Tokenizer;
 
 public abstract class AbstractTokenizerTest {
 
@@ -49,7 +45,7 @@ public abstract class AbstractTokenizerTest {
 				engine.eval(StringUtils.replace(script, "window.CodeMirror", "CodeMirror"));
 			}
 			
-			String fileContent = Resources.toString(Resources.getResource(getClass(), fileName), Charsets.UTF_8);
+			String fileContent = Resources.toString(Resources.getResource(getClass(), fileName), StandardCharsets.UTF_8);
 			if (fileName.contains("/"))
 				fileName = StringUtils.substringAfterLast(fileName, "/");
 			if (fileName.endsWith(".txt"))

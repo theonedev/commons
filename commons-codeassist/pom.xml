@@ -53,17 +53,10 @@
 		<dependency>
 			<groupId>io.onedev</groupId>
 			<artifactId>commons-utils</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>2.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.antlr</groupId>
 			<artifactId>antlr4</artifactId>
-			<version>${antlr.version}</version>
 		</dependency>
     </dependencies>  
 	<repositories>
@@ -82,7 +75,4 @@
 			</snapshots>
 		</repository>
 	</repositories>
-    <properties> 
-		<antlr.version>4.7.2</antlr.version>
-    </properties> 
 </project>

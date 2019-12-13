@@ -21,8 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-
-import com.google.common.base.Charsets;
+import java.nio.charset.StandardCharsets;
 
 public abstract class LineConsumer extends OutputStream {
 	
@@ -37,7 +36,7 @@ public abstract class LineConsumer extends OutputStream {
     }
     
     public LineConsumer() {
-    	this(Charsets.UTF_8.name());
+    	this(StandardCharsets.UTF_8.name());
     }
     
     public String getEncoding() {
