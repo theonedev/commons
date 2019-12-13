@@ -173,7 +173,7 @@
 		</repository>
 	</repositories>
 	<properties>
-		<jetty.version>9.3.27.v20190418</jetty.version>
+		<jetty.version>9.4.22.v20191022</jetty.version>
 		<wicket.version>7.14.0</wicket.version>
 		<antlr.version>4.7.2</antlr.version>
 	</properties>
