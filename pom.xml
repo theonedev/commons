@@ -1,28 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">  
-    <modelVersion>4.0.0</modelVersion>  
-    <parent>
-    	<groupId>io.onedev</groupId>
-    	<artifactId>parent</artifactId>
-    	<version>1.0.3</version>
-    </parent>
-    <artifactId>commons</artifactId>  
-    <version>1.1.9</version>  
-    <packaging>pom</packaging>  
-    <modules> 
-        <module>commons-utils</module>
-        <module>commons-jsyntax</module>
-        <module>commons-jsymbol</module>
-        <module>commons-codeassist</module>
-        <module>commons-launcher</module>
-    </modules>  
-    <dependencyManagement>
-    	<dependencies>
-	        <dependency> 
-	            <groupId>io.onedev</groupId>  
-	            <artifactId>commons-launcher-bootstrap</artifactId>  
-	            <version>${project.version}</version> 
-	        </dependency>  
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>io.onedev</groupId>
+		<artifactId>parent</artifactId>
+		<version>1.0.3</version>
+	</parent>
+	<artifactId>commons</artifactId>
+	<version>1.1.9</version>
+	<packaging>pom</packaging>
+	<modules>
+		<module>commons-utils</module>
+		<module>commons-jsyntax</module>
+		<module>commons-jsymbol</module>
+		<module>commons-codeassist</module>
+		<module>commons-launcher</module>
+	</modules>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>io.onedev</groupId>
+				<artifactId>commons-launcher-bootstrap</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>io.onedev</groupId>
 				<artifactId>commons-utils</artifactId>
@@ -54,26 +56,26 @@
 				<artifactId>commons-jsyntax</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-	        <dependency> 
-	            <groupId>com.google.inject</groupId>  
-	            <artifactId>guice</artifactId>  
-	            <version>${guice.version}</version> 
-	        </dependency>  
-	        <dependency> 
-	            <groupId>com.google.inject.extensions</groupId>  
-	            <artifactId>guice-assistedinject</artifactId>  
-	            <version>${guice.version}</version> 
-	        </dependency>  
-	        <dependency> 
-	            <groupId>com.google.inject.extensions</groupId>  
-	            <artifactId>guice-servlet</artifactId>  
-	            <version>${guice.version}</version> 
-	        </dependency>  
-	        <dependency> 
-	            <groupId>com.google.inject.extensions</groupId>  
-	            <artifactId>guice-multibindings</artifactId>  
-	            <version>${guice.version}</version> 
-	        </dependency> 
+			<dependency>
+				<groupId>com.google.inject</groupId>
+				<artifactId>guice</artifactId>
+				<version>${guice.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.inject.extensions</groupId>
+				<artifactId>guice-assistedinject</artifactId>
+				<version>${guice.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.inject.extensions</groupId>
+				<artifactId>guice-servlet</artifactId>
+				<version>${guice.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.inject.extensions</groupId>
+				<artifactId>guice-multibindings</artifactId>
+				<version>${guice.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>org.antlr</groupId>
 				<artifactId>antlr4</artifactId>
@@ -168,7 +170,7 @@
 				<groupId>org.jvnet.winp</groupId>
 				<artifactId>winp</artifactId>
 				<version>1.28</version>
-			</dependency>    	
+			</dependency>
 			<dependency>
 				<groupId>org.reflections</groupId>
 				<artifactId>reflections</artifactId>
@@ -190,55 +192,65 @@
 				<version>3.0.0</version>
 			</dependency>
 			<dependency>
-			    <groupId>com.ibm.icu</groupId>
-			    <artifactId>icu4j</artifactId>
-			    <version>59.1</version>
+				<groupId>com.ibm.icu</groupId>
+				<artifactId>icu4j</artifactId>
+				<version>59.1</version>
 			</dependency>
 			<dependency>
-			    <groupId>org.eclipse.core</groupId>
-			    <artifactId>org.eclipse.core.contenttype</artifactId>
-			    <version>3.4.200.v20140207-1251</version>
+				<groupId>org.eclipse.core</groupId>
+				<artifactId>org.eclipse.core.contenttype</artifactId>
+				<version>3.4.200.v20140207-1251</version>
 			</dependency>
 			<dependency>
-			    <groupId>org.eclipse.core</groupId>
-			    <artifactId>org.eclipse.core.jobs</artifactId>
-			    <version>3.5.300.v20130429-1813</version>
+				<groupId>org.eclipse.core</groupId>
+				<artifactId>org.eclipse.core.jobs</artifactId>
+				<version>3.5.300.v20130429-1813</version>
 			</dependency>
 			<dependency>
-			    <groupId>org.eclipse.core</groupId>
-			    <artifactId>org.eclipse.core.resources</artifactId>
-			    <version>3.9.1.v20140825-1431</version>
+				<groupId>org.eclipse.core</groupId>
+				<artifactId>org.eclipse.core.resources</artifactId>
+				<version>3.9.1.v20140825-1431</version>
 			</dependency>
 			<dependency>
-			    <groupId>org.eclipse.core</groupId>
-			    <artifactId>org.eclipse.core.runtime</artifactId>
-			    <version>3.10.0.v20140318-2214</version>
+				<groupId>org.eclipse.core</groupId>
+				<artifactId>org.eclipse.core.runtime</artifactId>
+				<version>3.13.0.v20170207-1030</version>
 			</dependency>
 			<dependency>
-			    <groupId>org.eclipse.core</groupId>
-			    <artifactId>org.eclipse.core.filesystem</artifactId>
-			    <version>1.7.0.v20170406-1337</version>
+				<groupId>org.eclipse.core</groupId>
+				<artifactId>org.eclipse.core.filesystem</artifactId>
+				<version>1.7.0.v20170406-1337</version>
 			</dependency>
 			<dependency>
-			    <groupId>org.osgi</groupId>
-			    <artifactId>org.osgi.core</artifactId>
-			    <version>6.0.0</version>
+				<groupId>org.osgi</groupId>
+				<artifactId>org.osgi.core</artifactId>
+				<version>6.0.0</version>
 			</dependency>
 			<dependency>
-			    <groupId>org.eclipse.equinox</groupId>
-			    <artifactId>org.eclipse.equinox.common</artifactId>
-			    <version>3.6.200.v20130402-1505</version>
-			</dependency>		
+				<groupId>org.eclipse</groupId>
+				<artifactId>org.eclipse.osgi</artifactId>
+				<version>3.12.0.v20170512-1932</version>
+			</dependency>
 			<dependency>
-			    <groupId>org.eclipse.cdt</groupId>
-			    <artifactId>org.eclipse.cdt.core</artifactId>
-			    <version>5.11.0.201602051005</version>
-			</dependency>	
-			<dependency>  
-	            <groupId>org.sonarsource.javascript</groupId>  
-	            <artifactId>javascript-frontend</artifactId>  
-	            <version>4.2.0.6476</version>  
-	        </dependency> 
+				<groupId>org.eclipse.equinox</groupId>
+				<artifactId>org.eclipse.equinox.registry</artifactId>
+				<version>3.5.400.v20140428</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.equinox</groupId>
+				<artifactId>org.eclipse.equinox.common</artifactId>
+				<version>3.6.200.v20130402-1505</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.cdt</groupId>
+				<artifactId>org.eclipse.cdt.core</artifactId>
+				<version>5.11.0.201602051005</version>
+			</dependency>
+			<dependency>
+				<groupId>org.sonarsource.javascript</groupId>
+				<artifactId>javascript-frontend</artifactId>
+				<version>4.2.0.6476</version>
+			</dependency>
 			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
@@ -265,7 +277,7 @@
 				<version>5.21.0</version>
 			</dependency>
 		</dependencies>
-    </dependencyManagement>
+	</dependencyManagement>
 	<repositories>
 		<repository>
 			<id>pmeaseRepo</id>
@@ -288,6 +300,6 @@
 		<antlr.version>4.7.2</antlr.version>
 		<jetty.version>9.4.24.v20191120</jetty.version>
 		<wicket.version>7.14.0</wicket.version>
-        <guice.version>4.2.2</guice.version> 
+		<guice.version>4.2.2</guice.version>
 	</properties>
 </project>
