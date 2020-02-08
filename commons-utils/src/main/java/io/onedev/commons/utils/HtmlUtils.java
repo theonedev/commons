@@ -30,7 +30,7 @@ public class HtmlUtils {
 			"longdesc", "maxlength", "media", "method", "multiple", "name", "nohref", "noshade", "nowrap", "prompt",
 			"readonly", "rel", "rev", "rows", "rowspan", "rules", "scope", "selected", "shape", "size", "span", "start",
 			"style", "summary", "tabindex", "target", "title", "type", "usemap", "valign", "value", "vspace", "width",
-			"itemprop", "class", "controls"};
+			"itemprop", "class", "controls", "id"};
 
 	private static final String[] SAFE_ANCHOR_SCHEMES = new String[] { "http", "https", "mailto", };
 
