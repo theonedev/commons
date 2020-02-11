@@ -6,10 +6,10 @@
 	<parent>
 		<groupId>io.onedev</groupId>
 		<artifactId>parent</artifactId>
-		<version>1.0.3</version>
+		<version>1.0.4</version>
 	</parent>
 	<artifactId>commons</artifactId>
-	<version>1.1.11</version>
+	<version>1.1.12</version>
 	<packaging>pom</packaging>
 	<modules>
 		<module>commons-utils</module>
@@ -199,27 +199,27 @@
 			<dependency>
 				<groupId>org.eclipse.core</groupId>
 				<artifactId>org.eclipse.core.contenttype</artifactId>
-				<version>3.4.200.v20140207-1251</version>
+				<version>3.4.200.v20140207</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.core</groupId>
 				<artifactId>org.eclipse.core.jobs</artifactId>
-				<version>3.5.300.v20130429-1813</version>
+				<version>3.5.300.v20130429</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.core</groupId>
 				<artifactId>org.eclipse.core.resources</artifactId>
-				<version>3.9.1.v20140825-1431</version>
+				<version>3.9.1.v20140825</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.core</groupId>
 				<artifactId>org.eclipse.core.runtime</artifactId>
-				<version>3.13.0.v20170207-1030</version>
+				<version>3.13.0.v20170207</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.core</groupId>
 				<artifactId>org.eclipse.core.filesystem</artifactId>
-				<version>1.7.0.v20170406-1337</version>
+				<version>1.7.0.v20170406</version>
 			</dependency>
 			<dependency>
 				<groupId>org.osgi</groupId>
@@ -229,7 +229,7 @@
 			<dependency>
 				<groupId>org.eclipse</groupId>
 				<artifactId>org.eclipse.osgi</artifactId>
-				<version>3.12.0.v20170512-1932</version>
+				<version>3.12.0.v20170512</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.equinox</groupId>
@@ -239,12 +239,12 @@
 			<dependency>
 				<groupId>org.eclipse.equinox</groupId>
 				<artifactId>org.eclipse.equinox.common</artifactId>
-				<version>3.6.200.v20130402-1505</version>
+				<version>3.6.200.v20130402</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.cdt</groupId>
 				<artifactId>org.eclipse.cdt.core</artifactId>
-				<version>5.11.0.201602051005</version>
+				<version>5.11.0</version>
 			</dependency>
 			<dependency>
 				<groupId>org.sonarsource.javascript</groupId>
@@ -280,8 +280,8 @@
 	</dependencyManagement>
 	<repositories>
 		<repository>
-			<id>pmeaseRepo</id>
-			<url>http://artifact.pmease.com/artifactory/pmeaseRepo</url>
+			<id>onedev</id>
+			<url>https://artifact.onedev.io/artifactory/onedev</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>never</updatePolicy>

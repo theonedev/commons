@@ -4,7 +4,7 @@
 	<parent>	
 		<groupId>io.onedev</groupId>
 		<artifactId>commons</artifactId>
-		<version>1.1.11</version>
+		<version>1.1.12</version>
 	</parent>
 	<artifactId>commons-jsyntax</artifactId>
 	<dependencies>
@@ -38,8 +38,8 @@
 	</dependencies>
 	<repositories>
 		<repository>
-			<id>pmeaseRepo</id>
-			<url>http://artifact.pmease.com/artifactory/pmeaseRepo</url>
+			<id>onedev</id>
+			<url>https://artifact.onedev.io/artifactory/onedev</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>never</updatePolicy>
