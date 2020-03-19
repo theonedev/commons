@@ -296,7 +296,7 @@ public class DTokenizer extends AbstractTokenizer<DTokenizer.State> {
 			}
 		} else if (state.curPunc.equals(ctx.type)) {
 			popContext(state);
-		} else if (((ctx.type.equals("}") || ctx.type.equals("top")) && !state.curPunc.equals(';'))
+		} else if (((ctx.type.equals("}") || ctx.type.equals("top")) && !state.curPunc.equals(";"))
 				|| (ctx.type.equals("statement") && state.curPunc.equals("newstatement"))) {
 			pushContext(state, stream.column(), "statement");
 		}

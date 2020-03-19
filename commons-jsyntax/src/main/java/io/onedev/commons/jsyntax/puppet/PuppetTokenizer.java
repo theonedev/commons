@@ -217,7 +217,7 @@ public class PuppetTokenizer extends AbstractTokenizer<PuppetTokenizer.State> {
 	        if (!stream.match(pattern[10],false).isEmpty()) {
 	            state.inDefinition = true;
 	        }
-	        if (word.equals("include")) {
+	        if (str.equals("include")) {
 	            state.inInclude = true;
 	        }
 	        return words.get(str);

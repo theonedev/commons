@@ -40,7 +40,7 @@ public class ProtobufTokenizer extends AbstractTokenizer<ProtobufTokenizer.State
 			stream.skipToEnd();
 			return "comment";
 		} else if (!stream.match(pattern[0], false).isEmpty()) {
-			if (stream.equals(pattern[1]))
+			if (!stream.match(pattern[1]).isEmpty())
 				return "number";
 
 			else if (!stream.match(pattern[2]).isEmpty())

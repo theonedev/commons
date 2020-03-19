@@ -366,7 +366,7 @@ public abstract class ClikeTokenizer extends AbstractTokenizer<ClikeTokenizer.St
 			popContext(state);
 		else if (indentStatements()
 				&& (((ctx.type.equals("}") || ctx.type.equals("top")) && !state.curPunc
-						.equals(';')) || (ctx.type.equals("statement") && state.curPunc
+						.equals(";")) || (ctx.type.equals("statement") && state.curPunc
 						.equals("newstatement")))) {
 			pushContext(state, stream.column(), "statement", stream.current());
 		}

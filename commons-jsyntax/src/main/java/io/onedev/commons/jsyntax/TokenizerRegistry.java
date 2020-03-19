@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import org.reflections.Reflections;
+import org.reflections.util.ConfigurationBuilder;
 
 import javassist.Modifier;
 
@@ -15,8 +16,10 @@ public class TokenizerRegistry {
 	
 	static {
 		tokenizers = new ArrayList<>();
-		Reflections reflections = new Reflections(TokenizerRegistry.class.getPackage().getName());
-		for (Class<? extends Tokenizer> tokenizerClass: reflections.getSubTypesOf(Tokenizer.class)) {
+		ConfigurationBuilder builder = new ConfigurationBuilder()
+				.forPackages(TokenizerRegistry.class.getPackage().getName())
+				.filterInputsBy(it->it.endsWith(".class"));
+		for (Class<? extends Tokenizer> tokenizerClass: new Reflections(builder).getSubTypesOf(Tokenizer.class)) {
 			if (!Modifier.isAbstract(tokenizerClass.getModifiers())) {
 				try {
 					tokenizers.add(tokenizerClass.newInstance());
