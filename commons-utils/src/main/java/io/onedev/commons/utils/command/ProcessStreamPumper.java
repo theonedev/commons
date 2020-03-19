@@ -36,10 +36,15 @@ public class ProcessStreamPumper {
         stdoutPumper = createPump(process.getInputStream(), stdout, true, false);
         stderrPumper = createPump(process.getErrorStream(), stderr, true, false);
         
-        if (stdin != null)
+        if (stdin != null) {
             stdinPumper = createPump(stdin, process.getOutputStream(), false, true);
-        else
+        } else {
         	stdinPumper = null;
+        	try {
+				process.getOutputStream().close();
+			} catch (IOException e) {
+			}
+        }
     }
     
     public void waitFor() {
@@ -75,7 +80,7 @@ public class ProcessStreamPumper {
 
 			public void run() {
 		        byte[] buf = new byte[BUFFER_SIZE];
-		        
+		
 		        try {
 			        int length;
 		            while ((length = input.read(buf)) > 0) {

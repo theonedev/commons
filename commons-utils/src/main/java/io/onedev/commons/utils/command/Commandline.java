@@ -157,6 +157,19 @@ public class Commandline  {
 		});
 	}
 	
+	public int execute(@Nullable OutputStream stdout, @Nullable OutputStream stderr, @Nullable InputStream stdin) {
+		return execute(stdout, stderr, stdin, new ProcessKiller() {
+			
+			@Override
+			public void kill(Process process, String executionId) {
+				Map<String, String> envs = new HashMap<>();
+				envs.put(EXECUTION_ID_ENV, executionId);
+				ProcessTree.get().killAll(process, envs);
+			}
+			
+		});
+	}
+	
 	/**
 	 * Execute the command.
 	 * 
@@ -169,23 +182,12 @@ public class Commandline  {
 	 * @return
 	 * 			execution result
 	 */
-	public ExecuteResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr, @Nullable InputStream stdin, 
-			ProcessKiller processKiller) {
-    	String executionId = UUID.randomUUID().toString();
-    	
-    	Process process;
-        try {
-        	ProcessBuilder processBuilder = createProcessBuilder();
-        	processBuilder.environment().put(EXECUTION_ID_ENV, executionId);
-        	process = processBuilder.redirectErrorStream(stderr == null).start();
-        } catch (IOException e) {
-        	throw new RuntimeException(e);
-        }
-
+	public ExecuteResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr, 
+			@Nullable InputStream stdin, ProcessKiller processKiller) {
     	AtomicReference<String> errorMessageRef = new AtomicReference<>(null);
-		OutputStream errorMessageCollector = null;
+		OutputStream stderrWithErrorMessageCollecting = null;
 		if (stderr != null) {
-			errorMessageCollector = new LineConsumer(stderr.getEncoding()) {
+			stderrWithErrorMessageCollecting = new LineConsumer(stderr.getEncoding()) {
 
 				@Override
 				public void consume(String line) {
@@ -207,12 +209,33 @@ public class Commandline  {
 				
 			};
 		}
-    	
-        ProcessStreamPumper streamPumper = new ProcessStreamPumper(
-        		process, stdout, errorMessageCollector, stdin);
-        
-        ExecuteResult result = new ExecuteResult(this);
 
+		ExecuteResult result = new ExecuteResult(this);
+
+		result.setReturnCode(execute(stdout, stderrWithErrorMessageCollecting, stdin, processKiller));
+		
+        String errorMessage = errorMessageRef.get();
+        if (errorMessage != null && StringUtils.isNotBlank(errorMessage))
+        	result.setErrorMessage(errorMessage);
+        
+        return result;
+    }
+    
+	public int execute(@Nullable OutputStream stdout, @Nullable OutputStream stderr, 
+			@Nullable InputStream stdin, ProcessKiller processKiller) {
+    	String executionId = UUID.randomUUID().toString();
+    	
+    	Process process;
+        try {
+        	ProcessBuilder processBuilder = createProcessBuilder();
+        	processBuilder.environment().put(EXECUTION_ID_ENV, executionId);
+        	process = processBuilder.start();
+        } catch (IOException e) {
+        	throw new RuntimeException(e);
+        }
+
+        ProcessStreamPumper streamPumper = new ProcessStreamPumper(process, stdout, stderr, stdin);
+        
         if (timeout != 0) {
         	Thread thread = Thread.currentThread();
     		AtomicBoolean stoppedRef = new AtomicBoolean(false);
@@ -236,7 +259,7 @@ public class Commandline  {
     			
     		});
             try {
-            	result.setReturnCode(process.waitFor());
+            	return process.waitFor();
     		} catch (InterruptedException e) {
     			processKiller.kill(process, executionId);
     			if (System.currentTimeMillis() - time > timeout*1000L)
@@ -249,7 +272,7 @@ public class Commandline  {
     		}
         } else {
             try {
-            	result.setReturnCode(process.waitFor());
+            	return process.waitFor();
     		} catch (InterruptedException e) {
     			processKiller.kill(process, executionId);
     			throw new RuntimeException(e);
@@ -257,12 +280,5 @@ public class Commandline  {
     			streamPumper.waitFor();
     		}
         }
-
-        String errorMessage = errorMessageRef.get();
-        if (errorMessage != null && StringUtils.isNotBlank(errorMessage))
-        	result.setErrorMessage(errorMessage);
-        
-        return result;
-    }
-    
+    }	
 }
