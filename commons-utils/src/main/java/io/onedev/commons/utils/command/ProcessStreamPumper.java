@@ -33,11 +33,11 @@ public class ProcessStreamPumper {
         this.stdout = stdout;
         this.stderr = stderr;
         
-        stdoutPumper = createPump(process.getInputStream(), stdout, true, false);
-        stderrPumper = createPump(process.getErrorStream(), stderr, true, false);
+        stdoutPumper = createPump(process.getInputStream(), stdout, true, false, false);
+        stderrPumper = createPump(process.getErrorStream(), stderr, true, false, false);
         
         if (stdin != null) {
-            stdinPumper = createPump(stdin, process.getOutputStream(), false, true);
+            stdinPumper = createPump(stdin, process.getOutputStream(), false, true, true);
         } else {
         	stdinPumper = null;
         	try {
@@ -73,8 +73,8 @@ public class ProcessStreamPumper {
 
     }
 
-    private Future<?> createPump(final InputStream input, @Nullable final OutputStream output, 
-    		final boolean closeInputWhenExhausted, final boolean closeOutputWhenExhausted) {
+    private Future<?> createPump(InputStream input, @Nullable OutputStream output, 
+    		boolean closeInputWhenExhausted, boolean closeOutputWhenExhausted, boolean flush) {
     	
     	return EXECUTOR.submit(new Runnable() {
 
@@ -84,8 +84,11 @@ public class ProcessStreamPumper {
 		        try {
 			        int length;
 		            while ((length = input.read(buf)) > 0) {
-		            	if (output != null)
+		            	if (output != null) {
 		            		output.write(buf, 0, length);
+		            		if (flush)
+		            			output.flush();
+		            	}
 		            }
 		        } catch (IOException e) {
 		        	throw new RuntimeException(e);
