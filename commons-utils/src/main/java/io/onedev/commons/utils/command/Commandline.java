@@ -13,7 +13,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Nullable;
 
@@ -28,8 +27,6 @@ public class Commandline  {
 	
     static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
     
-    private static final int MAX_ERROR_LEN = 1024;
-
 	private static final Logger logger = LoggerFactory.getLogger(Commandline.class);
 	
     private String executable;
@@ -157,7 +154,7 @@ public class Commandline  {
 		});
 	}
 	
-	public int execute(@Nullable OutputStream stdout, @Nullable OutputStream stderr, @Nullable InputStream stdin) {
+	public ExecuteResult execute(@Nullable OutputStream stdout, @Nullable OutputStream stderr, @Nullable InputStream stdin) {
 		return execute(stdout, stderr, stdin, new ProcessKiller() {
 			
 			@Override
@@ -184,44 +181,25 @@ public class Commandline  {
 	 */
 	public ExecuteResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr, 
 			@Nullable InputStream stdin, ProcessKiller processKiller) {
-    	AtomicReference<String> errorMessageRef = new AtomicReference<>(null);
-		OutputStream stderrWithErrorMessageCollecting = null;
 		if (stderr != null) {
-			stderrWithErrorMessageCollecting = new LineConsumer(stderr.getEncoding()) {
+			ErrorCollector errorCollector = new ErrorCollector(stderr.getEncoding()) {
 
 				@Override
 				public void consume(String line) {
-					String errorMessage = errorMessageRef.get();
-					if (errorMessage != null) {
-						if (errorMessage.length() < MAX_ERROR_LEN) {
-							if (errorMessage.length() != 0)
-								errorMessage += "\n";
-							errorMessage += line;
-							errorMessageRef.set(errorMessage);
-						} else if (!errorMessage.endsWith("\n...")) {
-							errorMessageRef.set(errorMessage + "\n...");
-						}
-					} else {
-						errorMessageRef.set(line);
-					}
+					super.consume(line);
 					stderr.consume(line);
 				}
 				
 			};
+			ExecuteResult result = execute(stdout, (OutputStream)errorCollector, stdin, processKiller);
+			result.setErrorMessage(errorCollector.getMessage());
+	        return result;
+		} else {
+			return execute(stdout, null, stdin, processKiller);
 		}
-
-		ExecuteResult result = new ExecuteResult(this);
-
-		result.setReturnCode(execute(stdout, stderrWithErrorMessageCollecting, stdin, processKiller));
-		
-        String errorMessage = errorMessageRef.get();
-        if (errorMessage != null && StringUtils.isNotBlank(errorMessage))
-        	result.setErrorMessage(errorMessage);
-        
-        return result;
     }
     
-	public int execute(@Nullable OutputStream stdout, @Nullable OutputStream stderr, 
+	public ExecuteResult execute(@Nullable OutputStream stdout, @Nullable OutputStream stderr, 
 			@Nullable InputStream stdin, ProcessKiller processKiller) {
     	String executionId = UUID.randomUUID().toString();
     	
@@ -236,6 +214,7 @@ public class Commandline  {
 
         ProcessStreamPumper streamPumper = new ProcessStreamPumper(process, stdout, stderr, stdin);
         
+		ExecuteResult result = new ExecuteResult(this);
         if (timeout != 0) {
         	Thread thread = Thread.currentThread();
     		AtomicBoolean stoppedRef = new AtomicBoolean(false);
@@ -259,7 +238,7 @@ public class Commandline  {
     			
     		});
             try {
-            	return process.waitFor();
+            	result.setReturnCode(process.waitFor());
     		} catch (InterruptedException e) {
     			processKiller.kill(process, executionId);
     			if (System.currentTimeMillis() - time > timeout*1000L)
@@ -272,7 +251,7 @@ public class Commandline  {
     		}
         } else {
             try {
-            	return process.waitFor();
+            	result.setReturnCode(process.waitFor());
     		} catch (InterruptedException e) {
     			processKiller.kill(process, executionId);
     			throw new RuntimeException(e);
@@ -280,5 +259,6 @@ public class Commandline  {
     			streamPumper.waitFor();
     		}
         }
+        return result;
     }	
 }
