@@ -110,7 +110,7 @@ public class JsxTokenizer extends AbstractTokenizer<JsxTokenizer.State> {
 
 	@Override
 	public boolean accept(String fileName) {
-		return acceptExtensions(fileName, "jsx");
+		return acceptExtensions(fileName, "js", "jsx");
 	}
 
 	@Override

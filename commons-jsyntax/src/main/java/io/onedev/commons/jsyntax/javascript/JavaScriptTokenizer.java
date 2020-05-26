@@ -8,7 +8,8 @@ public class JavaScriptTokenizer extends AbstractJavaScriptTokenizer {
 
 	@Override
 	public boolean accept(String fileName) {
-		return acceptExtensions(fileName, "js");
+		// Always use jsx tokenizer for .js files as jsx is a superset of js
+		return false; 
 	}
 
 	@Override
@@ -35,4 +36,5 @@ public class JavaScriptTokenizer extends AbstractJavaScriptTokenizer {
 	public boolean acceptMode(String mode) {
 		return mode != null && mode.equals("javascript");
 	}
+	
 }
