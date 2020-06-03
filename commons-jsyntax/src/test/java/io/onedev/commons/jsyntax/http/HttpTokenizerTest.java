@@ -3,8 +3,6 @@ package io.onedev.commons.jsyntax.http;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.http.HttpTokenizer;
-
 
 public class HttpTokenizerTest extends AbstractTokenizerTest {
 	@Test

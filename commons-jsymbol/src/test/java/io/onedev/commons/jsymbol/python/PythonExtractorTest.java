@@ -6,7 +6,6 @@ import java.util.List;
 import org.junit.Test;
 
 import io.onedev.commons.jsymbol.DescriptableExtractorTest;
-import io.onedev.commons.jsymbol.python.PythonExtractor;
 import io.onedev.commons.jsymbol.python.symbols.ClassSymbol;
 import io.onedev.commons.jsymbol.python.symbols.ImportedSymbol;
 import io.onedev.commons.jsymbol.python.symbols.MethodSymbol;

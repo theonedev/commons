@@ -3,8 +3,6 @@ package io.onedev.commons.jsyntax.puppet;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.puppet.PuppetTokenizer;
-
 
 public class PuppetTokenizerTest extends AbstractTokenizerTest {
 	@Test

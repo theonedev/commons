@@ -3,7 +3,6 @@ package io.onedev.commons.jsyntax.soy;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.soy.SoyTokenizer;
 
 public class SoyTokenizerTest extends AbstractTokenizerTest {
 

@@ -2,8 +2,6 @@ package io.onedev.commons.jsyntax;
 
 import java.io.Serializable;
 
-import io.onedev.commons.jsyntax.TokenUtils;
-
 public class Tokenized implements Serializable {
 
 	private static final long serialVersionUID = 1L;

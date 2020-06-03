@@ -1,15 +1,12 @@
 package io.onedev.commons.codeassist;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.List;
-import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import io.onedev.commons.codeassist.CodeAssist;
-import io.onedev.commons.codeassist.FenceAware;
-import io.onedev.commons.codeassist.InputStatus;
-import io.onedev.commons.codeassist.InputSuggestion;
 import io.onedev.commons.codeassist.grammar.LexerRuleRefElementSpec;
 import io.onedev.commons.codeassist.parser.TerminalExpect;
 import io.onedev.commons.codeassist.test.CodeAssistTest9Lexer;

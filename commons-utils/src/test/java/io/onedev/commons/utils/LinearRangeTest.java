@@ -3,8 +3,6 @@ package io.onedev.commons.utils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import io.onedev.commons.utils.LinearRange;
-
 public class LinearRangeTest {
 
 	@Test

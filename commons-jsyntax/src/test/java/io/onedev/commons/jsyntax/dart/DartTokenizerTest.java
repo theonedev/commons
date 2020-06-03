@@ -3,7 +3,6 @@ package io.onedev.commons.jsyntax.dart;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.dart.DartTokenizer;
 
 public class DartTokenizerTest extends AbstractTokenizerTest {
 

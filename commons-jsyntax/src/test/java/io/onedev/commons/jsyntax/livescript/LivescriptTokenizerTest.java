@@ -3,8 +3,6 @@ package io.onedev.commons.jsyntax.livescript;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.livescript.LivescriptTokenizer;
-
 
 public class LivescriptTokenizerTest extends AbstractTokenizerTest {
 	@Test

@@ -7,7 +7,6 @@ import org.junit.Test;
 
 import io.onedev.commons.jsymbol.DescriptableExtractorTest;
 import io.onedev.commons.jsymbol.SymbolExtractor;
-import io.onedev.commons.jsymbol.flowscript.FlowScriptExtractor;
 import io.onedev.commons.jsymbol.flowscript.symbols.ClassSymbol;
 import io.onedev.commons.jsymbol.flowscript.symbols.FlowScriptSymbol;
 import io.onedev.commons.jsymbol.flowscript.symbols.FunctionSymbol;

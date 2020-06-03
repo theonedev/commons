@@ -3,7 +3,6 @@ package io.onedev.commons.jsyntax.css;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.css.GSSTokenizer;
 
 public class GSSTokenizerTest extends AbstractTokenizerTest {
 

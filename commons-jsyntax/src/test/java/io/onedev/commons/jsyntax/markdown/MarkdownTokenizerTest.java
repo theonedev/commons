@@ -3,7 +3,6 @@ package io.onedev.commons.jsyntax.markdown;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.markdown.MarkdownTokenizer;
 
 public class MarkdownTokenizerTest extends AbstractTokenizerTest {
 

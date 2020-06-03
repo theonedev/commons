@@ -3,15 +3,6 @@ package io.onedev.commons.jsyntax.sql;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.sql.CassandraTokenizer;
-import io.onedev.commons.jsyntax.sql.GqlTokenizer;
-import io.onedev.commons.jsyntax.sql.HiveTokenizer;
-import io.onedev.commons.jsyntax.sql.MariadbTokenizer;
-import io.onedev.commons.jsyntax.sql.MssqlTokenizer;
-import io.onedev.commons.jsyntax.sql.MysqlTokenizer;
-import io.onedev.commons.jsyntax.sql.PgsqlTokenizer;
-import io.onedev.commons.jsyntax.sql.PlsqlTokenizer;
-import io.onedev.commons.jsyntax.sql.SqlTokenizer;
 
 public class SqlTokenizerTest extends AbstractTokenizerTest {
 

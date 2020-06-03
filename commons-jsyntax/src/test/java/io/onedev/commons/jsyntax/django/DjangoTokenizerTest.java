@@ -3,7 +3,6 @@ package io.onedev.commons.jsyntax.django;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.django.DjangoTokenizer;
 
 public class DjangoTokenizerTest extends AbstractTokenizerTest {
 

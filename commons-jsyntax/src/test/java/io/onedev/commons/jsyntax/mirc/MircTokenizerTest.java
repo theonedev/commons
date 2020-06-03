@@ -3,7 +3,6 @@ package io.onedev.commons.jsyntax.mirc;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.mirc.MircTokenizer;
 
 public class MircTokenizerTest extends AbstractTokenizerTest {
 	@Test

@@ -3,7 +3,6 @@ package io.onedev.commons.jsyntax.stylus;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.stylus.StylusTokenizer;
 
 public class StylusTokenizerTest extends AbstractTokenizerTest {
 

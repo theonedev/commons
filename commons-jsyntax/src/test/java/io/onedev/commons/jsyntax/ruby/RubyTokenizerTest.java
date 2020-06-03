@@ -3,7 +3,6 @@ package io.onedev.commons.jsyntax.ruby;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.ruby.RubyTokenizer;
 
 public class RubyTokenizerTest extends AbstractTokenizerTest {
 	

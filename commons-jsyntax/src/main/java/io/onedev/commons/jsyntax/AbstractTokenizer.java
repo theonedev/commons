@@ -10,8 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.Splitter;
 
-import io.onedev.commons.jsyntax.TokenUtils;
-
 /**
  * Tokenizers should be thread-safe. Calling any public methods of the tokenizer 
  * should not change any of its internal state

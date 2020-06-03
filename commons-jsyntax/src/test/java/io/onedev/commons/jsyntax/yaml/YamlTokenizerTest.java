@@ -3,8 +3,6 @@ package io.onedev.commons.jsyntax.yaml;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.yaml.YamlTokenizer;
-
 
 public class YamlTokenizerTest extends AbstractTokenizerTest {
 	@Test

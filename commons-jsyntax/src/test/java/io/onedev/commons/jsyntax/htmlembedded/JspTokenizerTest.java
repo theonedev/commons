@@ -3,7 +3,6 @@ package io.onedev.commons.jsyntax.htmlembedded;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.htmlembedded.JspTokenizer;
 
 public class JspTokenizerTest extends AbstractTokenizerTest {
 

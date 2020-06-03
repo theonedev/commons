@@ -60,9 +60,29 @@ public class Commandline  {
     	return this;
     }
     
+    public File workingDir() {
+    	return workingDir;
+    }
+    
     public Commandline timeout(long timeout) {
     	this.timeout = timeout;
     	return this;
+    }
+    
+    public long timeout() {
+    	return timeout;
+    }
+    
+    public String executable() {
+    	return executable;
+    }
+    
+    public List<String> arguments() {
+    	return arguments;
+    }
+    
+    public Map<String, String> environments() {
+    	return environments;
     }
     
     public Commandline environments(Map<String, String> environments) {

@@ -3,7 +3,6 @@ package io.onedev.commons.jsyntax.slim;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.slim.SlimTokenizer;
 
 public class SlimTokenizerTest extends AbstractTokenizerTest {
 

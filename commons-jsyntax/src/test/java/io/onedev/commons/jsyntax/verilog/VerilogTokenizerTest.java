@@ -3,7 +3,6 @@ package io.onedev.commons.jsyntax.verilog;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.verilog.VerilogTokenizer;
 
 public class VerilogTokenizerTest extends AbstractTokenizerTest {
 

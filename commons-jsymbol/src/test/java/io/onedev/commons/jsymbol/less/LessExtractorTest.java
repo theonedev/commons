@@ -6,7 +6,6 @@ import java.util.List;
 import org.junit.Test;
 
 import io.onedev.commons.jsymbol.DescriptableExtractorTest;
-import io.onedev.commons.jsymbol.less.LessExtractor;
 import io.onedev.commons.jsymbol.less.symbols.ClassSymbol;
 import io.onedev.commons.jsymbol.less.symbols.IdSymbol;
 import io.onedev.commons.jsymbol.less.symbols.LessSymbol;

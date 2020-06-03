@@ -8,11 +8,6 @@ import org.junit.Test;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 
-import io.onedev.commons.jsyntax.TokenUtils;
-import io.onedev.commons.jsyntax.Tokenized;
-import io.onedev.commons.jsyntax.Tokenizer;
-import io.onedev.commons.jsyntax.TokenizerRegistry;
-
 public class ToHtmlTest {
 	
 	@Test

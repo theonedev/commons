@@ -6,7 +6,6 @@ import java.util.List;
 import org.junit.Test;
 
 import io.onedev.commons.jsymbol.DescriptableExtractorTest;
-import io.onedev.commons.jsymbol.scss.ScssExtractor;
 import io.onedev.commons.jsymbol.scss.symbols.ClassSymbol;
 import io.onedev.commons.jsymbol.scss.symbols.FunctionSymbol;
 import io.onedev.commons.jsymbol.scss.symbols.IdSymbol;

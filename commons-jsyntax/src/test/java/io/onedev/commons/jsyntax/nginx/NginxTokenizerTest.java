@@ -3,8 +3,6 @@ package io.onedev.commons.jsyntax.nginx;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.nginx.NginxTokenizer;
-
 
 public class NginxTokenizerTest extends AbstractTokenizerTest {
 	@Test

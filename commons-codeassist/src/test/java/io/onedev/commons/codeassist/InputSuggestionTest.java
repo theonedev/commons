@@ -1,10 +1,9 @@
 package io.onedev.commons.codeassist;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import io.onedev.commons.codeassist.InputSuggestion;
 import io.onedev.commons.utils.LinearRange;
 
 public class InputSuggestionTest {

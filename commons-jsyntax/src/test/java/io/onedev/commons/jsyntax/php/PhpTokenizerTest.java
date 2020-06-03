@@ -3,7 +3,6 @@ package io.onedev.commons.jsyntax.php;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.php.PhpTokenizer;
 
 public class PhpTokenizerTest extends AbstractTokenizerTest {
 	

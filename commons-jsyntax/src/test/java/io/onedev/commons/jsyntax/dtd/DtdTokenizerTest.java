@@ -3,8 +3,6 @@ package io.onedev.commons.jsyntax.dtd;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.dtd.DtdTokenizer;
-
 
 public class DtdTokenizerTest extends AbstractTokenizerTest {	
 	@Test

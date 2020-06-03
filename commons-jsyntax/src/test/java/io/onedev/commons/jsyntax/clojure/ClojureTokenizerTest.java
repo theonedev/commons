@@ -3,7 +3,6 @@ package io.onedev.commons.jsyntax.clojure;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.clojure.ClojureTokenizer;
 
 public class ClojureTokenizerTest extends AbstractTokenizerTest {
 

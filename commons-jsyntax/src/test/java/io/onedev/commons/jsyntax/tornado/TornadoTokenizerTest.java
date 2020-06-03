@@ -3,7 +3,6 @@ package io.onedev.commons.jsyntax.tornado;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.tornado.TornadoTokenizer;
 
 public class TornadoTokenizerTest extends AbstractTokenizerTest {
 

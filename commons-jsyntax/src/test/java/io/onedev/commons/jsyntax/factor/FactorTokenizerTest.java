@@ -3,8 +3,6 @@ package io.onedev.commons.jsyntax.factor;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.factor.FactorTokenizer;
-
 
 public class FactorTokenizerTest extends AbstractTokenizerTest {
 

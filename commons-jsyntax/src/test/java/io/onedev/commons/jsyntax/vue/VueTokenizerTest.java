@@ -3,7 +3,6 @@ package io.onedev.commons.jsyntax.vue;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.vue.VueTokenizer;
 
 public class VueTokenizerTest extends AbstractTokenizerTest {
 

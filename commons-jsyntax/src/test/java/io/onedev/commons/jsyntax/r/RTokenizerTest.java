@@ -3,7 +3,6 @@ package io.onedev.commons.jsyntax.r;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.r.RTokenizer;
 
 public class RTokenizerTest extends AbstractTokenizerTest {
 

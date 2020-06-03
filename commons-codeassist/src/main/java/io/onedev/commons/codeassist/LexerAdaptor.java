@@ -5,8 +5,6 @@ import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
 
-import io.onedev.commons.codeassist.ANTLRv4Lexer;
-
 public abstract class LexerAdaptor extends Lexer {
 
 	public LexerAdaptor(CharStream input) {

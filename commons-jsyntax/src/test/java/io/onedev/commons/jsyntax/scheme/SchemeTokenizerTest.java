@@ -3,7 +3,6 @@ package io.onedev.commons.jsyntax.scheme;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.scheme.SchemeTokenizer;
 
 public class SchemeTokenizerTest extends AbstractTokenizerTest {
 

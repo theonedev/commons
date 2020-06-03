@@ -6,7 +6,6 @@ import java.util.List;
 import org.junit.Test;
 
 import io.onedev.commons.jsymbol.DescriptableExtractorTest;
-import io.onedev.commons.jsymbol.cpp.CppExtractor;
 import io.onedev.commons.jsymbol.cpp.symbols.ClassSymbol;
 import io.onedev.commons.jsymbol.cpp.symbols.CppSymbol;
 import io.onedev.commons.jsymbol.cpp.symbols.EnumSymbol;

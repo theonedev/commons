@@ -3,7 +3,6 @@ package io.onedev.commons.jsyntax.powershell;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.powershell.PowerShellTokenizer;
 
 public class PowerShellTokenizerTest extends AbstractTokenizerTest {
 

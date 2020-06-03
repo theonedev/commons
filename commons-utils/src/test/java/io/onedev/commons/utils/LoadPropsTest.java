@@ -12,8 +12,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.onedev.commons.utils.FileUtils;
-
 public class LoadPropsTest {
 
 	private File file;

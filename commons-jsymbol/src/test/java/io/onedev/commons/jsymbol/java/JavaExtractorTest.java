@@ -8,7 +8,6 @@ import org.junit.Test;
 import com.github.javaparser.ast.Modifier;
 
 import io.onedev.commons.jsymbol.DescriptableExtractorTest;
-import io.onedev.commons.jsymbol.java.JavaExtractor;
 import io.onedev.commons.jsymbol.java.symbols.CompilationUnitSymbol;
 import io.onedev.commons.jsymbol.java.symbols.FieldSymbol;
 import io.onedev.commons.jsymbol.java.symbols.JavaSymbol;

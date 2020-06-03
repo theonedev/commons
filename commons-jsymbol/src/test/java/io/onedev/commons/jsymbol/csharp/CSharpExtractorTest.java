@@ -7,13 +7,12 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import io.onedev.commons.jsymbol.DescriptableExtractorTest;
-import io.onedev.commons.jsymbol.csharp.CSharpExtractor;
 import io.onedev.commons.jsymbol.csharp.symbols.CSharpSymbol;
+import io.onedev.commons.jsymbol.csharp.symbols.CSharpSymbol.Modifier;
 import io.onedev.commons.jsymbol.csharp.symbols.FieldSymbol;
 import io.onedev.commons.jsymbol.csharp.symbols.MethodSymbol;
 import io.onedev.commons.jsymbol.csharp.symbols.NamespaceSymbol;
 import io.onedev.commons.jsymbol.csharp.symbols.TypeSymbol;
-import io.onedev.commons.jsymbol.csharp.symbols.CSharpSymbol.Modifier;
 
 public class CSharpExtractorTest extends DescriptableExtractorTest<CSharpSymbol> {
 

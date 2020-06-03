@@ -3,7 +3,6 @@ package io.onedev.commons.jsyntax.htmlembedded;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.htmlembedded.EmbeddedJavascriptTokenizer;
 
 public class EmbeddedJavascriptTokenizerTest extends AbstractTokenizerTest {
 

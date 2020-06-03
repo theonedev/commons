@@ -3,7 +3,6 @@ package io.onedev.commons.jsyntax.xml;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.xml.XmlTokenizer;
 
 public class XmlTokenizerTest extends AbstractTokenizerTest {
 

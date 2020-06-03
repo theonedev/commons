@@ -8,8 +8,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import io.onedev.commons.launcher.loader.AppLoader;
-
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(AppLoader.class)
 public abstract class AppLoaderMocker {

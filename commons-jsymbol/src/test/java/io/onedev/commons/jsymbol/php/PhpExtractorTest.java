@@ -6,7 +6,6 @@ import java.util.List;
 import org.junit.Test;
 
 import io.onedev.commons.jsymbol.DescriptableExtractorTest;
-import io.onedev.commons.jsymbol.php.PhpExtractor;
 import io.onedev.commons.jsymbol.php.symbols.ConstantSymbol;
 import io.onedev.commons.jsymbol.php.symbols.FunctionSymbol;
 import io.onedev.commons.jsymbol.php.symbols.ImportedSymbol;

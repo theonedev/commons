@@ -3,7 +3,6 @@ package io.onedev.commons.jsyntax.pug;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.pug.PugTokenizer;
 
 public class PugTokenizerTest extends AbstractTokenizerTest {
 

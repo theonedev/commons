@@ -3,7 +3,6 @@ package io.onedev.commons.jsyntax.turtle;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.turtle.TurtleTokenizer;
 
 public class TurtleTokenizerTest extends AbstractTokenizerTest {
 	@Test

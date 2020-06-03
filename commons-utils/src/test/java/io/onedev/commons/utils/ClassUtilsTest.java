@@ -3,8 +3,6 @@ package io.onedev.commons.utils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import io.onedev.commons.utils.ClassUtils;
-
 public class ClassUtilsTest {
 	
 	@Test

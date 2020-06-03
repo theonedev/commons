@@ -6,7 +6,6 @@ import java.util.List;
 import org.junit.Test;
 
 import io.onedev.commons.jsymbol.DescriptableExtractorTest;
-import io.onedev.commons.jsymbol.r.RExtractor;
 import io.onedev.commons.jsymbol.r.symbols.FunctionSymbol;
 import io.onedev.commons.jsymbol.r.symbols.RSymbol;
 import io.onedev.commons.jsymbol.r.symbols.VariableSymbol;

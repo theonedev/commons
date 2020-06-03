@@ -3,7 +3,6 @@ package io.onedev.commons.jsyntax.pegjs;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.pegjs.PegjsTokenizer;
 
 public class PegjsTokenizerTest extends AbstractTokenizerTest {
 

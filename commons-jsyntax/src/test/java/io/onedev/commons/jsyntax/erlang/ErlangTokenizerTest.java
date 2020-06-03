@@ -3,7 +3,6 @@ package io.onedev.commons.jsyntax.erlang;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.erlang.ErlangTokenizer;
 
 public class ErlangTokenizerTest extends AbstractTokenizerTest {
 

@@ -3,7 +3,6 @@ package io.onedev.commons.jsyntax.lua;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.lua.LuaTokenizer;
 
 public class LuaTokenizerTest extends AbstractTokenizerTest {
 	

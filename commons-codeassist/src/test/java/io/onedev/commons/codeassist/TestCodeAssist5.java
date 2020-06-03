@@ -12,9 +12,6 @@ import org.junit.Test;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 
-import io.onedev.commons.codeassist.CodeAssist;
-import io.onedev.commons.codeassist.InputStatus;
-import io.onedev.commons.codeassist.InputSuggestion;
 import io.onedev.commons.codeassist.parser.Element;
 import io.onedev.commons.codeassist.parser.ParseExpect;
 import io.onedev.commons.codeassist.parser.TerminalExpect;

@@ -3,7 +3,6 @@ package io.onedev.commons.jsyntax.haskell;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.haskell.HaskellTokenizer;
 
 public class HaskellTokenizerTest extends AbstractTokenizerTest {
 

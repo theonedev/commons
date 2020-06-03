@@ -3,8 +3,6 @@ package io.onedev.commons.jsyntax.solr;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.solr.SolrTokenzier;
-
 
 public class SolrTokenizerTest extends AbstractTokenizerTest {
 	@Test

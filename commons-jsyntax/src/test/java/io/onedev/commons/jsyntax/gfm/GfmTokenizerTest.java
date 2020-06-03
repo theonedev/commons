@@ -3,7 +3,6 @@ package io.onedev.commons.jsyntax.gfm;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.gfm.GfmTokenizer;
 
 public class GfmTokenizerTest extends AbstractTokenizerTest {
 

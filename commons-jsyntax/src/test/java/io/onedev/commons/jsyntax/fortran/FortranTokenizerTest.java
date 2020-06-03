@@ -3,7 +3,6 @@ package io.onedev.commons.jsyntax.fortran;
 import org.junit.Test;
 
 import io.onedev.commons.jsyntax.AbstractTokenizerTest;
-import io.onedev.commons.jsyntax.fortran.FortranTokenizer;
 
 public class FortranTokenizerTest extends AbstractTokenizerTest {
 
