@@ -99,14 +99,13 @@ public class HtmlUtils {
 		node.remove();
 	}
 	
-	public static Document clean(String html) {
+	public static Document sanitize(Document doc) {
+		return new Cleaner(whiteList).clean(doc);
+	}
+	
+	public static Document parse(String html) {
 		// Use a faked baseURI, otherwise all relative urls will be stripped out
-		Document body = Jsoup.parseBodyFragment(html, "http://localhost/sanitize");
-		
-		Cleaner cleaner = new Cleaner(whiteList);
-		body = cleaner.clean(body);
-		
-		return body;
+		return Jsoup.parseBodyFragment(html, "http://localhost/sanitize");
 	}
 	
 	public static String escape(String text) {
