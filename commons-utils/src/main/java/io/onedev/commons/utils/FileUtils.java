@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -179,28 +180,16 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     	return files;
     }
 
-    /**
-     * Delete directory if specified directory exists, or do nothing if the 
-     * directory does not exist. 
-     * 
-     * @param dir
-     * 			directory to be deleted. Does not have to be exist
-     */
     public static void deleteDir(File dir) {
-    	try {
-			deleteDirectory(dir);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+    	if (Files.isSymbolicLink(dir.toPath())) {
+    		deleteFile(dir);
+    	} else if (dir.exists()) {
+    		cleanDir(dir);
+    		deleteFile(dir);
+    	}
     }
-    
-	public static void deleteFile(File file) {
-		/*
-		 * Do not test existence of file here as broken symbol link will report file as non-existent  
-		if (!file.exists())
-			return;
-		*/
 
+	public static void deleteFile(File file) {
 		int maxTries = 10;
     	int numTries = 1;
 
@@ -210,8 +199,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     		
     		if (file.exists()) {
             	if (numTries == maxTries) {
-            		throw new RuntimeException("Failed to delete file '" + 
-            				file.getAbsolutePath() + "'.");
+            		throw new RuntimeException("Failed to delete file " + file);
             	} else {
                     System.gc();
                     try {
@@ -224,7 +212,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     			break;
     		}
         }
-	}    
+    }    
     
 	public static void writeFile(File file, String content, String encoding) {
 		try {
@@ -284,21 +272,17 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 		}
 	}
 
-	/**
-	 * Delete all files/sub directories under specified directory. If the directory 
-	 * does not exist, create the directory. 
-	 * 
-	 * @param dir
-	 *			directory to be cleaned up 
-	 */
 	public static void cleanDir(File dir) {
 		if (dir.exists()) {
-			try {
-				org.apache.commons.io.FileUtils.cleanDirectory(dir);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
+	        for (File file : dir.listFiles()) {
+	        	if (file.isDirectory())
+	        		deleteDir(file);
+	        	else
+	        		deleteFile(file);
+	        }
 		} else {
+			if (Files.isSymbolicLink(dir.toPath())) 
+				deleteFile(dir);
 			createDir(dir);
 		}
 	}
