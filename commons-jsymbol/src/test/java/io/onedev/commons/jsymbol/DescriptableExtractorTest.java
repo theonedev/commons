@@ -12,8 +12,6 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.io.Resources;
 
-import io.onedev.commons.jsymbol.Symbol;
-
 public abstract class DescriptableExtractorTest<T extends Symbol> {
 
 	/**
