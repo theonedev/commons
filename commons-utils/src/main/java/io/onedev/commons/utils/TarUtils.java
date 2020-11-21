@@ -76,6 +76,8 @@ public class TarUtils {
 		    tis = new TarArchiveInputStream(new BufferedInputStream(is, BUFFER_SIZE));
 			TarArchiveEntry entry;
 			while((entry = tis.getNextTarEntry()) != null) {
+				if (entry.getName().contains("..")) 
+					throw new RuntimeException("Upper directory is not allowed to avoid zipslip security volnerability");
 				if (!entry.getName().endsWith("/")) { 
 					File destFile = new File(destDir, entry.getName());
 					File parentFile = destFile.getParentFile();

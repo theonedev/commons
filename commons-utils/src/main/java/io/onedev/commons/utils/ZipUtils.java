@@ -104,6 +104,8 @@ public class ZipUtils {
 	    try {
 		    ZipEntry entry;
 		    while((entry = zis.getNextEntry()) != null) {
+				if (entry.getName().contains("..")) 
+					throw new RuntimeException("Upper directory is not allowed to avoid zipslip security volnerability");
 				if (entry.getName().endsWith("/")) {
 					FileUtils.createDir(new File(destDir, entry.getName()));
 				} else {		    		
