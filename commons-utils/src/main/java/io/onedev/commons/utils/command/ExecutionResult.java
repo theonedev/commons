@@ -51,7 +51,7 @@ public class ExecutionResult implements Serializable {
         		commandDescription, returnCode);
     	if (stderr != null) 
     		errorMessage += "\n" + stderr;
-    	throw new ExplicitException(errorMessage);
+    	return new ExplicitException(errorMessage);
 	}
 	
 	/**
