@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,8 +22,10 @@ import org.slf4j.LoggerFactory;
 
 import io.onedev.commons.utils.StringUtils;
 
-public class Commandline  {
+public class Commandline implements Serializable {
 	
+	private static final long serialVersionUID = 1L;
+
 	public static final String EXECUTION_ID_ENV = "ONEDEV_COMMAND_EXECUTION_UUID";
 	
     static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
@@ -91,6 +94,7 @@ public class Commandline  {
     	return this;
     }
 
+    @Override
     public String toString() {
     	List<String> command = new ArrayList<String>();
     	command.add(executable);
@@ -106,7 +110,7 @@ public class Commandline  {
         				each, "\n", "\\n")).append(" ");
         	}
         }
-        return buf.toString();
+        return buf.toString().trim();
     }
 
     public Commandline clearArgs() {
@@ -157,11 +161,11 @@ public class Commandline  {
     	return processBuilder;
     }
     
-	public ExecuteResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr) {
+	public ExecutionResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr) {
 		return execute(stdout, stderr, null);
 	}
 	
-	public ExecuteResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr, @Nullable InputStream stdin) {
+	public ExecutionResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr, @Nullable InputStream stdin) {
 		return execute(stdout, stderr, stdin, new ProcessKiller() {
 			
 			@Override
@@ -174,7 +178,7 @@ public class Commandline  {
 		});
 	}
 	
-	public ExecuteResult execute(@Nullable OutputStream stdout, @Nullable OutputStream stderr, @Nullable InputStream stdin) {
+	public ExecutionResult execute(@Nullable OutputStream stdout, @Nullable OutputStream stderr, @Nullable InputStream stdin) {
 		return execute(stdout, stderr, stdin, new ProcessKiller() {
 			
 			@Override
@@ -199,7 +203,7 @@ public class Commandline  {
 	 * @return
 	 * 			execution result
 	 */
-	public ExecuteResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr, 
+	public ExecutionResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr, 
 			@Nullable InputStream stdin, ProcessKiller processKiller) {
 		if (stderr != null) {
 			ErrorCollector errorCollector = new ErrorCollector(stderr.getEncoding()) {
@@ -211,15 +215,15 @@ public class Commandline  {
 				}
 				
 			};
-			ExecuteResult result = execute(stdout, (OutputStream)errorCollector, stdin, processKiller);
-			result.setErrorMessage(errorCollector.getMessage());
+			ExecutionResult result = execute(stdout, (OutputStream)errorCollector, stdin, processKiller);
+			result.setStderr(errorCollector.getMessage());
 	        return result;
 		} else {
 			return execute(stdout, null, stdin, processKiller);
 		}
     }
     
-	public ExecuteResult execute(@Nullable OutputStream stdout, @Nullable OutputStream stderr, 
+	public ExecutionResult execute(@Nullable OutputStream stdout, @Nullable OutputStream stderr, 
 			@Nullable InputStream stdin, ProcessKiller processKiller) {
     	String executionId = UUID.randomUUID().toString();
     	
@@ -234,7 +238,7 @@ public class Commandline  {
 
         ProcessStreamPumper streamPumper = new ProcessStreamPumper(process, stdout, stderr, stdin);
         
-		ExecuteResult result = new ExecuteResult(this);
+		ExecutionResult result = new ExecutionResult(this);
         if (timeout != 0) {
         	Thread thread = Thread.currentThread();
     		AtomicBoolean stoppedRef = new AtomicBoolean(false);
