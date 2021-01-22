@@ -12,10 +12,7 @@ public class PlanarRange implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
-	public int fromRow, fromColumn, toRow, toColumn;
-	
-	public PlanarRange() {
-	}
+	private final int fromRow, fromColumn, toRow, toColumn;
 	
 	public PlanarRange(int fromRow, int fromColumn, int toRow, int toColumn) {
 		this.fromRow = fromRow;
