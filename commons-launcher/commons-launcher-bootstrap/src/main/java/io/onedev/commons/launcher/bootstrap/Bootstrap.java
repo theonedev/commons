@@ -1,7 +1,9 @@
 package io.onedev.commons.launcher.bootstrap;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -48,6 +50,7 @@ public class Bootstrap {
 	
 	public static Command command;
 
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
 		try {
 			Locale.setDefault(Locale.US);
@@ -108,11 +111,17 @@ public class Bootstrap {
 
 				File classpathFile = new File(installDir, "boot/system.classpath");
 				if (classpathFile.exists()) {
-					@SuppressWarnings("unchecked")
-					Map<String, File> systemClasspath = (Map<String, File>) BootstrapUtils.readObject(classpathFile);
-					@SuppressWarnings("unchecked")
-					Set<String> bootstrapKeys = (Set<String>) BootstrapUtils.readObject(
-							new File(Bootstrap.installDir, "boot/bootstrap.keys"));
+					Map<String, File> systemClasspath;
+			    	try (ObjectInputStream is = new ObjectInputStream(new FileInputStream(classpathFile))) {
+			    		systemClasspath = (Map<String, File>) is.readObject();
+			    	}
+					
+					File keysFile = new File(Bootstrap.installDir, "boot/bootstrap.keys");
+			    	Set<String> bootstrapKeys;
+			    	try (ObjectInputStream is = new ObjectInputStream(new FileInputStream(keysFile))) {
+			    		bootstrapKeys = (Set<String>) is.readObject();
+			    	}
+					
 					for (Map.Entry<String, File> entry : systemClasspath.entrySet()) {
 						if (!bootstrapKeys.contains(entry.getKey())) 
 							libFiles.add(entry.getValue());

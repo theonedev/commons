@@ -42,9 +42,9 @@ public class PlanarRange implements Serializable {
 		String from = fields.get(0);
 		String to = fields.get(1);
 		fromRow = Integer.parseInt(StringUtils.substringBefore(from, "."))-1;
-		fromColumn = Integer.parseInt(StringUtils.substringAfter(from, "."));
+		fromColumn = Integer.parseInt(StringUtils.substringAfter(from, "."))-1;
 		toRow = Integer.parseInt(StringUtils.substringBefore(to, "."))-1;
-		toColumn = Integer.parseInt(StringUtils.substringAfter(to, "."));
+		toColumn = Integer.parseInt(StringUtils.substringAfter(to, "."))-1;
 		
 		if (fields.size() >= 3) 
 			tabWidth = Integer.parseInt(fields.get(2));
@@ -74,7 +74,7 @@ public class PlanarRange implements Serializable {
 	
 	@Override
 	public String toString() {
-		return (fromRow+1) + "." + fromColumn + "-" + (toRow+1) + "." + toColumn + "-" + tabWidth;
+		return (fromRow+1) + "." + (fromColumn+1) + "-" + (toRow+1) + "." + (toColumn+1) + "-" + tabWidth;
 	}
 	
 	private int normalizeColumn(String lineContent, int column, int tabWidth) {

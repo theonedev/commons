@@ -7,7 +7,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
@@ -17,23 +16,6 @@ import java.util.zip.ZipOutputStream;
 public class BootstrapUtils {
 	
 	private static final int BUFFER_SIZE = 64*1024;
-	
-	public static Object readObject(File file) {
-    	ObjectInputStream ois = null;
-    	try {
-    		ois = new ObjectInputStream(new FileInputStream(file));
-    		return ois.readObject();
-    	} catch (Exception e) {
-			throw unchecked(e);
-		} finally {
-			if (ois != null) {
-				try {
-					ois.close();
-				} catch (IOException e) {
-				}
-			}
-    	}
-	}
 	
     public static File createTempDir(String prefix) {
         File temp;
