@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.Nullable;
 
@@ -236,19 +237,64 @@ public class Commandline implements Serializable {
         	throw new RuntimeException(e);
         }
 
-        ProcessStreamPumper streamPumper = new ProcessStreamPumper(process, stdout, stderr, stdin);
-        
 		ExecutionResult result = new ExecutionResult(this);
         if (timeout != 0) {
+            AtomicLong lastActiveTime = new AtomicLong(System.currentTimeMillis());
+            
+            class OutputStreamWrapper extends OutputStream {
+            	
+            	private final OutputStream delegate;
+            	
+            	public OutputStreamWrapper(OutputStream delegate) {
+            		this.delegate = delegate;
+            	}
+            	
+				@Override
+				public void flush() throws IOException {
+					if (delegate != null)
+						delegate.flush();
+				}
+
+				@Override
+				public void close() throws IOException {
+					if (delegate != null)
+						delegate.close();
+				}
+
+				@Override
+				public void write(int b) throws IOException {
+					lastActiveTime.set(System.currentTimeMillis());
+					if (delegate != null)
+						delegate.write(b);
+				}
+
+				@Override
+				public void write(byte[] b) throws IOException {
+					lastActiveTime.set(System.currentTimeMillis());
+					if (delegate != null)
+						delegate.write(b);
+				}
+
+				@Override
+				public void write(byte[] b, int off, int len) throws IOException {
+					lastActiveTime.set(System.currentTimeMillis());
+					if (delegate != null)
+						delegate.write(b, off, len);
+				}
+            	
+            };
+            
+            ProcessStreamPumper streamPumper = new ProcessStreamPumper(process, 
+            		new OutputStreamWrapper(stdout), new OutputStreamWrapper(stderr), stdin);
+            
         	Thread thread = Thread.currentThread();
     		AtomicBoolean stoppedRef = new AtomicBoolean(false);
-    		long time = System.currentTimeMillis();
     		EXECUTOR_SERVICE.execute(new Runnable() {
 
 				@Override
 				public void run() {
 					while (!stoppedRef.get()) {
-						if (System.currentTimeMillis() - time > timeout*1000L) {
+						if (System.currentTimeMillis() - lastActiveTime.get() > timeout*1000L) {
 							thread.interrupt();
 							break;
 						} else {
@@ -265,7 +311,7 @@ public class Commandline implements Serializable {
             	result.setReturnCode(process.waitFor());
     		} catch (InterruptedException e) {
     			processKiller.kill(process, executionId);
-    			if (System.currentTimeMillis() - time > timeout*1000L)
+    			if (System.currentTimeMillis() - lastActiveTime.get() > timeout*1000L)
     				throw new RuntimeException(new TimeoutException());
     			else
     				throw new RuntimeException(e);
@@ -274,6 +320,7 @@ public class Commandline implements Serializable {
     			streamPumper.waitFor();
     		}
         } else {
+            ProcessStreamPumper streamPumper = new ProcessStreamPumper(process, stdout, stderr, stdin);
             try {
             	result.setReturnCode(process.waitFor());
     		} catch (InterruptedException e) {
