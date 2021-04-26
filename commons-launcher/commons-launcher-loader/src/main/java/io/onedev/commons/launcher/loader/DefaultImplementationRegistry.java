@@ -27,7 +27,7 @@ public class DefaultImplementationRegistry implements ImplementationRegistry {
 			implementations.add(subClass);
 		}
 		for (ImplementationProvider provider: providers) {
-			if (provider.getAbstractClass() == abstractClass) {
+			if (abstractClass.isAssignableFrom(provider.getAbstractClass())) {
 				for (Class<?> implementation: provider.getImplementations())
 					implementations.add((Class<? extends T>) implementation);
 			}
