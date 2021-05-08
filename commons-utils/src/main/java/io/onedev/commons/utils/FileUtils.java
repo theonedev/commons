@@ -21,7 +21,6 @@ import java.util.zip.ZipFile;
 
 import javax.annotation.Nullable;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.tools.ant.DirectoryScanner;
 import org.slf4j.Logger;
@@ -108,9 +107,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 	 */
 	public static Properties loadProperties(File file) {
 		Properties props = new Properties();
-		InputStream is = null;
-		try {
-			is = new FileInputStream(file);
+		try (InputStream is = new FileInputStream(file)) {
 			props.load(is);
 			
 			for (Iterator<Entry<Object, Object>> it = props.entrySet().iterator(); it.hasNext();) {
@@ -125,8 +122,6 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 			return props;
 		} catch (Exception e) {
 			throw ExceptionUtils.unchecked(e);
-		} finally {
-			IOUtils.closeQuietly(is);
 		}
 	}
 	

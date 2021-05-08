@@ -13,7 +13,6 @@ import java.util.Collection;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
-import org.apache.commons.io.IOUtils;
 
 import com.google.common.base.Preconditions;
 
@@ -23,10 +22,8 @@ public class TarUtils {
 	
 	public static void tar(File baseDir, Collection<String> includes, Collection<String> excludes, 
 			OutputStream os) {
-		TarArchiveOutputStream tos = null;
-		try {
-			byte data[] = new byte[BUFFER_SIZE];
-			tos = new TarArchiveOutputStream(new BufferedOutputStream(os, BUFFER_SIZE));
+		byte data[] = new byte[BUFFER_SIZE];
+		try (TarArchiveOutputStream tos = new TarArchiveOutputStream(new BufferedOutputStream(os, BUFFER_SIZE))) {
 			tos.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
 			tos.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_STAR);
 			for (File file: FileUtils.listFiles(baseDir, includes, excludes)) {
@@ -39,41 +36,33 @@ public class TarUtils {
 	    		if (!file.isFile() && !basePath.endsWith("/"))
 	    			basePath += "/";
 				
-				InputStream is = null;
-				try {
-					TarArchiveEntry entry = new TarArchiveEntry(basePath);
-					if (file.isFile()) {
-						entry.setSize(file.length());
-						if (file.canExecute())
-							entry.setMode(entry.getMode() | 0000100);
-						entry.setModTime(file.lastModified());
-					}
-					
-					tos.putArchiveEntry(entry);
-					
-					if (file.isFile()) {
-						is = new FileInputStream(file);
+				TarArchiveEntry entry = new TarArchiveEntry(basePath);
+				if (file.isFile()) {
+					entry.setSize(file.length());
+					if (file.canExecute())
+						entry.setMode(entry.getMode() | 0000100);
+					entry.setModTime(file.lastModified());
+				}
+				
+				tos.putArchiveEntry(entry);
+				
+				if (file.isFile()) {
+					try (InputStream is = new FileInputStream(file)) {
 						int count;
 						while((count = is.read(data)) != -1) 
 							tos.write(data, 0, count);
 					}
-					tos.closeArchiveEntry();
-				} finally {
-					IOUtils.closeQuietly(is);
 				}
+				tos.closeArchiveEntry();
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
-		} finally {
-			IOUtils.closeQuietly(tos);
 		}
 	}
 	
 	public static void untar(InputStream is, File destDir) {
-		TarArchiveInputStream tis = null;
-		try {
-		    byte data[] = new byte[BUFFER_SIZE];
-		    tis = new TarArchiveInputStream(new BufferedInputStream(is, BUFFER_SIZE));
+	    byte data[] = new byte[BUFFER_SIZE];
+		try (TarArchiveInputStream tis = new TarArchiveInputStream(new BufferedInputStream(is, BUFFER_SIZE))) {
 			TarArchiveEntry entry;
 			while((entry = tis.getNextTarEntry()) != null) {
 				if (entry.getName().contains("..")) 
@@ -88,15 +77,12 @@ public class TarUtils {
 					if (destFile.exists()) 
 						FileUtils.deleteFile(destFile);
 					
-				    OutputStream bos = null;
-				    try {
-				    	bos = new BufferedOutputStream(new FileOutputStream(destFile), BUFFER_SIZE);
+				    try (OutputStream bos = new BufferedOutputStream(new FileOutputStream(destFile), BUFFER_SIZE)) {
 				        while((count = tis.read(data)) != -1) 
 				        	bos.write(data, 0, count);
 				        if ((entry.getMode() & 0000100) != 0)
 				        	destFile.setExecutable(true);
 				    } finally {
-				    	IOUtils.closeQuietly(bos);
 				        destFile.setLastModified(entry.getModTime().getTime());
 				    }
 				} else {
@@ -105,8 +91,6 @@ public class TarUtils {
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
-		} finally {
-			IOUtils.closeQuietly(tis);
 		}
 	}
 	
