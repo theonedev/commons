@@ -82,6 +82,6 @@ public abstract class LineConsumer extends OutputStream {
 	public void close() throws IOException {
     	flush();
     	super.close();
-    }
+    }    
     
 }

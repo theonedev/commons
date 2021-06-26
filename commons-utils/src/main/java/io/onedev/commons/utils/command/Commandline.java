@@ -220,7 +220,7 @@ public class Commandline implements Serializable {
 			result.setStderr(errorCollector.getMessage());
 	        return result;
 		} else {
-			return execute(stdout, null, stdin, processKiller);
+			return execute(stdout, (OutputStream)null, stdin, processKiller);
 		}
     }
     
