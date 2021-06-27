@@ -27,8 +27,6 @@ public abstract class LineConsumer extends OutputStream {
 	
     private ByteArrayOutputStream buffer = new ByteArrayOutputStream();
     
-    private boolean reset = false;
-    
     private String encoding;
     
     public LineConsumer(String encoding) {
@@ -47,34 +45,31 @@ public abstract class LineConsumer extends OutputStream {
 	public void write(int b) throws IOException {
 		byte c = (byte) b;
 		if (c == '\n') {
-			processBuffer();
-			reset = false;
-		} else if (c == '\r') {
-			reset = true;
+			String line = getLine();
+			if (line.length() != 0 && line.charAt(line.length()-1) == '\r')
+				line = line.substring(0, line.length()-1);
+			consume(line);
 		} else {
-			if (reset) {
-				buffer.reset();
-				reset = false;
-			}
 			buffer.write(b);
 		}
     }
 
-    protected void processBuffer() {
+	public abstract void consume(String line);
+
+	private String getLine() {
 		try {
-			consume(encoding!=null?buffer.toString(encoding):buffer.toString());
+			String line = encoding!=null?buffer.toString(encoding):buffer.toString();
 			buffer.reset();
+			return line;
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
-    }
-
-	public abstract void consume(String line);
+	}
 	
 	@Override
 	public void flush() throws IOException {
         if (buffer.size() > 0) 
-            processBuffer();
+    		consume(getLine());
         super.flush();
 	}
 
