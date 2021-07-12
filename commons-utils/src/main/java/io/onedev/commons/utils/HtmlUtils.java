@@ -5,7 +5,6 @@ import java.util.regex.Matcher;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attribute;
-import org.jsoup.nodes.DataNode;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
@@ -88,7 +87,7 @@ public class HtmlUtils {
 		matcher.appendReplacement(buffer, "");
 		if (buffer.length() != 0)
 			node.before(new TextNode(buffer.toString(), node.baseUri()));
-		node.before(new DataNode(replacement, node.baseUri()));
+		node.before(replacement);
 	}
 	
 	public static void appendTail(Matcher matcher, Node node) {
