@@ -5,9 +5,9 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import org.apache.commons.lang3.StringUtils;
+import org.unbescape.html.HtmlEscape;
 
-import io.onedev.commons.utils.HtmlUtils;
+import io.onedev.commons.utils.StringUtils;
 
 public class TokenUtils {
 	
@@ -97,10 +97,17 @@ public class TokenUtils {
 	
 	public static String toHtml(TextToken token, @Nullable String cssClasses, @Nullable String style) {
 		String escapedText;
-		if (token.getText().equals("\r"))
+		if (token.getText().equals("\r")) {
 			escapedText = " ";
-		else
-			escapedText = HtmlUtils.escape(token.getText());
+		} else {
+			escapedText = "";
+			for (int i=0; i<token.getText().length(); i++) {
+				char ch = token.getText().charAt(i);
+				if (ch == ' ' || ch == '\t' || !Character.isWhitespace(ch))
+					escapedText += ch;
+			}
+			escapedText = HtmlEscape.escapeHtml5(escapedText);
+		}
 		
 		StringBuilder cssClassesBuilder = new StringBuilder();
 		cssClassesBuilder.append(TokenTypes.getNames(token.getType(), "cm-"));

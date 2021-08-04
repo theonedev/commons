@@ -4,8 +4,8 @@ import javax.annotation.Nullable;
 
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.unbescape.html.HtmlEscape;
 
-import io.onedev.commons.utils.HtmlUtils;
 import io.onedev.commons.utils.LinearRange;
 
 @SuppressWarnings("serial")
@@ -21,13 +21,13 @@ public class HighlightableLabel extends Label {
 						String prefix = label.substring(0, highlight.getFrom());
 						String middle = label.substring(highlight.getFrom(), highlight.getTo());
 						String suffix = label.substring(highlight.getTo());
-						return HtmlUtils.escape(prefix) 
+						return HtmlEscape.escapeHtml5(prefix) 
 								+ "<b>" 
-								+ HtmlUtils.escape(middle) 
+								+ HtmlEscape.escapeHtml5(middle) 
 								+ "</b>" 
-								+ HtmlUtils.escape(suffix);
+								+ HtmlEscape.escapeHtml5(suffix);
 					} else {
-						return HtmlUtils.escape(label);
+						return HtmlEscape.escapeHtml5(label);
 					}
 				} else {
 					return "";
@@ -49,18 +49,18 @@ public class HighlightableLabel extends Label {
 						String prefix = unqualified.substring(0, highlight.getFrom());
 						String middle = unqualified.substring(highlight.getFrom(), highlight.getTo());
 						String suffix = unqualified.substring(highlight.getTo());
-						highlighted = HtmlUtils.escape(prefix) 
+						highlighted = HtmlEscape.escapeHtml5(prefix) 
 								+ "<b>" 
-								+ HtmlUtils.escape(middle) 
+								+ HtmlEscape.escapeHtml5(middle) 
 								+ "</b>" 
-								+ HtmlUtils.escape(suffix);
+								+ HtmlEscape.escapeHtml5(suffix);
 					} else {
-						highlighted = HtmlUtils.escape(unqualified);
+						highlighted = HtmlEscape.escapeHtml5(unqualified);
 					}
 					String prefix = qualifiedName.getPrefix();
 					String suffix = qualifiedName.getSuffix();
-					return (prefix!=null?HtmlUtils.escape(prefix):"") + highlighted 
-							+ (suffix!=null?HtmlUtils.escape(suffix):"");
+					return (prefix!=null?HtmlEscape.escapeHtml5(prefix):"") + highlighted 
+							+ (suffix!=null?HtmlEscape.escapeHtml5(suffix):"");
 				} else {
 					return "";
 				}
