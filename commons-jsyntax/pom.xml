@@ -9,10 +9,6 @@
 	<artifactId>commons-jsyntax</artifactId>
 	<dependencies>
 		<dependency>
-			<groupId>com.google.code.findbugs</groupId>
-			<artifactId>jsr305</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>io.onedev</groupId>
 			<artifactId>commons-utils</artifactId>
 		</dependency>

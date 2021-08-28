@@ -303,7 +303,7 @@ public class Bootstrap {
 		}
 		return false;
 	}
-
+	
 	public static File getLibDir() {
 		return new File(installDir, "lib");
 	}
