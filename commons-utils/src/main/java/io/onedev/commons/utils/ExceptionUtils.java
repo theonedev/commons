@@ -7,6 +7,8 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import javax.net.ssl.SSLHandshakeException;
 
+import io.onedev.commons.bootstrap.Bootstrap;
+
 public class ExceptionUtils extends org.apache.commons.lang3.exception.ExceptionUtils {
 	
 	@SuppressWarnings("unchecked")
@@ -30,10 +32,7 @@ public class ExceptionUtils extends org.apache.commons.lang3.exception.Exception
     }
 	
 	public static RuntimeException unchecked(Throwable e) {
-		if (e instanceof RuntimeException)
-			return (RuntimeException) e;
-		else
-			return new RuntimeException(e);
+		return Bootstrap.unchecked(e);
 	}
 
 	@Nullable

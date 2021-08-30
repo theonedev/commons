@@ -10,6 +10,10 @@
 	<artifactId>commons-utils</artifactId>
 	<dependencies>
 		<dependency>
+			<groupId>io.onedev</groupId>
+			<artifactId>commons-bootstrap</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.unbescape</groupId>
 			<artifactId>unbescape</artifactId>
 		</dependency>
@@ -20,22 +24,6 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-compress</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>jul-to-slf4j</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.ant</groupId>
@@ -78,20 +66,4 @@
 			<artifactId>winp</artifactId>
 		</dependency>
 	</dependencies>
-	<repositories>
-		<repository>
-			<id>onedev</id>
-			<url>https://artifact.onedev.io/artifactory/onedev</url>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
-			</snapshots>
-		</repository>
-	</repositories>
 </project>

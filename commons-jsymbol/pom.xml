@@ -134,20 +134,4 @@
 			<artifactId>commons-utils</artifactId>
 		</dependency>
 	</dependencies>
-	<repositories>
-		<repository>
-			<id>onedev</id>
-			<url>https://artifact.onedev.io/artifactory/onedev</url>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
-			</snapshots>
-		</repository>
-	</repositories>
 </project>
