@@ -55,7 +55,7 @@ public class Bootstrap {
 	public static boolean prodMode;
 	
 	public static Command command;
-
+	
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
 		try {

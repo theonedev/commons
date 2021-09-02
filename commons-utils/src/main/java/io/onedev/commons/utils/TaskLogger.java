@@ -22,7 +22,7 @@ public abstract class TaskLogger {
 		log(builder.toString());
 	}
 
-	public abstract void log(String message, @Nullable String taskId);
+	public abstract void log(String message, @Nullable String sessionId);
 
 	public void log(String message) {
 		log(message, (String)null);

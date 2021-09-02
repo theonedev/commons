@@ -202,6 +202,26 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     	}
     }
 
+	public static void deleteDir(File dir, int retries) {
+		int retried = 0;
+		while (dir.exists()) {
+			try {
+				deleteDir(dir);
+				break;
+			} catch (Exception e) {
+				if (retried++ < retries) {
+					logger.error("Error deleting directory '" + dir.getAbsolutePath() + "', will retry later...", e);
+					try {
+						Thread.sleep(5000);
+					} catch (InterruptedException e2) {
+					}
+				} else {
+					throw e;
+				}
+			}
+		}
+	}
+	
 	public static void deleteFile(File file) {
 		int maxTries = 10;
     	int numTries = 1;
@@ -252,21 +272,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 	}
 	
     public static File createTempDir(String prefix) {
-        File temp;
-
-        try {
-			temp = File.createTempFile(prefix, "");
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-
-        if (!temp.delete())
-            throw new RuntimeException("Could not delete temp file: " + temp.getAbsolutePath());
-
-        if (!temp.mkdirs())
-            throw new RuntimeException("Could not create temp directory: " + temp.getAbsolutePath());
-
-        return temp;    
+    	return Bootstrap.createTempDir(prefix);
     }
     
     public static File createTempDir() {
