@@ -15,7 +15,7 @@ public abstract class TaskLogger {
 		log(toString(message, t));
 	}
 	
-	private String toString(@Nullable String message, Throwable t) {
+	public static String toString(@Nullable String message, Throwable t) {
 		StringBuilder builder = new StringBuilder();
 		if (message != null)
 			builder.append(message).append(": ");
