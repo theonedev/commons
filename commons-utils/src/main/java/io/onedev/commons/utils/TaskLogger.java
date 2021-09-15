@@ -11,15 +11,23 @@ public abstract class TaskLogger {
 
 	private static final Pattern EOL_PATTERN = Pattern.compile("\r?\n");
 	
-	public void log(String message, Throwable t) {
-		StringBuilder builder = new StringBuilder(message);
+	public void log(@Nullable String message, Throwable t) {
+		log(toString(message, t));
+	}
+	
+	private String toString(@Nullable String message, Throwable t) {
+		StringBuilder builder = new StringBuilder();
+		if (message != null)
+			builder.append(message).append(": ");
+		boolean firstLine = true;
 		for (String line: Splitter.on(EOL_PATTERN).split(Throwables.getStackTraceAsString(t))) {
-			if (builder.length() == 0)
+			if (firstLine)
 				builder.append(line);
 			else
 				builder.append("\n    ").append(line);
+			firstLine = false;
 		}
-		log(builder.toString());
+		return builder.toString();
 	}
 
 	public abstract void log(String message, @Nullable String sessionId);
@@ -29,27 +37,27 @@ public abstract class TaskLogger {
 	}
 	
 	public void error(String message, Throwable t) {
-		log(wrapWithAnsiError(message), t);
+		log(wrapWithAnsiError(toString(message, t)));
 	}
 
 	public void error(String message) {
 		log(wrapWithAnsiError(message));
 	}
 	
-	public void warning(String message, Throwable t) {
-		log(wrapWithAnsiWarning(message), t);
-	}
-
 	public void warning(String message) {
 		log(wrapWithAnsiWarning(message));
 	}
 
-	public void emphasize(String message, Throwable t) {
-		log(wrapWithAnsiEmphasize(message), t);
+	public void notice(String message) {
+		log(wrapWithAnsiNotice(message));
 	}
-
-	public void emphasize(String message) {
-		log(wrapWithAnsiEmphasize(message));
+	
+	public void success(String message) {
+		log(wrapWithAnsiSuccess(message));
+	}
+	
+	public static String wrapWithAnsiSuccess(String text) {
+		return "\033[1;32m" + text + "\033[0m";
 	}
 	
 	public static String wrapWithAnsiError(String text) {
@@ -60,7 +68,7 @@ public abstract class TaskLogger {
 		return "\033[1;33m" + text + "\033[0m";
 	}
 	
-	public static String wrapWithAnsiEmphasize(String text) {
+	public static String wrapWithAnsiNotice(String text) {
 		return "\033[1;35m" + text + "\033[0m";
 	}
 	
