@@ -24,20 +24,13 @@ public class ProcessStreamPumper {
     
     private final Future<?> stdinPumper;
 
-    private final OutputStream stdout;
-    
-    private final OutputStream stderr;
-    
     public ProcessStreamPumper(Process process, @Nullable OutputStream stdout, 
     		@Nullable OutputStream stderr, @Nullable InputStream stdin) {
-        this.stdout = stdout;
-        this.stderr = stderr;
-        
-        stdoutPumper = createPump(process.getInputStream(), stdout, true, false, false);
-        stderrPumper = createPump(process.getErrorStream(), stderr, true, false, false);
+        stdoutPumper = createPump(process.getInputStream(), stdout);
+        stderrPumper = createPump(process.getErrorStream(), stderr);
         
         if (stdin != null) {
-            stdinPumper = createPump(stdin, process.getOutputStream(), false, true, true);
+            stdinPumper = createPump(stdin, process.getOutputStream());
         } else {
         	stdinPumper = null;
         	try {
@@ -62,19 +55,13 @@ public class ProcessStreamPumper {
 			stderrPumper.get();
 			if (stdinPumper != null)
 				stdinPumper.get();
-			
-	    	if (stdout != null)
-				stdout.flush();
-	    	if (stderr != null) 
-	    		stderr.flush();
-		} catch (InterruptedException | ExecutionException | IOException e) {
+		} catch (InterruptedException | ExecutionException e) {
 			throw ExceptionUtils.unchecked(e);
 		}
 
     }
 
-    private Future<?> createPump(InputStream input, @Nullable OutputStream output, 
-    		boolean closeInputWhenExhausted, boolean closeOutputWhenExhausted, boolean flush) {
+    private Future<?> createPump(InputStream input, @Nullable OutputStream output) {
     	
     	return EXECUTOR.submit(new Runnable() {
 
@@ -86,8 +73,7 @@ public class ProcessStreamPumper {
 		            while ((length = input.read(buf)) > 0) {
 		            	if (output != null) {
 		            		output.write(buf, 0, length);
-		            		if (flush)
-		            			output.flush();
+		            		output.flush();
 		            	}
 		            }
 		        } catch (IOException e) {
@@ -97,13 +83,11 @@ public class ProcessStreamPumper {
 						while (input.read(buf) > 0);
 					} catch (IOException e) {
 					}
-		            if (closeInputWhenExhausted) { 
-		            	try {
-							input.close();
-						} catch (IOException e) {
-						}
-		            }
-		        	if (output != null && closeOutputWhenExhausted) {
+	            	try {
+						input.close();
+					} catch (IOException e) {
+					}
+		        	if (output != null) {
 						try {
 							output.close();
 						} catch (IOException e) {

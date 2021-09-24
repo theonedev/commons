@@ -66,16 +66,10 @@ public abstract class LineConsumer extends OutputStream {
 		}
 	}
 	
-	@Override
-	public void flush() throws IOException {
-        if (buffer.size() > 0) 
-    		consume(getLine());
-        super.flush();
-	}
-
     @Override
 	public void close() throws IOException {
-    	flush();
+        if (buffer.size() > 0) 
+    		consume(getLine());
     	super.close();
     }    
     
