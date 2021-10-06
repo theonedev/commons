@@ -246,7 +246,7 @@ public class Bootstrap {
 			try (JarFile jarFile = new JarFile(lib)) {
 				return jarFile.getJarEntry(entryName) != null;
 			} catch (IOException e) {
-				throw new RuntimeException(lib.getAbsolutePath() + e);
+				throw new RuntimeException(lib.getAbsolutePath(), e);
 			} 
 		}
 	}
