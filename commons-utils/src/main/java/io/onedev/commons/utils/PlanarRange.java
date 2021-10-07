@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 
 public class PlanarRange implements Serializable {
@@ -18,6 +19,8 @@ public class PlanarRange implements Serializable {
 	private final int fromRow, fromColumn, toRow, toColumn, tabWidth;
 	
 	public PlanarRange(int fromRow, int fromColumn, int toRow, int toColumn, int tabWidth) {
+		Preconditions.checkArgument(fromRow>=0 && toRow>=0 && tabWidth>=1);
+		
 		this.fromRow = fromRow;
 		this.fromColumn = fromColumn;
 		this.toRow = toRow;
@@ -50,6 +53,8 @@ public class PlanarRange implements Serializable {
 			tabWidth = Integer.parseInt(fields.get(2));
 		else
 			tabWidth = 1;
+		
+		Preconditions.checkArgument(fromRow>=0 && toRow>=0 && tabWidth>=1);
 	}
 	
 	public int getFromRow() {
@@ -94,25 +99,22 @@ public class PlanarRange implements Serializable {
 	}
 	
 	public PlanarRange normalize(List<String> lines) {
-		int normalizedFromRow, normalizedFromColumn, normalizedToRow, normalizedToColumn;
-		if (fromColumn == -1) { // only fromRow is set
-			normalizedFromRow = fromRow;
+		int normalizedFromColumn, normalizedToColumn;
+		if (fromColumn < 0 && toColumn < 0) {
 			normalizedFromColumn = 0;
-			normalizedToRow = fromRow;
-			normalizedToColumn = lines.get(fromRow).length();
-		} else if (toRow == -1) { // only fromRow and fromColumn is set
-			normalizedFromRow = fromRow;
+			normalizedToColumn = lines.get(toRow).length(); 
+		} else if (fromColumn < 0) {
+			normalizedToColumn = normalizeColumn(lines.get(toRow), toColumn, tabWidth);
+			normalizedFromColumn = normalizedToColumn - 1;
+		} else if (toColumn < 0) {
 			normalizedFromColumn = normalizeColumn(lines.get(fromRow), fromColumn, tabWidth);
-			normalizedToRow = fromRow;
-			normalizedToColumn = normalizedFromColumn+1;
+			normalizedToColumn = normalizedFromColumn + 1;
 		} else {
-			normalizedFromRow = fromRow;
 			normalizedFromColumn = normalizeColumn(lines.get(fromRow), fromColumn, tabWidth);
-			normalizedToRow = toRow;
 			normalizedToColumn = normalizeColumn(lines.get(toRow), toColumn, tabWidth);
 		}
-		return new PlanarRange(normalizedFromRow, normalizedFromColumn, normalizedToRow, 
-				normalizedToColumn, 1);
+
+		return new PlanarRange(fromRow, normalizedFromColumn, toRow, normalizedToColumn, 1);
 	}
 	
 	@Override
