@@ -266,4 +266,15 @@ public class PathUtils {
 		return StringUtils.isBlank(path) || FilenameUtils.normalize(path).length() == 0;
 	}	
 	
+	public static boolean isSelfOrAncestor(String ancestor, String path) {
+		return path.equals(ancestor) || path.startsWith(ancestor+"/");
+	}
+
+	public static String substituteSelfOrAncestor(String path, String oldAncestor, String newAncestor) {
+		if (isSelfOrAncestor(oldAncestor, path)) 
+			return newAncestor + path.substring(oldAncestor.length());
+		else
+			return path;
+	}
+	
 }
