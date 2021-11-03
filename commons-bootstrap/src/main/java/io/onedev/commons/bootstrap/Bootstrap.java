@@ -333,21 +333,6 @@ public class Bootstrap {
 		return new File(installDir, "boot");
 	}
 	
-	public static File getStatusDir() {
-		return new File(installDir, "status");
-	}
-	
-	public static boolean isServerRunning(File installDir) {
-		// status directory may contain multiple pid files, for instance, 
-		// appname.pid, appname_backup.pid, etc. We only check for appname.pid
-		// here and assumes that appname does not contain underscore
-		for (File file: new File(installDir, "status").listFiles()) {
-			if (file.getName().endsWith(".pid") && !file.getName().contains("_"))
-				return true;
-		}
-		return false;
-	}
-	
 	public static File getLibDir() {
 		return new File(installDir, "lib");
 	}
