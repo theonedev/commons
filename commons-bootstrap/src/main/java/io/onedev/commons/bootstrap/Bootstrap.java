@@ -66,7 +66,7 @@ public class Bootstrap {
 			if (new File(loadedFrom.getParentFile(), "bootstrap.keys").exists())
 				installDir = loadedFrom.getParentFile().getParentFile();
 			else if (new File("target/sandbox").exists())
-				installDir = new File("target/sandbox");
+				installDir = new File("target/sandbox").getAbsoluteFile();
 			else
 				throw new RuntimeException("Unable to find product directory.");
 

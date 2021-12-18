@@ -53,7 +53,7 @@ public class AppLoader implements Lifecycle {
 	
 	@Override
 	public void start() {
-		logger.info("Initializing dependency injection container...");
+		logger.info("Starting server...");
 		
 		OverriddenModuleBuilder builder = Modules.override(new AppLoaderModule());
 		
@@ -70,16 +70,14 @@ public class AppLoader implements Lifecycle {
 			
 		}));
 		
-		logger.info("Starting plugin manager...");
 		injector.getInstance(PluginManager.class).start();
 	}
 
 	@Override
 	public void stop() {
-		logger.info("Shutting down executor service...");
-		injector.getInstance(ExecutorService.class).shutdown();
+		logger.info("Stoppping server...");
 		
-		logger.info("Stopping plugin manager...");
+		injector.getInstance(ExecutorService.class).shutdown();
 		injector.getInstance(PluginManager.class).stop();
 	}
 
