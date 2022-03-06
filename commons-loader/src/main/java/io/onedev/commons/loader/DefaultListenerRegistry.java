@@ -3,8 +3,10 @@ package io.onedev.commons.loader;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,7 +18,7 @@ public class DefaultListenerRegistry implements ListenerRegistry {
 
 	private volatile Map<Object, Collection<Method>> listenerMethods;
 	
-	private Map<Class<?>, Collection<Listener>> listeners = new ConcurrentHashMap<>();
+	private Map<Class<?>, List<Listener>> listeners = new ConcurrentHashMap<>();
 	
 	private Map<Object, Collection<Method>> getListenerMethods() {
 		if (this.listenerMethods == null) {
@@ -48,7 +50,7 @@ public class DefaultListenerRegistry implements ListenerRegistry {
 	}
 	
 	private Collection<Listener> getListeners(Class<?> eventType) {
-		Collection<Listener> listeners = this.listeners.get(eventType);
+		List<Listener> listeners = this.listeners.get(eventType);
 		if (listeners == null) {
 			listeners = new ArrayList<>();
 			for (Map.Entry<Object, Collection<Method>> entry: getListenerMethods().entrySet()) {
@@ -58,6 +60,7 @@ public class DefaultListenerRegistry implements ListenerRegistry {
 						listeners.add(new Listener(entry.getKey(), method));
 				}
 			}
+			Collections.sort(listeners);
 			this.listeners.put(eventType, listeners);
 		}
 		return listeners;
