@@ -65,6 +65,7 @@ public abstract class AbstractTokenizerTest {
 			engine.put("callback", callback);
 			
 	        engine.eval(""
+	        		+ "CodeMirror.defineMIME(\"text/x-gas\", {name: \"gas\", architecture: \"unknown\"});"
 	        		+ "if (mimeType.length == 0) "
 	        		+ "  mimeType = CodeMirror.findModeByFileName(fileName).mime;"
 	        		+ "var runModeCallback = function(text, style, lineIndex, beginPos) {"
