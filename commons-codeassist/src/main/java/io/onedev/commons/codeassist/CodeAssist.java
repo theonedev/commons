@@ -244,17 +244,26 @@ public abstract class CodeAssist implements Serializable {
 
 			@Override
 			public int compare(InputCompletion o1, InputCompletion o2) {
-				int matchPercent1, matchPercent2;
-				if (o1.getMatch() != null)
-					matchPercent1 = o1.getMatch().getLength()*100/o1.getLabel().length();
-				else
-					matchPercent1 = 0;
-				if (o2.getMatch() != null)
-					matchPercent2 = o2.getMatch().getLength()*100/o2.getLabel().length();
-				else
-					matchPercent2 = 0;
+				if (o1.getContentBeforeCaret().startsWith(inputStatus.getContentBeforeCaret())
+						&& !o2.getContentBeforeCaret().startsWith(inputStatus.getContentBeforeCaret())) {
+					return -1;
+				} else if (!o1.getContentBeforeCaret().startsWith(inputStatus.getContentBeforeCaret())
+						&& o2.getContentBeforeCaret().startsWith(inputStatus.getContentBeforeCaret())) {
+					return 1;
+				} else {
+					int matchPercent1, matchPercent2;
+					if (o1.getMatch() != null)
+						matchPercent1 = o1.getMatch().getLength()*100/o1.getLabel().length();
+					else
+						matchPercent1 = 0;
+					if (o2.getMatch() != null)
+						matchPercent2 = o2.getMatch().getLength()*100/o2.getLabel().length();
+					else
+						matchPercent2 = 0;
 
-				return matchPercent2 - matchPercent1;
+					return matchPercent2 - matchPercent1;
+					
+				}
 			}
 			
 		});
