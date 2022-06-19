@@ -68,9 +68,9 @@ public class TestCodeAssist3 {
 		
 		suggestions = codeAssist.suggest(new InputStatus("title: hello "), "query");
 		assertEquals(3, suggestions.size());
-		assertEquals("title: hello title::19", suggestions.get(0).toString());
-		assertEquals("title: hello author::20", suggestions.get(1).toString());
-		assertEquals("title: \"hello\":14", suggestions.get(2).toString());
+		assertEquals("title: \"hello\":14", suggestions.get(0).toString());
+		assertEquals("title: hello title::19", suggestions.get(1).toString());
+		assertEquals("title: hello author::20", suggestions.get(2).toString());
 		
 		suggestions = codeAssist.suggest(new InputStatus("title: hello author:"), "query");
 		assertEquals(4, suggestions.size());
@@ -109,8 +109,8 @@ public class TestCodeAssist3 {
 		
 		suggestions = codeAssist.suggest(new InputStatus("title: hello"), "query");
 		assertEquals(2, suggestions.size());
-		assertEquals("title: hello :13", suggestions.get(0).toString());
-		assertEquals("title: \"hello\":14", suggestions.get(1).toString());
+		assertEquals("title: \"hello\":14", suggestions.get(0).toString());
+		assertEquals("title: hello :13", suggestions.get(1).toString());
 	}
 	
 }
