@@ -12,6 +12,8 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
+import com.google.common.base.Splitter;
+
 public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
 	private static final Pattern ESCAPE_PATTERN = Pattern.compile("\\\\(.)");
@@ -300,6 +302,13 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	
 	public static String unescape(String string) {
 		return ESCAPE_PATTERN.matcher(string).replaceAll("$1");
+	}
+	
+	public static List<String> splitToLines(String string) {
+		if (string.contains("\r\n"))
+			return Splitter.on("\r\n").splitToList(string);
+		else
+			return Splitter.on('\n').splitToList(string);
 	}
 	
 }
