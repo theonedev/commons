@@ -10,6 +10,7 @@ import java.util.concurrent.Future;
 
 import javax.annotation.Nullable;
 
+import io.onedev.commons.bootstrap.SensitiveMasker;
 import io.onedev.commons.utils.ExceptionUtils;
 
 public class ProcessStreamPumper {
@@ -62,38 +63,45 @@ public class ProcessStreamPumper {
     }
 
     private Future<?> createPump(InputStream input, @Nullable OutputStream output) {
-    	
+    	SensitiveMasker masker = SensitiveMasker.get();
     	return EXECUTOR.submit(new Runnable() {
 
 			public void run() {
-		        byte[] buf = new byte[BUFFER_SIZE];
-		
-		        try {
-			        int length;
-		            while ((length = input.read(buf)) > 0) {
-		            	if (output != null) {
-		            		output.write(buf, 0, length);
-		            		output.flush();
-		            	}
-		            }
-		        } catch (IOException e) {
-		        	throw new RuntimeException(e);
-				} finally {
-		        	try {
-						while (input.read(buf) > 0);
-					} catch (IOException e) {
-					}
-	            	try {
-						input.close();
-					} catch (IOException e) {
-					}
-		        	if (output != null) {
-						try {
-							output.close();
+				if (masker != null)
+					SensitiveMasker.push(masker);
+				try {
+			        byte[] buf = new byte[BUFFER_SIZE];
+			
+			        try {
+				        int length;
+			            while ((length = input.read(buf)) > 0) {
+			            	if (output != null) {
+			            		output.write(buf, 0, length);
+			            		output.flush();
+			            	}
+			            }
+			        } catch (IOException e) {
+			        	throw new RuntimeException(e);
+					} finally {
+			        	try {
+							while (input.read(buf) > 0);
 						} catch (IOException e) {
 						}
-		        	}
-		        }
+		            	try {
+							input.close();
+						} catch (IOException e) {
+						}
+			        	if (output != null) {
+							try {
+								output.close();
+							} catch (IOException e) {
+							}
+			        	}
+			        }
+				} finally {
+					if (masker != null)
+						SensitiveMasker.pop();
+				}
 			}
     		
     	});
