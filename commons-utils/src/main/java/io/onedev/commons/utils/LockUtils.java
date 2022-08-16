@@ -26,16 +26,20 @@ public class LockUtils {
      * @return
      * 			lock associated with specified name
      */
-    public static Lock getLock(String name) {
+    public static Lock getLock(String name, boolean fair) {
     	Lock lock;
     	synchronized (locks) {
 	        lock = locks.get(name);
 	        if (lock == null) {
-	        	lock = new ReentrantLock();
+	        	lock = new ReentrantLock(fair);
 	        	locks.put(name, lock);
 	        } 
     	}
     	return lock;
+    }
+    
+    public static Lock getLock(String name) {
+    	return getLock(name, false);
     }
     
     /**
@@ -46,18 +50,22 @@ public class LockUtils {
      * @return
      * 			read write lock associated with specified name
      */
-    public static ReadWriteLock getReadWriteLock(String name) {
+    public static ReadWriteLock getReadWriteLock(String name, boolean fair) {
     	ReadWriteLock lock;
     	synchronized (rwLocks) {
 	        lock = rwLocks.get(name);
 	        if (lock == null) {
-	        	lock = new ReentrantReadWriteLock();
+	        	lock = new ReentrantReadWriteLock(fair);
 	        	rwLocks.put(name, lock);
 	        } 
     	}
     	return lock;
     }
 
+    public static ReadWriteLock getReadWriteLock(String name) {
+    	return getReadWriteLock(name, false);
+    }
+    
     /**
      * Execute specified callable in lock of specified name.
      * 
@@ -68,8 +76,8 @@ public class LockUtils {
      * @return
      * 			return value of the callable
      */
-    public static <T> T call(String name, Callable<T> callable) {
-    	Lock lock = getLock(name);
+    public static <T> T call(String name, boolean fair, Callable<T> callable) {
+    	Lock lock = getLock(name, fair);
     	try {
         	lock.lockInterruptibly();
     		return callable.call();
@@ -78,6 +86,10 @@ public class LockUtils {
 		} finally {
     		lock.unlock();
     	}
+    }
+    
+    public static <T> T call(String name, Callable<T> callable) {
+    	return call(name, false, callable);
     }
     
     /**
@@ -90,8 +102,8 @@ public class LockUtils {
      * @return
      * 			return value of the callable
      */
-    public static <T> T read(String name, Callable<T> callable) {
-    	Lock lock = getReadWriteLock(name).readLock();
+    public static <T> T read(String name, boolean fair, Callable<T> callable) {
+    	Lock lock = getReadWriteLock(name, fair).readLock();
     	try {
         	lock.lockInterruptibly();
     		return callable.call();
@@ -102,6 +114,10 @@ public class LockUtils {
     	}
     }
 
+    public static <T> T read(String name, Callable<T> callable) {
+    	return read(name, false, callable);
+    }
+    
     /**
      * Execute specified callable in write lock of specified name.
      * 
@@ -112,8 +128,8 @@ public class LockUtils {
      * @return
      * 			return value of the callable
      */
-    public static <T> T write(String name, Callable<T> callable) {
-    	Lock lock = getReadWriteLock(name).writeLock();
+    public static <T> T write(String name, boolean fair, Callable<T> callable) {
+    	Lock lock = getReadWriteLock(name, fair).writeLock();
     	try {
         	lock.lockInterruptibly();
     		return callable.call();
@@ -124,4 +140,8 @@ public class LockUtils {
     	}
     }
 
+    public static <T> T write(String name, Callable<T> callable) {
+    	return write(name, false, callable);
+    }
+    
 }
