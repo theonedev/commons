@@ -84,6 +84,11 @@ public class CPPExtractorTest extends DescriptableExtractorTest<CppSymbol> {
 	public void testUnion() {
 		verify(readFile("union.outline"), new CppExtractor().extract(null, readFile("union.source")));
 	}
+	
+	@Test
+	public void testModule() {
+		verify(readFile("module.outline"), new CppExtractor().extract(null, readFile("module.source")));
+	}
 
 	@Override
 	protected List<String> describe(List<CppSymbol> context, CppSymbol symbol) {

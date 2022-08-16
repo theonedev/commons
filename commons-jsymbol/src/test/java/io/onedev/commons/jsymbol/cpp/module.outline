@@ -1,0 +1,5 @@
+struct Module_79C0768D657977D697E10BAD956CCED1
+{
+  std::array<uint8, 18756> Module
+}
+struct Module_79C0768D657977D697E10BAD956CCED1 Module

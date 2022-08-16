@@ -499,7 +499,7 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
     		if(ob instanceof CPPASTDeclarator){
     			if(!isNameNull && !isTypedef){
     				token = getPosition(ob,strLineLength);
-    				VariableSymbol variable = new VariableSymbol(fileSymbol, ob.getRawSignature(), isLocal, type, token, modifiers, isLocal);
+    				VariableSymbol variable = new VariableSymbol(fileSymbol, ((CPPASTDeclarator) ob).getName().toString(), isLocal, type, token, modifiers, isLocal);
     			    tempSymbols.add(variable);
     			}
     		}
@@ -1057,7 +1057,7 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
     			}
     		}
     		if(ob instanceof CPPASTDeclarator){
-    			temp = ob.getRawSignature();
+    			temp = ((CPPASTDeclarator) ob).getName().toString();
     			token = getPosition(ob,strLineLength);//class{}a;
     			modifiers.add(getModifier(visibility));
     			if(!isTypedef && !isNameNull){
