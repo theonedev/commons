@@ -8,6 +8,8 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
@@ -39,22 +41,40 @@ public class PlanarRange implements Serializable {
 		toColumn = range.toColumn;
 		tabWidth = range.tabWidth;
 	}
-	
+
 	public PlanarRange(String string) {
 		List<String> fields = Splitter.on("-").splitToList(string);
-		String from = fields.get(0);
-		String to = fields.get(1);
-		fromRow = Integer.parseInt(StringUtils.substringBefore(from, "."))-1;
-		fromColumn = Integer.parseInt(StringUtils.substringAfter(from, "."))-1;
-		toRow = Integer.parseInt(StringUtils.substringBefore(to, "."))-1;
-		toColumn = Integer.parseInt(StringUtils.substringAfter(to, "."))-1;
 		
-		if (fields.size() >= 3) 
-			tabWidth = Integer.parseInt(fields.get(2));
-		else
+		if (fields.size() == 1) {
+			Pair<Integer, Integer> coordination = parseCoordination(fields.get(0));
+			fromRow = coordination.getLeft();
+			fromColumn = coordination.getRight();
+			toRow = fromRow;
+			toColumn = -1;
 			tabWidth = 1;
-		
-		Preconditions.checkArgument(fromRow>=0 && toRow>=0 && tabWidth>=1);
+		} else if (fields.size() == 2) {
+			Pair<Integer, Integer> coordination = parseCoordination(fields.get(0));
+			fromRow = coordination.getLeft();
+			fromColumn = coordination.getRight();
+			
+			coordination = parseCoordination(fields.get(1));
+			toRow = coordination.getLeft();
+			toColumn = coordination.getRight();
+			
+			tabWidth = 1;
+		} else if (fields.size() == 3) {
+			Pair<Integer, Integer> coordination = parseCoordination(fields.get(0));
+			fromRow = coordination.getLeft();
+			fromColumn = coordination.getRight();
+			
+			coordination = parseCoordination(fields.get(1));
+			toRow = coordination.getLeft();
+			toColumn = coordination.getRight();
+			
+			tabWidth = Integer.parseInt(fields.get(2));
+		} else {
+			throw new IllegalArgumentException();
+		}
 	}
 	
 	public int getFromRow() {
@@ -149,6 +169,18 @@ public class PlanarRange implements Serializable {
 			return new PlanarRange(string);
 		else
 			return null;
+	}
+	
+	private static Pair<Integer, Integer> parseCoordination(String string) {
+		int row, column;
+		if (string.contains(".")) {
+			row = Integer.parseInt(StringUtils.substringBefore(string, "."))-1;
+			column = Integer.parseInt(StringUtils.substringAfter(string, "."))-1;
+		} else {
+			row = Integer.parseInt(string)-1;
+			column = -1;
+		}
+		return new ImmutablePair<>(row, column);
 	}
 	
 }

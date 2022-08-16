@@ -4,6 +4,9 @@ import java.io.Serializable;
 
 import javax.annotation.Nullable;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 public class LinearRange implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -29,6 +32,27 @@ public class LinearRange implements Serializable {
 		return to - from;
 	}
 
+	@Override
+	public boolean equals(Object other) {
+		if (!(other instanceof LinearRange))
+			return false;
+		if (this == other)
+			return true;
+		LinearRange otherRange = (LinearRange) other;
+		return new EqualsBuilder()
+				.append(from, otherRange.from)
+				.append(to, otherRange.to)
+				.isEquals();
+	}
+
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder(17, 37)
+				.append(from)
+				.append(to)
+				.toHashCode();
+	}
+	
 	@Override
 	public String toString() {
 		return from + "-" + to;
