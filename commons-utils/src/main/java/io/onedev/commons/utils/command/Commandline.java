@@ -2,7 +2,6 @@ package io.onedev.commons.utils.command;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -20,6 +19,8 @@ import javax.annotation.Nullable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.pty4j.PtyProcessBuilder;
 
 import io.onedev.commons.utils.StringUtils;
 
@@ -119,7 +120,7 @@ public class Commandline implements Serializable {
         return this;
     }
     
-	private ProcessBuilder createProcessBuilder() {
+	private PtyProcessBuilder createProcessBuilder() {
 		File workingDir = this.workingDir;
 		if (workingDir == null)
 			workingDir = new File(".");
@@ -141,18 +142,17 @@ public class Commandline implements Serializable {
 		command.add(executable);
 		command.addAll(arguments);
 		
-        ProcessBuilder processBuilder = new ProcessBuilder(command);
-        processBuilder.directory(workingDir);
+        PtyProcessBuilder processBuilder = new PtyProcessBuilder(command.toArray(new String[command.size()]));
+        processBuilder.setDirectory(workingDir.getAbsolutePath());
         
-        processBuilder.environment().putAll(environments);
+        processBuilder.setEnvironment(environments);
         
         if (logger.isDebugEnabled()) {
     		logger.debug("Executing command: " + this);
     		if (logger.isTraceEnabled()) {
-        		logger.trace("Command working directory: " + 
-        				processBuilder.directory().getAbsolutePath());
+        		logger.trace("Command working directory: " + workingDir.getAbsolutePath());
         		StringBuffer buffer = new StringBuffer();
-        		for (Map.Entry<String, String> entry: processBuilder.environment().entrySet())
+        		for (Map.Entry<String, String> entry: environments.entrySet())
         			buffer.append("	" + entry.getKey() + "=" + entry.getValue() + "\n");
         		logger.trace("Command execution environments:\n" + 
         				StringUtils.stripEnd(buffer.toString(), "\n"));
@@ -166,8 +166,9 @@ public class Commandline implements Serializable {
 		return execute(stdout, stderr, null);
 	}
 	
-	public ExecutionResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr, @Nullable InputStream stdin) {
-		return execute(stdout, stderr, stdin, new ProcessKiller() {
+	public ExecutionResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr, 
+			@Nullable OutputStreamHandler inputHandler) {
+		return execute(stdout, stderr, inputHandler, new ProcessKiller() {
 			
 			@Override
 			public void kill(Process process, String executionId) {
@@ -179,8 +180,9 @@ public class Commandline implements Serializable {
 		});
 	}
 	
-	public ExecutionResult execute(@Nullable OutputStream stdout, @Nullable OutputStream stderr, @Nullable InputStream stdin) {
-		return execute(stdout, stderr, stdin, new ProcessKiller() {
+	public ExecutionResult execute(@Nullable OutputStream stdout, @Nullable OutputStream stderr, 
+			@Nullable OutputStreamHandler inputHandler) {
+		return execute(stdout, stderr, inputHandler, new ProcessKiller() {
 			
 			@Override
 			public void kill(Process process, String executionId) {
@@ -205,7 +207,7 @@ public class Commandline implements Serializable {
 	 * 			execution result
 	 */
 	public ExecutionResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr, 
-			@Nullable InputStream stdin, ProcessKiller processKiller) {
+			@Nullable OutputStreamHandler inputHandler, ProcessKiller processKiller) {
 		if (stderr != null) {
 			ErrorCollector errorCollector = new ErrorCollector(stderr.getEncoding()) {
 
@@ -216,22 +218,22 @@ public class Commandline implements Serializable {
 				}
 				
 			};
-			ExecutionResult result = execute(stdout, (OutputStream)errorCollector, stdin, processKiller);
+			ExecutionResult result = execute(stdout, (OutputStream)errorCollector, inputHandler, processKiller);
 			result.setStderr(errorCollector.getMessage());
 	        return result;
 		} else {
-			return execute(stdout, (OutputStream)null, stdin, processKiller);
+			return execute(stdout, (OutputStream)null, inputHandler, processKiller);
 		}
     }
     
 	public ExecutionResult execute(@Nullable OutputStream stdout, @Nullable OutputStream stderr, 
-			@Nullable InputStream stdin, ProcessKiller processKiller) {
+			@Nullable OutputStreamHandler inputHandler, ProcessKiller processKiller) {
     	String executionId = UUID.randomUUID().toString();
     	
     	Process process;
         try {
-        	ProcessBuilder processBuilder = createProcessBuilder();
-        	processBuilder.environment().put(EXECUTION_ID_ENV, executionId);
+        	environments.put(EXECUTION_ID_ENV, executionId);
+        	PtyProcessBuilder processBuilder = createProcessBuilder();
         	process = processBuilder.start();
         } catch (IOException e) {
         	throw new RuntimeException(e);
@@ -284,8 +286,17 @@ public class Commandline implements Serializable {
             	
             };
             
-            ProcessStreamPumper streamPumper = new ProcessStreamPumper(process, 
-            		new OutputStreamWrapper(stdout), new OutputStreamWrapper(stderr), stdin);
+            StreamPumper stdoutPumper = new StreamPumper(process.getInputStream(), new OutputStreamWrapper(stdout));
+            StreamPumper stderrPumper = new StreamPumper(process.getErrorStream(), new OutputStreamWrapper(stderr));
+            
+            if (inputHandler != null) {
+                inputHandler.handle(process.getOutputStream());
+            } else {
+            	try {
+    				process.getOutputStream().close();
+    			} catch (IOException e) {
+    			}
+            }
             
         	Thread thread = Thread.currentThread();
     		AtomicBoolean stoppedRef = new AtomicBoolean(false);
@@ -317,17 +328,34 @@ public class Commandline implements Serializable {
     				throw new RuntimeException(e);
     		} finally {
     			stoppedRef.set(true);
-    			streamPumper.waitFor();
+    			stdoutPumper.waitFor();
+    			stderrPumper.waitFor();
+    			if (inputHandler != null)
+    				inputHandler.waitFor();
     		}
         } else {
-            ProcessStreamPumper streamPumper = new ProcessStreamPumper(process, stdout, stderr, stdin);
+            StreamPumper stdoutPumper = new StreamPumper(process.getInputStream(), stdout);
+            StreamPumper stderrPumper = new StreamPumper(process.getErrorStream(), stderr);
+            
+            if (inputHandler != null) {
+                inputHandler.handle(process.getOutputStream());
+            } else {
+            	try {
+    				process.getOutputStream().close();
+    			} catch (IOException e) {
+    			}
+            }
+        	
             try {
             	result.setReturnCode(process.waitFor());
     		} catch (InterruptedException e) {
     			processKiller.kill(process, executionId);
     			throw new RuntimeException(e);
     		} finally {
-    			streamPumper.waitFor();
+    			stdoutPumper.waitFor();
+    			stderrPumper.waitFor();
+    			if (inputHandler != null)
+    				inputHandler.waitFor();
     		}
         }
         return result;

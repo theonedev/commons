@@ -69,5 +69,25 @@
 			<groupId>com.github.oshi</groupId>
 			<artifactId>oshi-core</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.jetbrains.pty4j</groupId>
+			<artifactId>pty4j</artifactId>
+		</dependency>
 	</dependencies>
+	<repositories>
+		<repository>
+			<id>jetbrains</id>
+			<url>https://packages.jetbrains.team/maven/p/ij/intellij-dependencies</url>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+				<checksumPolicy>fail</checksumPolicy>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+				<checksumPolicy>fail</checksumPolicy>
+			</snapshots>
+		</repository>
+	</repositories>
 </project>
