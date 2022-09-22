@@ -2,6 +2,7 @@ package io.onedev.commons.utils.command;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -41,6 +42,8 @@ public class Commandline implements Serializable {
     private File workingDir;
     
     private long timeout; // timeout in seconds
+
+    private boolean ttyMode;
     
     private Map<String, String> environments = new HashMap<String, String>();
     
@@ -76,6 +79,15 @@ public class Commandline implements Serializable {
     
     public long timeout() {
     	return timeout;
+    }
+    
+    public Commandline ttyMode(boolean ttyMode) {
+    	this.ttyMode = ttyMode;
+    	return this;
+    }
+    
+    public boolean ttyMode() {
+    	return ttyMode;
     }
     
     public String executable() {
@@ -120,11 +132,14 @@ public class Commandline implements Serializable {
         return this;
     }
     
-	private PtyProcessBuilder createProcessBuilder() {
+    private File getEffectiveWorkingDir() {
 		File workingDir = this.workingDir;
 		if (workingDir == null)
 			workingDir = new File(".");
-		
+		return workingDir;
+    }
+    
+    private String getEffectiveExecutable(File workingDir) {
 		String executable = this.executable;
 		
         if (!new File(executable).isAbsolute()) {
@@ -137,6 +152,40 @@ public class Commandline implements Serializable {
             else if (new File(workingDir, executable + ".cmd").isFile())
             	executable = new File(workingDir, executable + ".cmd").getAbsolutePath();
         }
+        return executable;
+    }
+    
+	private ProcessBuilder createProcessBuilder() {
+		File workingDir = getEffectiveWorkingDir();
+		String executable = getEffectiveExecutable(workingDir);
+		
+		List<String> command = new ArrayList<String>();
+		command.add(executable);
+		command.addAll(arguments);
+		
+        ProcessBuilder processBuilder = new ProcessBuilder(command);
+        processBuilder.directory(workingDir);
+        
+        processBuilder.environment().putAll(environments);
+        
+        if (logger.isDebugEnabled()) {
+    		logger.debug("Executing command: " + this);
+    		if (logger.isTraceEnabled()) {
+        		logger.trace("Command working directory: " + workingDir.getAbsolutePath());
+        		StringBuffer buffer = new StringBuffer();
+        		for (Map.Entry<String, String> entry: processBuilder.environment().entrySet())
+        			buffer.append("	" + entry.getKey() + "=" + entry.getValue() + "\n");
+        		logger.trace("Command execution environments:\n" + 
+        				StringUtils.stripEnd(buffer.toString(), "\n"));
+    		}
+    	}
+
+    	return processBuilder;
+    }
+	
+	private PtyProcessBuilder createPtyProcessBuilder() {
+		File workingDir = getEffectiveWorkingDir();
+		String executable = getEffectiveExecutable(workingDir);
 
 		List<String> command = new ArrayList<String>();
 		command.add(executable);
@@ -161,14 +210,14 @@ public class Commandline implements Serializable {
 
     	return processBuilder;
     }
-    
-	public ExecutionResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr) {
-		return execute(stdout, stderr, null);
+	
+	public ExecutionResult execute(@Nullable OutputStream output, @Nullable LineConsumer error) {
+		return execute(output, error, null);
 	}
 	
-	public ExecutionResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr, 
-			@Nullable OutputStreamHandler inputHandler) {
-		return execute(stdout, stderr, inputHandler, new ProcessKiller() {
+	public ExecutionResult execute(@Nullable OutputStream output, @Nullable LineConsumer error, 
+			@Nullable InputStream input) {
+		return execute(output, error, input, new ProcessKiller() {
 			
 			@Override
 			public void kill(Process process, String executionId) {
@@ -180,9 +229,9 @@ public class Commandline implements Serializable {
 		});
 	}
 	
-	public ExecutionResult execute(@Nullable OutputStream stdout, @Nullable OutputStream stderr, 
-			@Nullable OutputStreamHandler inputHandler) {
-		return execute(stdout, stderr, inputHandler, new ProcessKiller() {
+	public ExecutionResult execute(@Nullable OutputStream output, @Nullable OutputStream error, 
+			@Nullable InputStream input) {
+		return execute(output, error, input, new ProcessKiller() {
 			
 			@Override
 			public void kill(Process process, String executionId) {
@@ -197,44 +246,52 @@ public class Commandline implements Serializable {
 	/**
 	 * Execute the command.
 	 * 
-	 * @param stdout
+	 * @param output
 	 * 			output stream to write standard output, caller is responsible for closing the stream
-	 * @param stderr
+	 * @param error
 	 * 			line consumer to handle standard error
-	 * @param stdin
+	 * @param input
 	 * 			input stream to read standard input from, caller is responsible for closing the stream
 	 * @return
 	 * 			execution result
 	 */
-	public ExecutionResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr, 
-			@Nullable OutputStreamHandler inputHandler, ProcessKiller processKiller) {
-		if (stderr != null) {
-			ErrorCollector errorCollector = new ErrorCollector(stderr.getEncoding()) {
+	public ExecutionResult execute(@Nullable OutputStream output, @Nullable LineConsumer error, 
+			@Nullable InputStream input, ProcessKiller processKiller) {
+		if (error != null) {
+			ErrorCollector errorCollector = new ErrorCollector(error.getEncoding()) {
 
 				@Override
 				public void consume(String line) {
 					super.consume(line);
-					stderr.consume(line);
+					error.consume(line);
 				}
 				
 			};
-			ExecutionResult result = execute(stdout, (OutputStream)errorCollector, inputHandler, processKiller);
+			ExecutionResult result = execute(output, (OutputStream)errorCollector, input, processKiller);
 			result.setStderr(errorCollector.getMessage());
 	        return result;
 		} else {
-			return execute(stdout, (OutputStream)null, inputHandler, processKiller);
+			return execute(output, (OutputStream)null, input, processKiller);
 		}
     }
     
-	public ExecutionResult execute(@Nullable OutputStream stdout, @Nullable OutputStream stderr, 
-			@Nullable OutputStreamHandler inputHandler, ProcessKiller processKiller) {
+	public ExecutionResult execute(@Nullable OutputStream output, @Nullable OutputStream error, 
+			@Nullable InputStream input, ProcessKiller processKiller) {
+		return execute(new PumpInputToOutput(output), new PumpInputToOutput(error), 
+				new PumpOutputFromInput(input), processKiller);
+	}
+	
+	public ExecutionResult execute(InputStreamHandler inputHandler, InputStreamHandler errorHandler, 
+			OutputStreamHandler outputHandler, ProcessKiller processKiller) {
     	String executionId = UUID.randomUUID().toString();
     	
     	Process process;
         try {
         	environments.put(EXECUTION_ID_ENV, executionId);
-        	PtyProcessBuilder processBuilder = createProcessBuilder();
-        	process = processBuilder.start();
+        	if (ttyMode)
+        		process = createPtyProcessBuilder().start();
+        	else
+        		process = createProcessBuilder().start();
         } catch (IOException e) {
         	throw new RuntimeException(e);
         }
@@ -243,60 +300,70 @@ public class Commandline implements Serializable {
         if (timeout != 0) {
             AtomicLong lastActiveTime = new AtomicLong(System.currentTimeMillis());
             
-            class OutputStreamWrapper extends OutputStream {
+            class InputStreamWrapper extends InputStream {
             	
-            	private final OutputStream delegate;
+            	private final InputStream delegate;
             	
-            	public OutputStreamWrapper(OutputStream delegate) {
+            	public InputStreamWrapper(InputStream delegate) {
             		this.delegate = delegate;
             	}
             	
 				@Override
-				public void flush() throws IOException {
-					if (delegate != null)
-						delegate.flush();
+				public int read() throws IOException {
+					int readed = delegate.read();
+					lastActiveTime.set(System.currentTimeMillis());
+					return readed;
+				}
+
+				@Override
+				public int read(byte[] b) throws IOException {
+					int readed = delegate.read(b);
+					lastActiveTime.set(System.currentTimeMillis());
+					return readed;
+				}
+
+				@Override
+				public int read(byte[] b, int off, int len) throws IOException {
+					int readed = delegate.read(b, off, len);
+					lastActiveTime.set(System.currentTimeMillis());
+					return readed;
+				}
+
+				@Override
+				public long skip(long n) throws IOException {
+					return delegate.skip(n);
+				}
+
+				@Override
+				public int available() throws IOException {
+					return delegate.available();
 				}
 
 				@Override
 				public void close() throws IOException {
-					if (delegate != null)
-						delegate.close();
+					delegate.close();
 				}
 
 				@Override
-				public void write(int b) throws IOException {
-					lastActiveTime.set(System.currentTimeMillis());
-					if (delegate != null)
-						delegate.write(b);
+				public synchronized void mark(int readlimit) {
+					delegate.mark(readlimit);
 				}
 
 				@Override
-				public void write(byte[] b) throws IOException {
-					lastActiveTime.set(System.currentTimeMillis());
-					if (delegate != null)
-						delegate.write(b);
+				public synchronized void reset() throws IOException {
+					delegate.reset();
 				}
 
 				@Override
-				public void write(byte[] b, int off, int len) throws IOException {
-					lastActiveTime.set(System.currentTimeMillis());
-					if (delegate != null)
-						delegate.write(b, off, len);
+				public boolean markSupported() {
+					return delegate.markSupported();
 				}
-            	
+
             };
-            
-            StreamPumper stdoutPumper = new StreamPumper(process.getInputStream(), new OutputStreamWrapper(stdout));
-            StreamPumper stderrPumper = new StreamPumper(process.getErrorStream(), new OutputStreamWrapper(stderr));
-            
-            if (inputHandler != null) {
-                inputHandler.handle(process.getOutputStream());
-            } else {
-            	try {
-    				process.getOutputStream().close();
-    			} catch (IOException e) {
-    			}
-            }
+
+            inputHandler.handle(new InputStreamWrapper(process.getInputStream()));
+            errorHandler.handle(new InputStreamWrapper(process.getErrorStream()));
+            outputHandler.handle(process.getOutputStream());
             
         	Thread thread = Thread.currentThread();
     		AtomicBoolean stoppedRef = new AtomicBoolean(false);
@@ -328,23 +395,14 @@ public class Commandline implements Serializable {
     				throw new RuntimeException(e);
     		} finally {
     			stoppedRef.set(true);
-    			stdoutPumper.waitFor();
-    			stderrPumper.waitFor();
-    			if (inputHandler != null)
-    				inputHandler.waitFor();
+    			inputHandler.waitFor();
+    			errorHandler.waitFor();
+    			outputHandler.waitFor();
     		}
         } else {
-            StreamPumper stdoutPumper = new StreamPumper(process.getInputStream(), stdout);
-            StreamPumper stderrPumper = new StreamPumper(process.getErrorStream(), stderr);
-            
-            if (inputHandler != null) {
-                inputHandler.handle(process.getOutputStream());
-            } else {
-            	try {
-    				process.getOutputStream().close();
-    			} catch (IOException e) {
-    			}
-            }
+            inputHandler.handle(process.getInputStream());
+            errorHandler.handle(process.getErrorStream());
+            outputHandler.handle(process.getOutputStream());
         	
             try {
             	result.setReturnCode(process.waitFor());
@@ -352,10 +410,9 @@ public class Commandline implements Serializable {
     			processKiller.kill(process, executionId);
     			throw new RuntimeException(e);
     		} finally {
-    			stdoutPumper.waitFor();
-    			stderrPumper.waitFor();
-    			if (inputHandler != null)
-    				inputHandler.waitFor();
+    			inputHandler.waitFor();
+    			errorHandler.waitFor();
+    			outputHandler.waitFor();
     		}
         }
         return result;

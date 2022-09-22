@@ -4,7 +4,7 @@ import java.io.OutputStream;
 
 import com.google.common.base.Preconditions;
 
-public class PtyInputHandler implements OutputStreamHandler {
+public class ExposeOutputStream implements OutputStreamHandler {
 
 	private OutputStream output;
 	
@@ -13,7 +13,7 @@ public class PtyInputHandler implements OutputStreamHandler {
 		this.output = output;
 	}
 
-	public OutputStream getOputput() {
+	public OutputStream getOutput() {
 		return Preconditions.checkNotNull(output);
 	}
 	

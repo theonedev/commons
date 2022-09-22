@@ -3,18 +3,20 @@ package io.onedev.commons.utils.command;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class PumpInputToOutput implements OutputStreamHandler {
+import javax.annotation.Nullable;
 
-	private final InputStream input;
+public class PumpInputToOutput implements InputStreamHandler {
+
+	private final OutputStream output;
 	
 	private StreamPumper pumper;
 
-	public PumpInputToOutput(InputStream input) {
-		this.input = input;
+	public PumpInputToOutput(@Nullable OutputStream output) {
+		this.output = output;
 	}
 	
 	@Override
-	public void handle(OutputStream output) {
+	public void handle(InputStream input) {
 		pumper = new StreamPumper(input, output);
 	}
 
