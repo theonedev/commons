@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import javax.annotation.Nullable;
@@ -16,14 +14,12 @@ public class StreamPumper {
 
     private static final int BUFFER_SIZE = 64*1024;
     
-    private static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
-    
 	private final Future<?>	future;
 	
 	public StreamPumper(InputStream input, @Nullable OutputStream output) {
     	SensitiveMasker masker = SensitiveMasker.get();
     	
-    	future = EXECUTOR.submit(new Runnable() {
+    	future = Commandline.EXECUTOR_SERVICE.submit(new Runnable() {
 
 			public void run() {
 				if (masker != null)

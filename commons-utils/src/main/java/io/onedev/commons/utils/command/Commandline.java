@@ -21,7 +21,9 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.pty4j.PtyProcess;
 import com.pty4j.PtyProcessBuilder;
+import com.pty4j.WinSize;
 
 import io.onedev.commons.utils.StringUtils;
 
@@ -43,7 +45,7 @@ public class Commandline implements Serializable {
     
     private long timeout; // timeout in seconds
 
-    private boolean ttyMode;
+    private PtyMode ptyMode;
     
     private Map<String, String> environments = new HashMap<String, String>();
     
@@ -81,13 +83,14 @@ public class Commandline implements Serializable {
     	return timeout;
     }
     
-    public Commandline ttyMode(boolean ttyMode) {
-    	this.ttyMode = ttyMode;
+    public Commandline ptyMode(@Nullable PtyMode ptyMode) {
+    	this.ptyMode = ptyMode;
     	return this;
     }
     
-    public boolean ttyMode() {
-    	return ttyMode;
+    @Nullable
+    public PtyMode ptyMode() {
+    	return ptyMode;
     }
     
     public String executable() {
@@ -217,30 +220,12 @@ public class Commandline implements Serializable {
 	
 	public ExecutionResult execute(@Nullable OutputStream output, @Nullable LineConsumer error, 
 			@Nullable InputStream input) {
-		return execute(output, error, input, new ProcessKiller() {
-			
-			@Override
-			public void kill(Process process, String executionId) {
-				Map<String, String> envs = new HashMap<>();
-				envs.put(EXECUTION_ID_ENV, executionId);
-				ProcessTree.get().killAll(process, envs);
-			}
-			
-		});
+		return execute(output, error, input, new ProcessTreeKiller());
 	}
 	
 	public ExecutionResult execute(@Nullable OutputStream output, @Nullable OutputStream error, 
 			@Nullable InputStream input) {
-		return execute(output, error, input, new ProcessKiller() {
-			
-			@Override
-			public void kill(Process process, String executionId) {
-				Map<String, String> envs = new HashMap<>();
-				envs.put(EXECUTION_ID_ENV, executionId);
-				ProcessTree.get().killAll(process, envs);
-			}
-			
-		});
+		return execute(output, error, input, new ProcessTreeKiller());
 	}
 	
 	/**
@@ -282,16 +267,31 @@ public class Commandline implements Serializable {
 	}
 	
 	public ExecutionResult execute(InputStreamHandler inputHandler, InputStreamHandler errorHandler, 
+			OutputStreamHandler outputHandler) {
+		return execute(inputHandler, errorHandler, outputHandler, new ProcessTreeKiller());
+	}
+	
+	public ExecutionResult execute(InputStreamHandler inputHandler, InputStreamHandler errorHandler, 
 			OutputStreamHandler outputHandler, ProcessKiller processKiller) {
     	String executionId = UUID.randomUUID().toString();
     	
     	Process process;
         try {
         	environments.put(EXECUTION_ID_ENV, executionId);
-        	if (ttyMode)
-        		process = createPtyProcessBuilder().start();
-        	else
+        	if (ptyMode != null) {
+        		PtyProcess ptyProcess = createPtyProcessBuilder().start();
+        		ptyMode.setResizeSupport(new PtyMode.ResizeSupport() {
+
+					@Override
+					public void resize(int rows, int cols) {
+						ptyProcess.setWinSize(new WinSize(cols, rows));
+					}
+        			
+        		});
+        		process = ptyProcess;
+        	} else {
         		process = createProcessBuilder().start();
+        	}
         } catch (IOException e) {
         	throw new RuntimeException(e);
         }

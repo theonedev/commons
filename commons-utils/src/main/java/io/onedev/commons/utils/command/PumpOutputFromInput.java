@@ -18,7 +18,9 @@ public class PumpOutputFromInput implements OutputStreamHandler {
 	
 	@Override
 	public void handle(OutputStream output) {
-		if (input == null) {
+		if (input != null) {
+			pumper = new StreamPumper(input, output);
+		} else {
 			try {
 				output.close();
 			} catch (IOException e) {
