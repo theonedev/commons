@@ -1,5 +1,6 @@
 package io.onedev.commons.jsymbol;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,8 +23,9 @@ public class SymbolExtractorRegistry {
 		for (Class<? extends SymbolExtractor> extractorClass: reflections.getSubTypesOf(SymbolExtractor.class)) {
 			if (!Modifier.isAbstract(extractorClass.getModifiers())) {
 				try {
-					extractors.add(extractorClass.newInstance());
-				} catch (InstantiationException | IllegalAccessException e) {
+					extractors.add(extractorClass.getDeclaredConstructor().newInstance());
+				} catch (InstantiationException | IllegalAccessException | IllegalArgumentException 
+						| InvocationTargetException | NoSuchMethodException | SecurityException e) {
 					throw new RuntimeException(e);
 				}
 			}

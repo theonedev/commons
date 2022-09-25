@@ -104,7 +104,7 @@ public class AppLoader implements Lifecycle {
 					Class<?> moduleClass = Class.forName(moduleClassName);
 					
 					if (AbstractPluginModule.class.isAssignableFrom(moduleClass)) {
-						AbstractPluginModule pluginModule = (AbstractPluginModule) moduleClass.newInstance();
+						AbstractPluginModule pluginModule = (AbstractPluginModule) moduleClass.getDeclaredConstructor().newInstance();
 						
 						pluginModule.setPluginId(pluginId);
 						pluginModule.setPluginName(pluginProps.getProperty("name"));
@@ -163,7 +163,7 @@ public class AppLoader implements Lifecycle {
 					ctGeneratedTypeLiteral.setGenericSignature(signature.encode());
 					
 					Class<?> typeLiteralClassOfExtensionPoint = ctGeneratedTypeLiteral.toClass();
-					typeLiteral = (TypeLiteral<Set<T>>) typeLiteralClassOfExtensionPoint.newInstance();
+					typeLiteral = (TypeLiteral<Set<T>>) typeLiteralClassOfExtensionPoint.getDeclaredConstructor().newInstance();
 					
 					typeLiterals.put(extensionPoint.getName(), typeLiteral);
 				} catch (Exception e) {

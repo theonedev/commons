@@ -2,26 +2,25 @@ package io.onedev.commons.loader;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(AppLoader.class)
 public abstract class AppLoaderMocker {
 
+	private MockedStatic<AppLoader> mockedStatic;
+	
     @Before
     public void before() {
-        MockitoAnnotations.initMocks(this);
-        PowerMockito.mockStatic(AppLoader.class);
+        MockitoAnnotations.openMocks(this);
+        mockedStatic = Mockito.mockStatic(AppLoader.class);
         
         setup();
     }
     
     @After
     public void after() {
+    	mockedStatic.close();
         teardown();
     }
     

@@ -185,7 +185,7 @@ public class Bootstrap {
 					Lifecycle appLoader;
 					try {
 						Class<?> appLoaderClass = appClassLoader.loadClass(APP_LOADER);
-						appLoader = (Lifecycle) appLoaderClass.newInstance();
+						appLoader = (Lifecycle) appLoaderClass.getDeclaredConstructor().newInstance();
 						appLoader.start();
 					} catch (Exception e) {
 						throw unchecked(e);
