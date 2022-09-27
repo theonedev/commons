@@ -106,8 +106,7 @@ public class Commandline implements Serializable {
     }
     
     public Commandline environments(Map<String, String> environments) {
-    	this.environments.clear();
-    	this.environments.putAll(environments);
+    	this.environments = new HashMap<>(environments);
     	return this;
     }
 
@@ -197,14 +196,16 @@ public class Commandline implements Serializable {
         PtyProcessBuilder processBuilder = new PtyProcessBuilder(command.toArray(new String[command.size()]));
         processBuilder.setDirectory(workingDir.getAbsolutePath());
         
-        processBuilder.setEnvironment(environments);
+        Map<String, String> ptyEnvironments = new HashMap<>(environments);
+        ptyEnvironments.putAll(System.getenv());
+        processBuilder.setEnvironment(ptyEnvironments);
         
         if (logger.isDebugEnabled()) {
     		logger.debug("Executing command: " + this);
     		if (logger.isTraceEnabled()) {
         		logger.trace("Command working directory: " + workingDir.getAbsolutePath());
         		StringBuffer buffer = new StringBuffer();
-        		for (Map.Entry<String, String> entry: environments.entrySet())
+        		for (Map.Entry<String, String> entry: ptyEnvironments.entrySet())
         			buffer.append("	" + entry.getKey() + "=" + entry.getValue() + "\n");
         		logger.trace("Command execution environments:\n" + 
         				StringUtils.stripEnd(buffer.toString(), "\n"));

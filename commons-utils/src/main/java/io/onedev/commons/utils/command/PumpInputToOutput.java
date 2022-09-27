@@ -5,7 +5,7 @@ import java.io.OutputStream;
 
 import javax.annotation.Nullable;
 
-public class PumpInputToOutput implements InputStreamHandler {
+public class PumpInputToOutput extends ExposeInputStream {
 
 	private final OutputStream output;
 	
@@ -17,6 +17,7 @@ public class PumpInputToOutput implements InputStreamHandler {
 	
 	@Override
 	public void handle(InputStream input) {
+		super.handle(input);
 		pumper = new StreamPumper(input, output);
 	}
 
