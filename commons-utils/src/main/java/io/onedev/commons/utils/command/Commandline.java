@@ -285,7 +285,11 @@ public class Commandline implements Serializable {
 
 					@Override
 					public void resize(int rows, int cols) {
-						ptyProcess.setWinSize(new WinSize(cols, rows));
+						try {
+							ptyProcess.setWinSize(new WinSize(cols, rows));
+						} catch (Exception e) {
+							logger.error("Error setting window size", e);
+						}
 					}
         			
         		});
