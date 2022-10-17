@@ -48,6 +48,8 @@ public class Bootstrap {
 	
 	public static final String APP_LOADER = "io.onedev.commons.loader.AppLoader";
 	
+	private static final String PROP_INSTALL_DIR = "installDir";
+	
 	public static File installDir;
 	
 	private static File libCacheDir;
@@ -60,15 +62,20 @@ public class Bootstrap {
 	
 	public static void main(String[] args) {
 		try {
-			File loadedFrom = new File(Bootstrap.class.getProtectionDomain()
-					.getCodeSource().getLocation().toURI().getPath());
+			String installPath = System.getProperty(PROP_INSTALL_DIR);
+			if (installPath != null) {
+				installDir = new File(installPath);
+			} else {
+				File loadedFrom = new File(Bootstrap.class.getProtectionDomain()
+						.getCodeSource().getLocation().toURI().getPath());
 
-			if (new File(loadedFrom.getParentFile(), "bootstrap.keys").exists())
-				installDir = loadedFrom.getParentFile().getParentFile();
-			else if (new File("target/sandbox").exists())
-				installDir = new File("target/sandbox").getAbsoluteFile();
-			else
-				throw new RuntimeException("Unable to find product directory.");
+				if (new File(loadedFrom.getParentFile(), "bootstrap.keys").exists())
+					installDir = loadedFrom.getParentFile().getParentFile();
+				else if (new File("target/sandbox").exists())
+					installDir = new File("target/sandbox").getAbsoluteFile();
+				else
+					throw new RuntimeException("Unable to find product directory.");
+			}
 
 			boolean launchedFromIDE = false;
 			try {
