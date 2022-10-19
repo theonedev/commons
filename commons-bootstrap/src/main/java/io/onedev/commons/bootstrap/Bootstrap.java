@@ -189,15 +189,9 @@ public class Bootstrap {
 							Bootstrap.class.getClassLoader());
 					Thread.currentThread().setContextClassLoader(appClassLoader);
 					
-					Lifecycle appLoader;
-					try {
-						Class<?> appLoaderClass = appClassLoader.loadClass(APP_LOADER);
-						appLoader = (Lifecycle) appLoaderClass.getDeclaredConstructor().newInstance();
-						appLoader.start();
-					} catch (Exception e) {
-						throw unchecked(e);
-					}
-
+					Class<?> appLoaderClass = appClassLoader.loadClass(APP_LOADER);
+					Lifecycle appLoader = (Lifecycle) appLoaderClass.getDeclaredConstructor().newInstance();
+					
 					Runtime.getRuntime().addShutdownHook(new Thread() {
 						public void run() {
 							try {
@@ -207,6 +201,8 @@ public class Bootstrap {
 							}
 						}
 					});
+					
+					appLoader.start();
 				} catch (Exception e) {
 					logger.error("Error booting application", e);
 					System.exit(1);
