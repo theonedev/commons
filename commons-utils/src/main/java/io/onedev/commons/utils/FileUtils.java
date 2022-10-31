@@ -352,34 +352,36 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 				tos = new TarArchiveOutputStream(new BufferedOutputStream(os, Bootstrap.BUFFER_SIZE));
 			tos.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
 			tos.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_STAR);
-			for (File file: FileUtils.listFiles(baseDir, includes, excludes)) {
-	    		String basePath = PathUtils.parseRelative(file.getAbsolutePath(), baseDir.getAbsolutePath());
-	    		Preconditions.checkNotNull(basePath);
-	    		if (basePath.length() == 0)
-	    			continue;
-	    		
-	    		basePath = basePath.substring(1);
-	    		if (!file.isFile() && !basePath.endsWith("/"))
-	    			basePath += "/";
-				
-				TarArchiveEntry entry = new TarArchiveEntry(basePath);
-				if (file.isFile()) {
-					entry.setSize(file.length());
-					if (file.canExecute())
-						entry.setMode(entry.getMode() | 0000100);
-					entry.setModTime(file.lastModified());
-				}
-				
-				tos.putArchiveEntry(entry);
-				
-				if (file.isFile()) {
-					try (InputStream is = new FileInputStream(file)) {
-						int count;
-						while((count = is.read(data)) != -1) 
-							tos.write(data, 0, count);
+			if (baseDir.exists()) {
+				for (File file: FileUtils.listFiles(baseDir, includes, excludes)) {
+		    		String basePath = PathUtils.parseRelative(file.getAbsolutePath(), baseDir.getAbsolutePath());
+		    		Preconditions.checkNotNull(basePath);
+		    		if (basePath.length() == 0)
+		    			continue;
+		    		
+		    		basePath = basePath.substring(1);
+		    		if (!file.isFile() && !basePath.endsWith("/"))
+		    			basePath += "/";
+					
+					TarArchiveEntry entry = new TarArchiveEntry(basePath);
+					if (file.isFile()) {
+						entry.setSize(file.length());
+						if (file.canExecute())
+							entry.setMode(entry.getMode() | 0000100);
+						entry.setModTime(file.lastModified());
 					}
+					
+					tos.putArchiveEntry(entry);
+					
+					if (file.isFile()) {
+						try (InputStream is = new FileInputStream(file)) {
+							int count;
+							while((count = is.read(data)) != -1) 
+								tos.write(data, 0, count);
+						}
+					}
+					tos.closeArchiveEntry();
 				}
-				tos.closeArchiveEntry();
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);

@@ -8,6 +8,7 @@ import java.util.concurrent.Future;
 
 import javax.annotation.Nullable;
 
+import io.onedev.commons.bootstrap.Bootstrap;
 import io.onedev.commons.bootstrap.SensitiveMasker;
 
 public class StreamPumper {
@@ -19,7 +20,7 @@ public class StreamPumper {
 	public StreamPumper(InputStream input, @Nullable OutputStream output) {
     	SensitiveMasker masker = SensitiveMasker.get();
     	
-    	future = Commandline.EXECUTOR_SERVICE.submit(new Runnable() {
+    	future = Bootstrap.executorService.submit(new Runnable() {
 
 			public void run() {
 				if (masker != null)

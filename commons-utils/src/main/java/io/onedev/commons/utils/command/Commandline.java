@@ -10,8 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -25,6 +23,8 @@ import com.pty4j.PtyProcess;
 import com.pty4j.PtyProcessBuilder;
 import com.pty4j.WinSize;
 
+import io.onedev.commons.bootstrap.Bootstrap;
+import io.onedev.commons.bootstrap.SensitiveMasker;
 import io.onedev.commons.utils.StringUtils;
 
 public class Commandline implements Serializable {
@@ -33,8 +33,6 @@ public class Commandline implements Serializable {
 
 	public static final String EXECUTION_ID_ENV = "ONEDEV_COMMAND_EXECUTION_UUID";
 	
-    static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
-    
 	private static final Logger logger = LoggerFactory.getLogger(Commandline.class);
 	
     private String executable;
@@ -126,7 +124,12 @@ public class Commandline implements Serializable {
         				each, "\n", "\\n")).append(" ");
         	}
         }
-        return buf.toString().trim();
+        
+        SensitiveMasker masker = SensitiveMasker.get();
+        if (masker != null)
+        	return masker.mask(buf.toString().trim());
+        else
+        	return buf.toString().trim();
     }
 
     public Commandline clearArgs() {
@@ -372,7 +375,7 @@ public class Commandline implements Serializable {
             
         	Thread thread = Thread.currentThread();
     		AtomicBoolean stoppedRef = new AtomicBoolean(false);
-    		EXECUTOR_SERVICE.execute(new Runnable() {
+    		Bootstrap.executorService.execute(new Runnable() {
 
 				@Override
 				public void run() {

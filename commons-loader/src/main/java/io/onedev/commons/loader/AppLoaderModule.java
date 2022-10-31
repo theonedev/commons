@@ -32,7 +32,6 @@ public class AppLoaderModule extends AbstractModule {
 	    
 	    bind(PluginManager.class).to(DefaultPluginManager.class);
 	    bind(ImplementationRegistry.class).to(DefaultImplementationRegistry.class);
-	    bind(ListenerRegistry.class).to(DefaultListenerRegistry.class);
 	}
 
 	private static abstract interface DummyInterface {

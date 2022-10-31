@@ -11,7 +11,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,8 +75,6 @@ public class AppLoader implements Lifecycle {
 	@Override
 	public void stop() {
 		logger.info("Stoppping server...");
-		
-		injector.getInstance(ExecutorService.class).shutdown();
 		injector.getInstance(PluginManager.class).stop();
 	}
 

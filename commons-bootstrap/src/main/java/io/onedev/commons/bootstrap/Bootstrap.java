@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.jar.JarFile;
 import java.util.logging.Handler;
 import java.util.zip.ZipEntry;
@@ -52,6 +54,8 @@ public class Bootstrap {
 	
 	public static File installDir;
 	
+	private static File launchDir;
+	
 	private static File libCacheDir;
 
 	public static boolean sandboxMode;
@@ -60,22 +64,25 @@ public class Bootstrap {
 	
 	public static Command command;
 	
+    public static volatile ExecutorService executorService = Executors.newCachedThreadPool();
+	
 	public static void main(String[] args) {
 		try {
-			String installPath = System.getProperty(PROP_INSTALL_DIR);
-			if (installPath != null) {
-				installDir = new File(installPath);
-			} else {
-				File loadedFrom = new File(Bootstrap.class.getProtectionDomain()
-						.getCodeSource().getLocation().toURI().getPath());
+			File loadedFrom = new File(Bootstrap.class.getProtectionDomain()
+					.getCodeSource().getLocation().toURI().getPath());
 
-				if (new File(loadedFrom.getParentFile(), "bootstrap.keys").exists())
-					installDir = loadedFrom.getParentFile().getParentFile();
-				else if (new File("target/sandbox").exists())
-					installDir = new File("target/sandbox").getAbsoluteFile();
-				else
-					throw new RuntimeException("Unable to find product directory.");
-			}
+			if (new File(loadedFrom.getParentFile(), "bootstrap.keys").exists())
+				launchDir = loadedFrom.getParentFile().getParentFile();
+			else if (new File("target/sandbox").exists())
+				launchDir = new File("target/sandbox").getAbsoluteFile();
+			else
+				throw new RuntimeException("Unable to find product directory.");
+			
+			String installPath = System.getProperty(PROP_INSTALL_DIR);
+			if (installPath != null) 
+				installDir = new File(installPath);
+			else 
+				installDir = launchDir;
 
 			boolean launchedFromIDE = false;
 			try {
@@ -206,7 +213,7 @@ public class Bootstrap {
 				} catch (Exception e) {
 					logger.error("Error booting application", e);
 					System.exit(1);
-				}				 
+				}		
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -234,11 +241,11 @@ public class Bootstrap {
 	}
 	
 	private static File getBootstrapKeysFile() {
-		return new File(installDir, "boot/bootstrap.keys");
+		return new File(launchDir, "boot/bootstrap.keys");
 	}
 	
 	private static File getSystemClasspathFile() {
-		return new File(installDir, "boot/system.classpath");
+		return new File(launchDir, "boot/system.classpath");
 	}
 
 	private static boolean isPriorityLib(File lib) {
@@ -329,15 +336,15 @@ public class Bootstrap {
 	}
 
 	public static File getBinDir() {
-		return new File(installDir, "bin");
+		return new File(launchDir, "bin");
 	}
 	
 	public static File getBootDir() {
-		return new File(installDir, "boot");
+		return new File(launchDir, "boot");
 	}
 	
 	public static File getLibDir() {
-		return new File(installDir, "lib");
+		return new File(launchDir, "lib");
 	}
 	
 	public static File getTempDir() {
