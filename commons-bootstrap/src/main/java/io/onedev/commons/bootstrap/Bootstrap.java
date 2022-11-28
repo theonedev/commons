@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.jar.JarFile;
@@ -83,6 +85,15 @@ public class Bootstrap {
 				installDir = new File(installPath);
 			else 
 				installDir = launchDir;
+			
+			File testFile = new File(installDir, "test");
+			try (OutputStream os = new FileOutputStream(testFile)){
+				os.write(UUID.randomUUID().toString().getBytes());
+			} catch (Exception e) {
+				System.err.println(String.format("Unable to write test file. Make sure current user owns everything under '%s'", 
+						installDir.getAbsolutePath()));
+				System.exit(1);
+			}
 
 			boolean launchedFromIDE = false;
 			try {
