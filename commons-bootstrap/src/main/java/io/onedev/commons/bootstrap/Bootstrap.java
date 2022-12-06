@@ -296,17 +296,21 @@ public class Bootstrap {
 
 	private static List<File> getLibFiles(File libDir) {
 		List<File> libFiles = new ArrayList<>();
-		for (File file : libDir.listFiles()) {
-			if (file.getName().endsWith(".jar"))
-				libFiles.add(file);
+		if (libDir.exists()) {
+			for (File file : libDir.listFiles()) {
+				if (file.getName().endsWith(".jar"))
+					libFiles.add(file);
+			}
 		}
 		return libFiles;
 	}
 	
 	private static void cacheLibFiles(File libDir) {
-		for (File file: libDir.listFiles()) {
-			if (file.getName().endsWith(".zip")) {
-				unzip(file, libCacheDir);
+		if (libDir.exists()) {
+			for (File file: libDir.listFiles()) {
+				if (file.getName().endsWith(".zip")) {
+					unzip(file, libCacheDir);
+				}
 			}
 		}
 	}
