@@ -4,14 +4,10 @@ import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
+import com.google.common.collect.Lists;
+import io.onedev.commons.bootstrap.Bootstrap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,10 +53,9 @@ public class AppLoader implements Lifecycle {
 		OverriddenModuleBuilder builder = Modules.override(new AppLoaderModule());
 		
 		Map<String, AbstractPluginModule> modules = loadPluginModules();
-		for (String key: DependencyUtils.sortDependencies(modules)) {
+		for (String key: DependencyUtils.sortDependencies(modules))
 			builder = Modules.override(builder.with(modules.get(key)));
-		}
-		
+
 		injector = Guice.createInjector(builder.with(new AbstractModule() {
 
 			@Override
@@ -78,20 +73,55 @@ public class AppLoader implements Lifecycle {
 		injector.getInstance(PluginManager.class).stop();
 	}
 
+	private static List<File> getSystemClassPathFiles() {
+		String classpath = System.getProperty("java.class.path");
+		char separator;
+		if (classpath.indexOf(':') != -1)
+			separator = ':';
+		else if (classpath.indexOf(';') != -1)
+			separator = ';';
+		else
+			return Lists.newArrayList(new File(classpath));
+
+		List<File> files  = new ArrayList<>();
+		int start = 0;
+		while (true) {
+			int end = classpath.indexOf(separator, start);
+			if (end == -1) {
+				end = classpath.length();
+				String path = classpath.substring(start, end);
+				files.add(new File(path));
+				break;
+			} else {
+				String path = classpath.substring(start, end);
+				files.add(new File(path));
+				start = end + 1;
+			}
+		}
+		return files;
+	}
+
 	private Map<String, AbstractPluginModule> loadPluginModules() {
 		Map<String, AbstractPluginModule> pluginModules = new HashMap<String, AbstractPluginModule>();
 		
 		URLClassLoader classLoader = (URLClassLoader) Thread.currentThread().getContextClassLoader();
+
+		List<File> classPathFiles = new ArrayList<>();
+		if (Bootstrap.launchedFromIDE)
+			classPathFiles.addAll(getSystemClassPathFiles());
+
 		for (URL url: classLoader.getURLs()) {
-			String path;
 			try {
-				path = url.toURI().getPath();
+				classPathFiles.add(new File(url.toURI().getPath()));
 			} catch (URISyntaxException e) {
 				throw new RuntimeException(e);
 			}
-			Properties pluginProps = FileUtils.loadProperties(new File(path), "META-INF/onedev-plugin.properties");
+		}
+
+		for (var file: classPathFiles) {
+			Properties pluginProps = FileUtils.loadProperties(file, "META-INF/onedev-plugin.properties");
 			if (pluginProps != null) {
-				Properties productProps = FileUtils.loadProperties(new File(path), "META-INF/onedev-product.properties");
+				Properties productProps = FileUtils.loadProperties(file, "META-INF/onedev-product.properties");
 				String pluginId = pluginProps.getProperty("id");
 				if (pluginModules.containsKey(pluginId))
 					throw new RuntimeException("More than one version of plugin '" + pluginId + "' is found.");
