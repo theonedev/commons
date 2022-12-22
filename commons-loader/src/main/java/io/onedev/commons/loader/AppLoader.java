@@ -1,26 +1,11 @@
 package io.onedev.commons.loader;
 
-import java.io.File;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.*;
-
 import com.google.common.collect.Lists;
-import io.onedev.commons.bootstrap.Bootstrap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Binding;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.TypeLiteral;
+import com.google.inject.*;
 import com.google.inject.spi.BindingScopingVisitor;
 import com.google.inject.util.Modules;
 import com.google.inject.util.Modules.OverriddenModuleBuilder;
-
+import io.onedev.commons.bootstrap.Bootstrap;
 import io.onedev.commons.bootstrap.Lifecycle;
 import io.onedev.commons.utils.DependencyUtils;
 import io.onedev.commons.utils.ExceptionUtils;
@@ -34,6 +19,14 @@ import javassist.bytecode.SignatureAttribute.ClassSignature;
 import javassist.bytecode.SignatureAttribute.ClassType;
 import javassist.bytecode.SignatureAttribute.TypeArgument;
 import javassist.bytecode.SignatureAttribute.TypeParameter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.*;
 
 public class AppLoader implements Lifecycle {
 
@@ -69,12 +62,14 @@ public class AppLoader implements Lifecycle {
 
 	@Override
 	public void stop() {
-		logger.info("Stoppping server...");
-		injector.getInstance(PluginManager.class).stop();
+		logger.info("Stopping server...");
+		if (injector != null)
+			injector.getInstance(PluginManager.class).stop();
 	}
 
 	private static List<File> getSystemClassPathFiles() {
 		String classpath = System.getProperty("java.class.path");
+
 		char separator;
 		if (classpath.indexOf(':') != -1)
 			separator = ':';
@@ -104,13 +99,24 @@ public class AppLoader implements Lifecycle {
 	private Map<String, AbstractPluginModule> loadPluginModules() {
 		Map<String, AbstractPluginModule> pluginModules = new HashMap<String, AbstractPluginModule>();
 		
-		URLClassLoader classLoader = (URLClassLoader) Thread.currentThread().getContextClassLoader();
+		URLClassLoader contextClassLoader = (URLClassLoader) Thread.currentThread().getContextClassLoader();
 
 		List<File> classPathFiles = new ArrayList<>();
-		if (Bootstrap.launchedFromIDE)
-			classPathFiles.addAll(getSystemClassPathFiles());
+		if (Bootstrap.launchedFromIDEOrMaven) {
+			if (Bootstrap.initialURLClassLoader != null) {
+				for (URL url: Bootstrap.initialURLClassLoader.getURLs()) {
+					try {
+						classPathFiles.add(new File(url.toURI().getPath()));
+					} catch (URISyntaxException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			} else {
+				classPathFiles.addAll(getSystemClassPathFiles());
+			}
+		}
 
-		for (URL url: classLoader.getURLs()) {
+		for (URL url: contextClassLoader.getURLs()) {
 			try {
 				classPathFiles.add(new File(url.toURI().getPath()));
 			} catch (URISyntaxException e) {

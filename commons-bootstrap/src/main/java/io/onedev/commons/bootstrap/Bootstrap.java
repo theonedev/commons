@@ -7,9 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -31,8 +29,6 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
-
-import javax.lang.model.element.NestingKind;
 
 public class Bootstrap {
 
@@ -58,13 +54,18 @@ public class Bootstrap {
 
 	public static boolean prodMode;
 
-	public static boolean launchedFromIDE;
+	public static boolean launchedFromIDEOrMaven;
+
+	public static URLClassLoader initialURLClassLoader;
 	
 	public static Command command;
 	
     public static volatile ExecutorService executorService = Executors.newCachedThreadPool();
 
 	public static void main(String[] args) {
+		if (Thread.currentThread().getContextClassLoader() instanceof URLClassLoader)
+			initialURLClassLoader = (URLClassLoader) Thread.currentThread().getContextClassLoader();
+
 		try {
 			File loadedFrom = new File(Bootstrap.class.getProtectionDomain()
 					.getCodeSource().getLocation().toURI().getPath());
@@ -95,7 +96,7 @@ public class Bootstrap {
 
 			try {
 				Class.forName(APP_LOADER);
-				launchedFromIDE = true;
+				launchedFromIDEOrMaven = true;
 			} catch (ClassNotFoundException e) {
 			}
 
@@ -135,7 +136,7 @@ public class Bootstrap {
 
 				List<File> libFiles = new ArrayList<>();
 
-				if (!launchedFromIDE) {
+				if (!launchedFromIDEOrMaven) {
 					libFiles.addAll(getLibFiles(getLibDir()));
 					extractPluginLibs(getLibDir(), pluginLibsDir);
 				}
