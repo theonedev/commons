@@ -124,11 +124,25 @@ public class Bootstrap {
 				File tempDir = getTempDir();
 				if (tempDir.exists()) {
 					logger.info("Cleaning temp directory...");
-					Files.walk(tempDir.toPath()).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
-				}
-
-				if (!tempDir.mkdirs())
+					for (var child: tempDir.listFiles()) {
+						try {
+							Files.walk(child.toPath())
+									.sorted(Comparator.reverseOrder())
+									.map(Path::toFile)
+									.forEach(File::delete);
+						} catch (Exception ignore) {
+						}
+						if (child.exists()) {
+							String errorMessage = "Unable to delete '" + child.getAbsolutePath() + "'";
+							if (child.getName().startsWith("onedev-build"))
+								logger.warn(errorMessage);
+							else
+								throw new RuntimeException(errorMessage);
+						}
+					}
+				} else if (!tempDir.mkdirs()) {
 					throw new RuntimeException("Can not create directory '" + tempDir.getAbsolutePath() + "'");
+				}
 
 				System.setProperty("java.io.tmpdir", tempDir.getAbsolutePath());
 
