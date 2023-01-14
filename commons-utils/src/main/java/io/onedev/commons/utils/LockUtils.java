@@ -78,8 +78,12 @@ public class LockUtils {
      */
     public static <T> T call(String name, boolean fair, Callable<T> callable) {
     	Lock lock = getLock(name, fair);
-    	try {
-        	lock.lockInterruptibly();
+		try {
+			lock.lockInterruptibly();
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+		try {
     		return callable.call();
     	} catch (Exception e) {
     		throw new RuntimeException(e);
@@ -104,8 +108,12 @@ public class LockUtils {
      */
     public static <T> T read(String name, boolean fair, Callable<T> callable) {
     	Lock lock = getReadWriteLock(name, fair).readLock();
-    	try {
-        	lock.lockInterruptibly();
+		try {
+			lock.lockInterruptibly();
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+		try {
     		return callable.call();
     	} catch (Exception e) {
     		throw new RuntimeException(e);
@@ -130,8 +138,12 @@ public class LockUtils {
      */
     public static <T> T write(String name, boolean fair, Callable<T> callable) {
     	Lock lock = getReadWriteLock(name, fair).writeLock();
-    	try {
-        	lock.lockInterruptibly();
+		try {
+			lock.lockInterruptibly();
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+		try {
     		return callable.call();
     	} catch (Exception e) {
     		throw new RuntimeException(e);

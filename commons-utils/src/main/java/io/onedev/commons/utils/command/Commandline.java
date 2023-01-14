@@ -306,6 +306,7 @@ public class Commandline implements Serializable {
 
 		ExecutionResult result = new ExecutionResult(this);
         if (timeout != 0) {
+			AtomicBoolean timedout = new AtomicBoolean(false);
             AtomicLong lastActiveTime = new AtomicLong(System.currentTimeMillis());
             
             class InputStreamWrapper extends InputStream {
@@ -381,6 +382,7 @@ public class Commandline implements Serializable {
 				public void run() {
 					while (!stoppedRef.get()) {
 						if (System.currentTimeMillis() - lastActiveTime.get() > timeout*1000L) {
+							timedout.set(true);
 							thread.interrupt();
 							break;
 						} else {
@@ -397,7 +399,7 @@ public class Commandline implements Serializable {
             	result.setReturnCode(process.waitFor());
     		} catch (InterruptedException e) {
     			processKiller.kill(process, executionId);
-    			if (System.currentTimeMillis() - lastActiveTime.get() > timeout*1000L)
+    			if (timedout.get())
     				throw new RuntimeException(new TimeoutException());
     			else
     				throw new RuntimeException(e);
