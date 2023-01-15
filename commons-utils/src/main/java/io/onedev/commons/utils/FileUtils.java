@@ -13,11 +13,8 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.locks.Lock;
 import java.util.zip.Deflater;
@@ -173,8 +170,6 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
      * 
      * @param baseDir 
      * 			Base directory to scan files in
-     * @param pathPattern 
-     * 			Pattern of file path to be used for search
      * @return
      * 			Collection of files matching specified path pattern. Directories will not be included even 
      * 			if its path matches the pattern
@@ -339,9 +334,14 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 		
 		return result;
 	}
-	
-	public static void tar(File baseDir, Collection<String> includes, Collection<String> excludes, 
-			OutputStream os, boolean compress) {
+
+	public static void tar(File baseDir, Collection<String> includes, Collection<String> excludes,
+						   OutputStream os, boolean compress) {
+		tar(baseDir, includes, excludes, new HashSet<>(), os, compress);
+	}
+
+	public static void tar(File baseDir, Collection<String> includes, Collection<String> excludes,
+			Collection<String> executables, OutputStream os, boolean compress) {
 		byte data[] = new byte[Bootstrap.BUFFER_SIZE];
 
 		TarArchiveOutputStream tos = null;
@@ -353,6 +353,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 			tos.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
 			tos.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_STAR);
 			if (baseDir.exists()) {
+				Collection<File> executableFiles = FileUtils.listFiles(baseDir, executables, new HashSet<>());
 				for (File file: FileUtils.listFiles(baseDir, includes, excludes)) {
 		    		String basePath = PathUtils.parseRelative(file.getAbsolutePath(), baseDir.getAbsolutePath());
 		    		Preconditions.checkNotNull(basePath);
@@ -366,7 +367,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 					TarArchiveEntry entry = new TarArchiveEntry(basePath);
 					if (file.isFile()) {
 						entry.setSize(file.length());
-						if (file.canExecute())
+						if (file.canExecute() || executableFiles.contains(file))
 							entry.setMode(entry.getMode() | 0000100);
 						entry.setModTime(file.lastModified());
 					}
@@ -518,7 +519,6 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     /**
      * Zip specified directory recursively as specified file.
      * @param dir
-     * @param file
      */
     public static void zip(File dir, OutputStream os) {
     	try (ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(os, Bootstrap.BUFFER_SIZE))) {
@@ -566,9 +566,6 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 	 * 		zip file to extract from
 	 * @param 
 	 * 		destDir destination directory to extract to
-	 * @param matcher 
-	 * 		if not null, only entries with name matching this param in the zip will be extracted.
-	 * 		Use null if you want to extract all entries from the zip file.  
 	 */
 	public static void unzip(File srcFile, File destDir) {
 		Bootstrap.unzip(srcFile, destDir);
