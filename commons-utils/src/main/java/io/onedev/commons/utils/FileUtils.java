@@ -26,6 +26,7 @@ import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Nullable;
 
+import com.google.common.collect.Sets;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
@@ -335,13 +336,30 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 		return result;
 	}
 
-	public static void tar(File baseDir, Collection<String> includes, Collection<String> excludes,
-						   OutputStream os, boolean compress) {
-		tar(baseDir, includes, excludes, new HashSet<>(), os, compress);
+	public static void tar(File baseDir, OutputStream os, boolean compress) {
+		tar(baseDir, null, os, compress);
 	}
 
-	public static void tar(File baseDir, Collection<String> includes, Collection<String> excludes,
-			Collection<String> executables, OutputStream os, boolean compress) {
+	public static void tar(File baseDir, @Nullable Collection<String> includes,
+						   OutputStream os, boolean compress) {
+		tar(baseDir, includes, null, os, compress);
+	}
+
+	public static void tar(File baseDir, @Nullable Collection<String> includes,
+						   @Nullable Collection<String> excludes, OutputStream os,
+						   boolean compress) {
+		tar(baseDir, includes, excludes, null, os, compress);
+	}
+
+	public static void tar(File baseDir, @Nullable Collection<String> includes,
+						   @Nullable Collection<String> excludes,
+						   @Nullable Collection<String> executables,
+						   OutputStream os, boolean compress) {
+		if (includes == null)
+			includes = Sets.newHashSet("**");
+		if (excludes == null)
+			excludes = new HashSet<>();
+
 		byte data[] = new byte[Bootstrap.BUFFER_SIZE];
 
 		TarArchiveOutputStream tos = null;
@@ -353,7 +371,9 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 			tos.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
 			tos.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_STAR);
 			if (baseDir.exists()) {
-				Collection<File> executableFiles = FileUtils.listFiles(baseDir, executables, new HashSet<>());
+				Collection<File> executableFiles = null;
+				if (executables != null)
+					executableFiles = FileUtils.listFiles(baseDir, executables, new HashSet<>());
 				for (File file: FileUtils.listFiles(baseDir, includes, excludes)) {
 		    		String basePath = PathUtils.parseRelative(file.getAbsolutePath(), baseDir.getAbsolutePath());
 		    		Preconditions.checkNotNull(basePath);
@@ -367,7 +387,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 					TarArchiveEntry entry = new TarArchiveEntry(basePath);
 					if (file.isFile()) {
 						entry.setSize(file.length());
-						if (file.canExecute() || executableFiles.contains(file))
+						if (executableFiles == null && file.canExecute() || executableFiles.contains(file))
 							entry.setMode(entry.getMode() | 0000100);
 						entry.setModTime(file.lastModified());
 					}
