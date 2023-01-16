@@ -70,13 +70,7 @@ public class AppLoader implements Lifecycle {
 	private static List<File> getSystemClassPathFiles() {
 		String classpath = System.getProperty("java.class.path");
 
-		char separator;
-		if (classpath.indexOf(':') != -1)
-			separator = ':';
-		else if (classpath.indexOf(';') != -1)
-			separator = ';';
-		else
-			return Lists.newArrayList(new File(classpath));
+		String separator = System.getProperty("path.separator");
 
 		List<File> files  = new ArrayList<>();
 		int start = 0;
