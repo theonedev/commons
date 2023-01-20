@@ -387,8 +387,10 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 					TarArchiveEntry entry = new TarArchiveEntry(basePath);
 					if (file.isFile()) {
 						entry.setSize(file.length());
-						if (executableFiles == null && file.canExecute() || executableFiles.contains(file))
+						if (executableFiles != null && executableFiles.contains(file)
+								|| executableFiles == null && file.canExecute()) {
 							entry.setMode(entry.getMode() | 0000100);
+						}
 						entry.setModTime(file.lastModified());
 					}
 					
