@@ -73,7 +73,7 @@ public class Bootstrap {
 			if (loadedFrom.getParentFile().getName().equals("boot"))
 				launchDir = loadedFrom.getParentFile().getParentFile();
 			else if (new File("server-product/target/sandbox").exists())
-				launchDir = new File("server-product/target/sandbox");
+				launchDir = new File("server-product/target/sandbox").getAbsoluteFile();
 			else if (new File("target/sandbox").exists())
 				launchDir = new File("target/sandbox").getAbsoluteFile();
 			else
@@ -84,7 +84,7 @@ public class Bootstrap {
 				installDir = new File(installPath);
 			else 
 				installDir = launchDir;
-			
+
 			File testFile = new File(installDir, "test");
 			try (OutputStream os = new FileOutputStream(testFile)){
 				os.write(UUID.randomUUID().toString().getBytes());
