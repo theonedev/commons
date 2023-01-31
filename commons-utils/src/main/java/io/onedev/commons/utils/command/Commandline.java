@@ -44,6 +44,8 @@ public class Commandline implements Serializable {
     private long timeout; // timeout in seconds
 
     private PtyMode ptyMode;
+
+	private ProcessKiller processKiller = new ProcessTreeKiller();
     
     private Map<String, String> environments = new HashMap<String, String>();
     
@@ -90,6 +92,15 @@ public class Commandline implements Serializable {
     public PtyMode ptyMode() {
     	return ptyMode;
     }
+
+	public Commandline processKiller(ProcessKiller processKiller) {
+		this.processKiller = processKiller;
+		return this;
+	}
+
+	public ProcessKiller processKiller() {
+		return processKiller;
+	}
     
     public String executable() {
     	return executable;
@@ -217,21 +228,11 @@ public class Commandline implements Serializable {
 
     	return processBuilder;
     }
-	
+
 	public ExecutionResult execute(@Nullable OutputStream output, @Nullable LineConsumer error) {
 		return execute(output, error, null);
 	}
-	
-	public ExecutionResult execute(@Nullable OutputStream output, @Nullable LineConsumer error, 
-			@Nullable InputStream input) {
-		return execute(output, error, input, new ProcessTreeKiller());
-	}
-	
-	public ExecutionResult execute(@Nullable OutputStream output, @Nullable OutputStream error, 
-			@Nullable InputStream input) {
-		return execute(output, error, input, new ProcessTreeKiller());
-	}
-	
+
 	/**
 	 * Execute the command.
 	 * 
@@ -245,7 +246,7 @@ public class Commandline implements Serializable {
 	 * 			execution result
 	 */
 	public ExecutionResult execute(@Nullable OutputStream output, @Nullable LineConsumer error, 
-			@Nullable InputStream input, ProcessKiller processKiller) {
+			@Nullable InputStream input) {
 		if (error != null) {
 			ErrorCollector errorCollector = new ErrorCollector(error.getEncoding()) {
 
@@ -256,27 +257,22 @@ public class Commandline implements Serializable {
 				}
 				
 			};
-			ExecutionResult result = execute(output, (OutputStream)errorCollector, input, processKiller);
+			ExecutionResult result = execute(output, (OutputStream)errorCollector, input);
 			result.setStderr(errorCollector.getMessage());
 	        return result;
 		} else {
-			return execute(output, (OutputStream)null, input, processKiller);
+			return execute(output, (OutputStream)null, input);
 		}
     }
     
-	public ExecutionResult execute(@Nullable OutputStream output, @Nullable OutputStream error, 
-			@Nullable InputStream input, ProcessKiller processKiller) {
-		return execute(new PumpInputToOutput(output), new PumpInputToOutput(error), 
-				new PumpOutputFromInput(input), processKiller);
+	public ExecutionResult execute(@Nullable OutputStream output, @Nullable OutputStream error,
+			@Nullable InputStream input) {
+		return execute(new PumpInputToOutput(output), new PumpInputToOutput(error),
+				new PumpOutputFromInput(input));
 	}
-	
-	public ExecutionResult execute(InputStreamHandler inputHandler, InputStreamHandler errorHandler, 
+
+	public ExecutionResult execute(InputStreamHandler inputHandler, InputStreamHandler errorHandler,
 			OutputStreamHandler outputHandler) {
-		return execute(inputHandler, errorHandler, outputHandler, new ProcessTreeKiller());
-	}
-	
-	public ExecutionResult execute(InputStreamHandler inputHandler, InputStreamHandler errorHandler, 
-			OutputStreamHandler outputHandler, ProcessKiller processKiller) {
     	String executionId = UUID.randomUUID().toString();
     	
     	Process process;
