@@ -325,6 +325,10 @@ public class Bootstrap {
 	public static File getConfDir() {
 		return new File(installDir, "conf");
 	}
+
+	public static File getTrustCertsDir() {
+		return new File(getConfDir(), "trust-certs");
+	}
 	
 	public static File getSiteDir() {
 		return new File(installDir, "site");
