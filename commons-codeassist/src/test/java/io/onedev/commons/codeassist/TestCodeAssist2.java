@@ -70,7 +70,7 @@ public class TestCodeAssist2 {
 		suggestions = codeAssist.suggest(new InputStatus("branch"), "query");
 		assertEquals(5, suggestions.size());
 		assertEquals("branch(:7", suggestions.get(0).toString());
-		assertEquals("branch(main):14", suggestions.get(1).toString());
+		assertEquals("branch(main):12", suggestions.get(1).toString());
 		assertEquals("branch(dev):11", suggestions.get(2).toString());
 		assertEquals("branch(feature1):16", suggestions.get(3).toString());
 		assertEquals("branch(feature2):16", suggestions.get(4).toString());
@@ -88,8 +88,8 @@ public class TestCodeAssist2 {
 		
 		suggestions = codeAssist.suggest(new InputStatus("branch(main)"), "revisionCriteria");
 		assertEquals(2, suggestions.size());
-		assertEquals("branch(main)..:16", suggestions.get(0).toString());
-		assertEquals("branch(main)...:17", suggestions.get(1).toString());
+		assertEquals("branch(main)..:14", suggestions.get(0).toString());
+		assertEquals("branch(main)...:15", suggestions.get(1).toString());
 		
 		suggestions = codeAssist.suggest(new InputStatus("br"), "query");
 		assertEquals(1, suggestions.size());
@@ -97,7 +97,7 @@ public class TestCodeAssist2 {
 
 		suggestions = codeAssist.suggest(new InputStatus("branch("), "query");
 		assertEquals(4, suggestions.size());
-		assertEquals("branch(main):14", suggestions.get(0).toString());
+		assertEquals("branch(main):12", suggestions.get(0).toString());
 		assertEquals("branch(dev):11", suggestions.get(1).toString());
 		assertEquals("branch(feature1):16", suggestions.get(2).toString());
 		assertEquals("branch(feature2):16", suggestions.get(3).toString());
@@ -113,7 +113,7 @@ public class TestCodeAssist2 {
 		
 		suggestions = codeAssist.suggest(new InputStatus("branch(main)ta"), "query");
 		assertEquals(1, suggestions.size());
-		assertEquals("branch(main)tag(:18", suggestions.get(0).toString());
+		assertEquals("branch(main)tag(:16", suggestions.get(0).toString());
 	}
 	
 }
