@@ -36,7 +36,7 @@ public abstract class TaskLogger {
 		log(message, (String)null);
 	}
 	
-	public void error(String message, Throwable t) {
+	public void error(@Nullable String message, Throwable t) {
 		log(wrapWithAnsiError(toString(message, t)));
 	}
 
