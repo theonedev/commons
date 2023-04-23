@@ -324,7 +324,7 @@
 		<slf4j.version>1.7.36</slf4j.version>
 		<logback.version>1.2.11</logback.version>
 		<antlr.version>4.7.2</antlr.version>
-		<jetty.version>9.4.51.v20230217</jetty.version>
+		<jetty.version>10.0.14</jetty.version>
 		<wicket.version>7.17.0</wicket.version>
 		<guice.version>5.1.0</guice.version>
 	</properties>
