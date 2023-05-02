@@ -41,7 +41,7 @@ public class AppLoader implements Lifecycle {
 	
 	@Override
 	public void start() {
-		logger.info("Starting server...");
+		logger.info("Starting application...");
 		
 		OverriddenModuleBuilder builder = Modules.override(new AppLoaderModule());
 		
@@ -62,7 +62,7 @@ public class AppLoader implements Lifecycle {
 
 	@Override
 	public void stop() {
-		logger.info("Stopping server...");
+		logger.info("Stopping application...");
 		if (injector != null)
 			injector.getInstance(PluginManager.class).stop();
 	}
