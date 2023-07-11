@@ -147,9 +147,11 @@ public class Bootstrap {
 					extractPluginLibs(getLibDir(), pluginLibsDir);
 				}
 
-				File siteLibDir = new File(getSiteDir(), "lib");
-				libFiles.addAll(getLibFiles(siteLibDir));
-				extractPluginLibs(siteLibDir, pluginLibsDir);
+				if (command == null || !command.getName().equals("upgrade")) {
+					File siteLibDir = new File(getSiteDir(), "lib");
+					libFiles.addAll(getLibFiles(siteLibDir));
+					extractPluginLibs(siteLibDir, pluginLibsDir);
+				}
 
 				libFiles.addAll(getLibFiles(pluginLibsDir));
 
