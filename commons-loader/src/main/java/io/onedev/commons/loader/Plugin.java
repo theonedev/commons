@@ -1,5 +1,6 @@
 package io.onedev.commons.loader;
 
+import java.util.Date;
 import java.util.Set;
 
 import io.onedev.commons.utils.DependencyAware;
@@ -15,6 +16,8 @@ public interface Plugin extends DependencyAware<String> {
 	String getVersion();
 
 	String getDescription();
+
+	Date getDate();
 	
 	boolean isProduct();
 

@@ -135,6 +135,7 @@ public class AppLoader implements Lifecycle {
 						
 						pluginModule.setPluginId(pluginId);
 						pluginModule.setPluginName(pluginProps.getProperty("name"));
+						pluginModule.setPluginDate(new Date(Long.parseLong(pluginProps.getProperty("timestamp"))));
 						pluginModule.setPluginDescription(pluginProps.getProperty("description"));
 						pluginModule.setPluginVendor(pluginProps.getProperty("vendor"));
 						pluginModule.setPluginVersion(pluginProps.getProperty("version"));

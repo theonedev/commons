@@ -1,5 +1,6 @@
 package io.onedev.commons.loader;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,6 +27,8 @@ public abstract class AbstractPluginModule extends AbstractModule implements Dep
 	private String pluginName;
 	
 	private String pluginDescription;
+
+	private Date pluginDate;
 	
 	private boolean product;
 	
@@ -58,6 +61,7 @@ public abstract class AbstractPluginModule extends AbstractModule implements Dep
 							plugin.setVendor(pluginVendor);
 							plugin.setVersion(pluginVersion);
 							plugin.setDescription(pluginDescription);
+							plugin.setDate(pluginDate);
 							plugin.setProduct(product);
 							plugin.setDependencyIds(pluginDependencies);
 						}
@@ -94,7 +98,12 @@ public abstract class AbstractPluginModule extends AbstractModule implements Dep
 					return pluginDescription;
 				}
 
-				public boolean isProduct() {
+                @Override
+                public Date getDate() {
+                    return pluginDate;
+                }
+
+                public boolean isProduct() {
 					return product;
 				}
 
@@ -145,6 +154,10 @@ public abstract class AbstractPluginModule extends AbstractModule implements Dep
 
 	public void setPluginDescription(String pluginDescription) {
 		this.pluginDescription = pluginDescription;
+	}
+
+	public void setPluginDate(Date pluginDate) {
+		this.pluginDate = pluginDate;
 	}
 
 	public void setPluginDependencies(Set<String> pluginDependencies) {
