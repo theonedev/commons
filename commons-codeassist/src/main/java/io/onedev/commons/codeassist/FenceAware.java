@@ -83,12 +83,10 @@ public abstract class FenceAware {
 	private InputSuggestion suggestToFence(TerminalExpect terminalExpect, String matchWith) {
 		if (matchWith.length() != 0) {
 			String content = open + matchWith + close;
-			if (terminalExpect.getElementSpec().matches(grammar, content)) {
-				LinearRange match = new LinearRange(1, content.length()-1);
-				return new InputSuggestion(content, -1, getFencingDescription(), match);
-			} else {
+			if (terminalExpect.getElementSpec().matches(grammar, content))
+				return new InputSuggestion(content, -1, getFencingDescription(), null);
+			else
 				return null;
-			}
 		} else {
 			return new InputSuggestion(String.valueOf(open), -1, null, null);
 		}
