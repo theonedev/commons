@@ -25,7 +25,7 @@ import io.onedev.commons.codeassist.grammar.RuleSpec;
 import io.onedev.commons.codeassist.grammar.TerminalElementSpec;
 
 /**
- * A Earley parser (https://en.wikipedia.org/wiki/Earley_parser) to parse user inputs. 
+ * An Earley parser (https://en.wikipedia.org/wiki/Earley_parser) to parse user inputs.
  * It is very suited for code assistance purpose as it can provide partial 
  * parse results and tell us what terminals are expected next. Note that for large 
  * inputs (thousands of lines for example), our earley implementation performs bad 
