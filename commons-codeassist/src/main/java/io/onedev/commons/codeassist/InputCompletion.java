@@ -26,6 +26,7 @@ public class InputCompletion extends InputStatus {
 		return label;
 	}
 
+	@Nullable
 	public String getDescription() {
 		return description;
 	}
