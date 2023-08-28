@@ -9,13 +9,16 @@ options { tokenVocab=CSharpLexer; }
 // entry point
 compilation_unit
 	: BYTE_ORDER_MARK? extern_alias_directives? using_directives?
+	  file_namespace?
 	  global_attribute_section* namespace_member_declarations? EOF
 	;
 
 //B.2 Syntactic grammar
 
 //B.2.1 Basic concepts
-
+file_namespace
+    : NAMESPACE qualified_identifier ';'
+    ;
 namespace_or_type_name 
 	: (identifier type_argument_list? | qualified_alias_member) ('.' identifier type_argument_list?)*
 	;

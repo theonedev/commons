@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import io.onedev.commons.jsymbol.csharp.CSharpParser.*;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -26,49 +27,6 @@ import com.google.common.base.Joiner;
 
 import io.onedev.commons.jsymbol.AbstractSymbolExtractor;
 import io.onedev.commons.utils.PlanarRange;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.All_member_modifierContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.All_member_modifiersContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Arg_declarationContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Class_definitionContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Class_member_declarationContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Common_member_declarationContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Compilation_unitContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Constant_declarationContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Constant_declaratorContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Constructor_declarationContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Conversion_operator_declaratorContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Delegate_definitionContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Destructor_definitionContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Enum_definitionContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Enum_member_declarationContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Event_declarationContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Field_declarationContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Fixed_parameterContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Fixed_parametersContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Fixed_size_buffer_declaratorContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Formal_parameter_listContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.IdentifierContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Indexer_declarationContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Interface_definitionContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Interface_member_declarationContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Method_declarationContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Namespace_declarationContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Namespace_member_declarationContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Namespace_member_declarationsContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Namespace_or_type_nameContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Operator_declarationContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Property_declarationContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Return_typeContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Struct_definitionContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Struct_member_declarationContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.TypeContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Type_declarationContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Type_parameterContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Type_parameter_listContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Typed_member_declarationContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Variable_declaratorContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Variant_type_parameterContext;
-import io.onedev.commons.jsymbol.csharp.CSharpParser.Variant_type_parameter_listContext;
 import io.onedev.commons.jsymbol.csharp.symbols.CSharpSymbol;
 import io.onedev.commons.jsymbol.csharp.symbols.FieldSymbol;
 import io.onedev.commons.jsymbol.csharp.symbols.MethodSymbol;
@@ -90,13 +48,42 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 		parser.removeErrorListeners();
 		parser.addErrorListener(newErrorListener());
 		clearParserCache(parser);
-		
-		Compilation_unitContext compilationUnit = parser.compilation_unit();
 
-		extract(compilationUnit.namespace_member_declarations(), symbols, null, fileContent);
+		Compilation_unitContext compilationUnit = parser.compilation_unit();
+		var fileNamespace = compilationUnit.file_namespace();
+		CSharpSymbol parentSymbol = null;
+		if (fileNamespace != null) {
+			parentSymbol = extractNamespaceNames(fileNamespace.qualified_identifier(),
+					Utils.getTextRange(fileNamespace), symbols, null);
+		}
+
+		extract(compilationUnit.namespace_member_declarations(), symbols, parentSymbol, fileContent);
 		return symbols;
 	}
-	
+
+	private CSharpSymbol extractNamespaceNames(Qualified_identifierContext qualifiedIdentifier, PlanarRange scope,
+									   List<CSharpSymbol> symbols, @Nullable CSharpSymbol parentSymbol) {
+		for (IdentifierContext identifier: qualifiedIdentifier.identifier()) {
+			String namespaceName = getText(identifier);
+			NamespaceSymbol namespaceSymbol = null;
+			for (CSharpSymbol symbol: symbols) {
+				if (symbol instanceof NamespaceSymbol
+						&& symbol.getParent() == parentSymbol
+						&& symbol.getName().equals(namespaceName)) {
+					namespaceSymbol = (NamespaceSymbol) symbol;
+					break;
+				}
+			}
+			if (namespaceSymbol == null) {
+				PlanarRange position = Utils.getTextRange(identifier);
+				namespaceSymbol = new NamespaceSymbol(parentSymbol, namespaceName, position, scope);
+				symbols.add(namespaceSymbol);
+			}
+			parentSymbol = namespaceSymbol;
+		}
+		return parentSymbol;
+	}
+
 	private void extract(@Nullable Namespace_member_declarationsContext namespaceMemberDeclarations, 
 			List<CSharpSymbol> symbols, @Nullable CSharpSymbol parentSymbol, String source) {
 		if (namespaceMemberDeclarations != null) {
@@ -104,27 +91,9 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 					namespaceMemberDeclarations.namespace_member_declaration()) {
 				if (namespaceMemberDeclaration.namespace_declaration() != null) {
 					Namespace_declarationContext namespaceDeclaration = namespaceMemberDeclaration.namespace_declaration();
-					CSharpSymbol newParentSymbol = parentSymbol;
-					for (IdentifierContext identifier: namespaceDeclaration.qualified_identifier().identifier()) {
-						String namespaceName = getText(identifier);
-						NamespaceSymbol namespaceSymbol = null;
-						for (CSharpSymbol symbol: symbols) {
-							if (symbol instanceof NamespaceSymbol 
-									&& symbol.getParent() == newParentSymbol 
-									&& symbol.getName().equals(namespaceName)) {
-								namespaceSymbol = (NamespaceSymbol) symbol;
-								break;
-							}
-						}
-						if (namespaceSymbol == null) {
-							PlanarRange position = Utils.getTextRange(identifier);
-							PlanarRange scope = Utils.getTextRange(namespaceDeclaration);
-							namespaceSymbol = new NamespaceSymbol(newParentSymbol, namespaceName, position, scope);
-							symbols.add(namespaceSymbol);
-						}
-						newParentSymbol = namespaceSymbol;
-					}
-					extract(namespaceDeclaration.namespace_body().namespace_member_declarations(), symbols, 
+					CSharpSymbol newParentSymbol = extractNamespaceNames(namespaceDeclaration.qualified_identifier(),
+							Utils.getTextRange(namespaceDeclaration), symbols, parentSymbol);
+					extract(namespaceDeclaration.namespace_body().namespace_member_declarations(), symbols,
 							newParentSymbol, source);
 				} else {
 					Type_declarationContext typeDeclaration = namespaceMemberDeclaration.type_declaration();
@@ -593,7 +562,7 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 
 	@Override
 	public int getVersion() {
-		return 1;
+		return 2;
 	}
 
 }
