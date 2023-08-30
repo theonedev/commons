@@ -107,9 +107,11 @@ public class LockUtils {
      * 			return value of the callable
      */
     public static <T> T read(String name, boolean fair, Callable<T> callable) {
-    	Lock lock = getReadWriteLock(name, fair).readLock();
+		// must remain lock variable explicitly until lock is released, as otherwise
+		// the lock will be GCed due to weak reference
+		var lock = getReadWriteLock(name, fair);
 		try {
-			lock.lockInterruptibly();
+			lock.readLock().lockInterruptibly();
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
@@ -118,7 +120,7 @@ public class LockUtils {
     	} catch (Exception e) {
     		throw new RuntimeException(e);
 		} finally {
-    		lock.unlock();
+			lock.readLock().unlock();
     	}
     }
 
@@ -137,9 +139,11 @@ public class LockUtils {
      * 			return value of the callable
      */
     public static <T> T write(String name, boolean fair, Callable<T> callable) {
-    	Lock lock = getReadWriteLock(name, fair).writeLock();
+		// must remain lock variable explicitly until lock is released, as otherwise
+		// the lock will be GCed due to weak reference
+		var lock = getReadWriteLock(name, fair);
 		try {
-			lock.lockInterruptibly();
+			lock.writeLock().lockInterruptibly();
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
@@ -148,7 +152,7 @@ public class LockUtils {
     	} catch (Exception e) {
     		throw new RuntimeException(e);
 		} finally {
-    		lock.unlock();
+			lock.writeLock().unlock();
     	}
     }
 
