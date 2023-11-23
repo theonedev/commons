@@ -200,8 +200,6 @@ public class EarleyParser {
 	/**
 	 * Get the next token index after the match. 
 	 * 
-	 * @param tokens
-	 * 			tokens to match against
 	 * @return
 	 * 			index of next token after the match, or 0 if the rule does not match any tokens
 	 */

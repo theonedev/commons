@@ -61,8 +61,8 @@ public abstract class CodeAssist implements Serializable {
 	 * @param tokenFile
 	 * 			generated tokens file in class path, relative to class path root
 	 */
-	public CodeAssist(Class<? extends Lexer> lexerClass, String grammarFiles[], 
-			String tokenFile, boolean findAllPaths) {
+	public CodeAssist(Class<? extends Lexer> lexerClass, String[] grammarFiles,
+					  String tokenFile, boolean findAllPaths) {
 		this(new Grammar(lexerClass, grammarFiles, tokenFile), findAllPaths);
 	}
 	
@@ -116,6 +116,8 @@ public abstract class CodeAssist implements Serializable {
 		
 		String inputContent = inputStatus.getContent();
 		for (TerminalExpect terminalExpect: parser.buildParseExpects(findAllPaths)) {
+			if (terminalExpect.getUnmatchedText().startsWith(" "))
+				continue;
 			List<InputSuggestion> inputSuggestions = suggest(terminalExpect);
 			if (inputSuggestions == null) {
 				// no suggestions, let's see if we can provide some default suggestions 
@@ -205,11 +207,7 @@ public abstract class CodeAssist implements Serializable {
 				continue;
 			}
 			String content = inputStatus.replace(suggestion.getReplaceRange(), suggestion.getContent());
-			List<ExtendedInputSuggestion> value = contentSuggestions.get(content);
-			if (value == null) {
-				value = new ArrayList<>();
-				contentSuggestions.put(content, value);
-			}
+			List<ExtendedInputSuggestion> value = contentSuggestions.computeIfAbsent(content, k -> new ArrayList<>());
 			value.add(suggestion);
 		}
 		
@@ -240,23 +238,18 @@ public abstract class CodeAssist implements Serializable {
 			
 		}
 		
-		Collections.sort(inputCompletions, new Comparator<InputCompletion>() {
+		inputCompletions.sort((o1, o2) -> {
+			int matchPercent1, matchPercent2;
+			if (o1.getMatch() != null)
+				matchPercent1 = o1.getMatch().getLength() * 100 / o1.getLabel().length();
+			else
+				matchPercent1 = 0;
+			if (o2.getMatch() != null)
+				matchPercent2 = o2.getMatch().getLength() * 100 / o2.getLabel().length();
+			else
+				matchPercent2 = 0;
 
-			@Override
-			public int compare(InputCompletion o1, InputCompletion o2) {
-				int matchPercent1, matchPercent2;
-				if (o1.getMatch() != null)
-					matchPercent1 = o1.getMatch().getLength()*100/o1.getLabel().length();
-				else
-					matchPercent1 = 0;
-				if (o2.getMatch() != null)
-					matchPercent2 = o2.getMatch().getLength()*100/o2.getLabel().length();
-				else
-					matchPercent2 = 0;
-
-				return matchPercent2 - matchPercent1;
-			}
-			
+			return matchPercent2 - matchPercent1;
 		});
 		
 		return inputCompletions;
