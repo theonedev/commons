@@ -116,6 +116,7 @@ public abstract class CodeAssist implements Serializable {
 		
 		String inputContent = inputStatus.getContent();
 		for (TerminalExpect terminalExpect: parser.buildParseExpects(findAllPaths)) {
+			// Fix issue onedev/server#1658
 			if (terminalExpect.getUnmatchedText().startsWith(" "))
 				continue;
 			List<InputSuggestion> inputSuggestions = suggest(terminalExpect);
