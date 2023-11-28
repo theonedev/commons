@@ -26,14 +26,10 @@ public class Bootstrap {
 
 	private static final Logger logger = LoggerFactory.getLogger(Bootstrap.class);
 
-	public static final int BUFFER_SIZE = 64*1024;
-	
-	public static final int SOCKET_CONNECT_TIMEOUT = 60000;
+	private static final int BUFFER_SIZE = 64*1024;
 
 	public static final String LOGBACK_CONFIG_FILE_PROPERTY_NAME = "logback.configurationFile";
 
-	private static final String BOOTSTRAP = "io.onedev.commons.bootstrap.Bootstrap";
-	
 	public static final String APP_LOADER = "io.onedev.commons.loader.AppLoader";
 	
 	private static final String PROP_INSTALL_DIR = "installDir";
@@ -138,7 +134,12 @@ public class Bootstrap {
 
 				System.setProperty("java.io.tmpdir", tempDir.getAbsolutePath());
 
-				File pluginLibsDir = createTempDir("libcache");
+				File pluginLibsDir;
+				try {
+					pluginLibsDir = Files.createTempDirectory(tempDir.toPath(), "libCache").toFile();
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
 
 				List<File> libFiles = new ArrayList<>();
 
@@ -218,28 +219,6 @@ public class Bootstrap {
 			} 
 		}
 	}
-	
-    public static File createTempDir(String prefix) {
-        File temp;
-
-        try {
-			temp = File.createTempFile(prefix, "");
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-
-        if (!temp.delete())
-            throw new RuntimeException("Could not delete temp file: " + temp.getAbsolutePath());
-
-        if (!temp.mkdirs())
-            throw new RuntimeException("Could not create temp directory: " + temp.getAbsolutePath());
-
-        return temp;    
-    }
-    
-    public static File createTempDir() {
-    	return createTempDir("temp");
-    }
 
 	private static List<File> getLibFiles(File libDir) {
 		List<File> libFiles = new ArrayList<>();
@@ -365,7 +344,7 @@ public class Bootstrap {
 	 * 			destination directory to extract files to
 	 */
 	public static void unzip(InputStream is, File destDir) {
-		ZipInputStream zis = new ZipInputStream(new BufferedInputStream(is, BUFFER_SIZE));		
+		ZipInputStream zis = new ZipInputStream(new BufferedInputStream(is, BUFFER_SIZE));
 	    try {
 		    ZipEntry entry;
 		    while((entry = zis.getNextEntry()) != null) {
@@ -375,7 +354,7 @@ public class Bootstrap {
 				    try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(new File(destDir, entry.getName())), BUFFER_SIZE);) {
 				        int count;
 				        byte data[] = new byte[BUFFER_SIZE];
-				        while ((count = zis.read(data, 0, BUFFER_SIZE)) != -1) 
+				        while ((count = zis.read(data, 0, BUFFER_SIZE)) != -1)
 				        	bos.write(data, 0, count);
 				        bos.flush();
 				    }
@@ -391,11 +370,11 @@ public class Bootstrap {
             if (dir.isFile()) {
                 throw new RuntimeException("Unable to create directory since the path " +
                 		"is already used by a file: " + dir.getAbsolutePath());
-            } 
+            }
 		} else if (!dir.mkdirs()) {
             if (!dir.exists())
                 throw new RuntimeException("Unable to create directory: " + dir.getAbsolutePath());
 		}
 	}
-	
+
 }

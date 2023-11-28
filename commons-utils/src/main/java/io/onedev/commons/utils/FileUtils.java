@@ -1,32 +1,8 @@
 package io.onedev.commons.utils;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.Serializable;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.Callable;
-import java.util.concurrent.locks.Lock;
-import java.util.zip.Deflater;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipOutputStream;
-
-import javax.annotation.Nullable;
-
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
+import io.onedev.commons.bootstrap.Bootstrap;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
@@ -40,14 +16,22 @@ import org.apache.tools.ant.types.ZipFileSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-
-import io.onedev.commons.bootstrap.Bootstrap;
+import javax.annotation.Nullable;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.Callable;
+import java.util.concurrent.locks.Lock;
+import java.util.zip.*;
 
 public class FileUtils extends org.apache.commons.io.FileUtils {
-	
+
+	private static final int BUFFER_SIZE = 64*1024;
+
 	private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);
-	
+
 	/**
 	 * Load properties from specified path inside specified directory or jar file. 
 	 * @param file
@@ -146,7 +130,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 		File tempFile = null;
 		try {
 			FileUtils.createDir(dir);
-			tempFile = File.createTempFile("test", "test", dir);
+			tempFile = createTempFile("test", "test", dir);
 			return true;
 		} catch (Exception e) {
 			return false;
@@ -266,15 +250,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 			throw new RuntimeException(e);
 		}
 	}
-	
-    public static File createTempDir(String prefix) {
-    	return Bootstrap.createTempDir(prefix);
-    }
-    
-    public static File createTempDir() {
-    	return createTempDir("temp");
-    }
-    
+
 	public static void createDir(File dir) {
 		Bootstrap.createDir(dir);
 	}
@@ -360,14 +336,14 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 		if (excludes == null)
 			excludes = new HashSet<>();
 
-		byte data[] = new byte[Bootstrap.BUFFER_SIZE];
+		byte data[] = new byte[BUFFER_SIZE];
 
 		TarArchiveOutputStream tos = null;
 		try {
 			if (compress)
-				tos = new TarArchiveOutputStream(new GZIPOutputStream(new BufferedOutputStream(os, Bootstrap.BUFFER_SIZE), Bootstrap.BUFFER_SIZE));
+				tos = new TarArchiveOutputStream(new GZIPOutputStream(new BufferedOutputStream(os, BUFFER_SIZE), BUFFER_SIZE));
 			else
-				tos = new TarArchiveOutputStream(new BufferedOutputStream(os, Bootstrap.BUFFER_SIZE));
+				tos = new TarArchiveOutputStream(new BufferedOutputStream(os, BUFFER_SIZE));
 			tos.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
 			tos.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_STAR);
 			if (baseDir.exists()) {
@@ -420,13 +396,13 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 	}
 	
 	public static void untar(InputStream is, File destDir, boolean compressed) {
-	    byte data[] = new byte[Bootstrap.BUFFER_SIZE];
+	    byte data[] = new byte[BUFFER_SIZE];
 	    TarArchiveInputStream tis = null;
 		try {
 		    if (compressed)
-		    	tis = new TarArchiveInputStream(new GZIPInputStream(new BufferedInputStream(is, Bootstrap.BUFFER_SIZE), Bootstrap.BUFFER_SIZE));
+		    	tis = new TarArchiveInputStream(new GZIPInputStream(new BufferedInputStream(is, BUFFER_SIZE), BUFFER_SIZE));
 		    else
-		    	tis = new TarArchiveInputStream(new BufferedInputStream(is, Bootstrap.BUFFER_SIZE));
+		    	tis = new TarArchiveInputStream(new BufferedInputStream(is, BUFFER_SIZE));
 			TarArchiveEntry entry;
 			while((entry = tis.getNextTarEntry()) != null) {
 				if (entry.getName().contains("..")) 
@@ -441,7 +417,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 					if (destFile.exists()) 
 						FileUtils.deleteFile(destFile);
 					
-				    try (OutputStream bos = new BufferedOutputStream(new FileOutputStream(destFile), Bootstrap.BUFFER_SIZE)) {
+				    try (OutputStream bos = new BufferedOutputStream(new FileOutputStream(destFile), BUFFER_SIZE)) {
 				        while((count = tis.read(data)) != -1) 
 				        	bos.write(data, 0, count);
 				        if ((entry.getMode() & 0000100) != 0)
@@ -543,7 +519,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
      * @param dir
      */
     public static void zip(File dir, OutputStream os) {
-    	try (ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(os, Bootstrap.BUFFER_SIZE))) {
+    	try (ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(os, BUFFER_SIZE))) {
 			zos.setLevel(Deflater.DEFAULT_COMPRESSION);
 			zip(zos, dir, "");
     	} catch (IOException e) {
@@ -552,7 +528,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     }
     
     private static void zip(ZipOutputStream zos, File dir, String basePath) {
-		byte buffer[] = new byte[Bootstrap.BUFFER_SIZE];
+		byte buffer[] = new byte[BUFFER_SIZE];
 		
 		try {
 			if (basePath.length() != 0)
@@ -605,5 +581,33 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 	public static void unzip(InputStream is, File destDir) {
 		Bootstrap.unzip(is, destDir);
 	} 		
-	
+
+	public static File getTempDir() {
+		return new File(System.getProperty("java.io.tmpdir"));
+	}
+
+	public static File createTempFile(String prefix, String suffix) {
+		return createTempFile(prefix, suffix, getTempDir());
+	}
+
+	public static File createTempFile(String prefix, String suffix, File directory) {
+		try {
+			return File.createTempFile(prefix, suffix, directory);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static File createTempDir(String prefix) {
+		try {
+			return Files.createTempDirectory(getTempDir().toPath(), prefix).toFile();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static File createTempDir() {
+		return createTempDir("dir");
+	}
+
 }
