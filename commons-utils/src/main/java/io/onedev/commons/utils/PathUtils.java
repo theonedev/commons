@@ -1,5 +1,6 @@
 package io.onedev.commons.utils;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
@@ -276,5 +277,9 @@ public class PathUtils {
 		else
 			return path;
 	}
-	
+
+	public static boolean isSubPath(String path) {
+		return !path.contains("..") && !new File(path).isAbsolute();
+	}
+
 }
