@@ -91,11 +91,25 @@ public class LockUtils {
     		lock.unlock();
     	}
     }
-    
+
+	public static void run(String name, boolean fair, Runnable runnable) {
+		call(name, fair, () -> {
+			runnable.run();
+			return null;
+		});
+	}
+
     public static <T> T call(String name, Callable<T> callable) {
     	return call(name, false, callable);
     }
-    
+
+	public static void run(String name, Runnable runnable) {
+		call(name, false, () -> {
+			runnable.run();
+			return null;
+		});
+	}
+
     /**
      * Execute specified callable in read lock of specified name.
      * 
@@ -124,9 +138,23 @@ public class LockUtils {
     	}
     }
 
+	public static void read(String name, boolean fair, Runnable runnable) {
+		read(name, fair, () -> {
+			runnable.run();
+			return null;
+		});
+	}
+
     public static <T> T read(String name, Callable<T> callable) {
     	return read(name, false, callable);
     }
+
+	public static void read(String name, Runnable runnable) {
+		read(name, () -> {
+			runnable.run();
+			return null;
+		});
+	}
     
     /**
      * Execute specified callable in write lock of specified name.
@@ -156,8 +184,22 @@ public class LockUtils {
     	}
     }
 
+	public static void write(String name, boolean fair, Runnable runnable) {
+		write(name, fair, () -> {
+			runnable.run();
+			return null;
+		});
+	}
+
     public static <T> T write(String name, Callable<T> callable) {
     	return write(name, false, callable);
     }
-    
+
+	public static void write(String name, Runnable runnable) {
+		write(name, () -> {
+			runnable.run();
+			return null;
+		});
+	}
+
 }
