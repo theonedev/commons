@@ -1,18 +1,7 @@
 package io.onedev.commons.utils;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Sets;
 import io.onedev.commons.bootstrap.Bootstrap;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
-import org.apache.commons.lang3.SerializationUtils;
-import org.apache.tools.ant.BuildEvent;
-import org.apache.tools.ant.BuildListener;
 import org.apache.tools.ant.DirectoryScanner;
-import org.apache.tools.ant.Project;
-import org.apache.tools.ant.taskdefs.Zip;
-import org.apache.tools.ant.types.ZipFileSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,15 +9,18 @@ import javax.annotation.Nullable;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map.Entry;
-import java.util.concurrent.Callable;
-import java.util.concurrent.locks.Lock;
-import java.util.zip.*;
+import java.util.Properties;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+
+import static java.nio.file.Files.isSymbolicLink;
+import static java.util.Arrays.asList;
 
 public class FileUtils extends org.apache.commons.io.FileUtils {
-
-	private static final int BUFFER_SIZE = 64*1024;
 
 	private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);
 
@@ -160,21 +152,22 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
      * 			if its path matches the pattern
      */
     public static Collection<File> listFiles(File baseDir, Collection<String> includes, Collection<String> excludes) {
-    	Collection<File> files = new ArrayList<File>();
-    	
-    	DirectoryScanner scanner = new DirectoryScanner();
-    	scanner.setBasedir(baseDir);
-    	scanner.setIncludes(includes.toArray(new String[0]));
-    	scanner.setExcludes(excludes.toArray(new String[0]));
-    	scanner.scan();
-    	
-    	for (String path: scanner.getIncludedFiles()) 
-    		files.add(new File(baseDir, path));
-    	return files;
+		return listPaths(baseDir, includes, excludes).stream()
+				.map(it->new File(baseDir, it))
+				.collect(Collectors.toList());
     }
 
+	public static Collection<String> listPaths(File baseDir, Collection<String> includes, Collection<String> excludes) {
+		DirectoryScanner scanner = new DirectoryScanner();
+		scanner.setBasedir(baseDir);
+		scanner.setIncludes(includes.toArray(new String[0]));
+		scanner.setExcludes(excludes.toArray(new String[0]));
+		scanner.scan();
+		return asList(scanner.getIncludedFiles());
+	}
+
     public static void deleteDir(File dir) {
-    	if (Files.isSymbolicLink(dir.toPath())) {
+    	if (isSymbolicLink(dir.toPath())) {
     		deleteFile(dir);
     	} else if (dir.exists()) {
     		cleanDir(dir);
@@ -264,323 +257,11 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 	        		deleteFile(file);
 	        }
 		} else {
-			if (Files.isSymbolicLink(dir.toPath())) 
+			if (isSymbolicLink(dir.toPath()))
 				deleteFile(dir);
 			createDir(dir);
 		}
 	}
-	
-	@SuppressWarnings("unchecked")
-	public static <T> T readFile(File file, Callable<T> callable) {
-		T result = null;
-		String lockName;
-		try {
-			lockName = file.getCanonicalPath();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-		Lock lock = LockUtils.getReadWriteLock(lockName).readLock();
-		try {
-			lock.lockInterruptibly();
-			if (file.exists()) {
-				byte[] bytes = FileUtils.readFileToByteArray(file);
-				result = (T) SerializationUtils.deserialize(bytes);
-			}
-		} catch (Exception e) {
-			logger.error("Error reading callable result from file '" + file.getAbsolutePath() 
-					+ "', fall back to execute callable.", e);
-		} finally {
-			lock.unlock();
-		}
-		
-		if (result == null) {
-			FileUtils.createDir(file.getParentFile());
-			
-			lock = LockUtils.getReadWriteLock(lockName).writeLock();
-			try {
-				lock.lockInterruptibly();
-				Preconditions.checkNotNull(result = callable.call());
-				
-				FileUtils.writeByteArrayToFile(file, SerializationUtils.serialize((Serializable) result));
-			} catch (Exception e) {
-				throw ExceptionUtils.unchecked(e);
-			} finally {
-				lock.unlock();
-			}
-		}
-		
-		return result;
-	}
-
-	public static void tar(File baseDir, OutputStream os, boolean compress) {
-		tar(baseDir, null, os, compress);
-	}
-
-	public static void tar(File baseDir, @Nullable Collection<String> includes,
-						   OutputStream os, boolean compress) {
-		tar(baseDir, includes, null, os, compress);
-	}
-
-	public static void tar(File baseDir, @Nullable Collection<String> includes,
-						   @Nullable Collection<String> excludes, OutputStream os,
-						   boolean compress) {
-		tar(baseDir, includes, excludes, null, os, compress);
-	}
-
-	public static void tar(File baseDir, @Nullable Collection<String> includes,
-						   @Nullable Collection<String> excludes,
-						   @Nullable Collection<String> executables,
-						   OutputStream os, boolean compress) {
-		if (includes == null)
-			includes = Sets.newHashSet("**");
-		if (excludes == null)
-			excludes = new HashSet<>();
-
-		byte data[] = new byte[BUFFER_SIZE];
-
-		TarArchiveOutputStream tos = null;
-		try {
-			if (compress)
-				tos = new TarArchiveOutputStream(new GZIPOutputStream(new BufferedOutputStream(os, BUFFER_SIZE), BUFFER_SIZE));
-			else
-				tos = new TarArchiveOutputStream(new BufferedOutputStream(os, BUFFER_SIZE));
-			tos.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
-			tos.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_STAR);
-			if (baseDir.exists()) {
-				Collection<File> executableFiles = null;
-				if (executables != null)
-					executableFiles = FileUtils.listFiles(baseDir, executables, new HashSet<>());
-				for (File file: FileUtils.listFiles(baseDir, includes, excludes)) {
-		    		String basePath = PathUtils.parseRelative(file.getAbsolutePath(), baseDir.getAbsolutePath());
-		    		Preconditions.checkNotNull(basePath);
-		    		if (basePath.length() == 0)
-		    			continue;
-		    		
-		    		basePath = basePath.substring(1);
-		    		if (!file.isFile() && !basePath.endsWith("/"))
-		    			basePath += "/";
-					
-					TarArchiveEntry entry = new TarArchiveEntry(basePath);
-					if (file.isFile()) {
-						entry.setSize(file.length());
-						if (executableFiles != null && executableFiles.contains(file)
-								|| executableFiles == null && file.canExecute()) {
-							entry.setMode(entry.getMode() | 0000100);
-						}
-						entry.setModTime(file.lastModified());
-					}
-					
-					tos.putArchiveEntry(entry);
-					
-					if (file.isFile()) {
-						try (InputStream is = new FileInputStream(file)) {
-							int count;
-							while((count = is.read(data)) != -1) 
-								tos.write(data, 0, count);
-						}
-					}
-					tos.closeArchiveEntry();
-				}
-			}
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		} finally {
-			if (tos != null) {
-				try {
-					tos.close();
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		}
-	}
-	
-	public static void untar(InputStream is, File destDir, boolean compressed) {
-	    byte data[] = new byte[BUFFER_SIZE];
-	    TarArchiveInputStream tis = null;
-		try {
-		    if (compressed)
-		    	tis = new TarArchiveInputStream(new GZIPInputStream(new BufferedInputStream(is, BUFFER_SIZE), BUFFER_SIZE));
-		    else
-		    	tis = new TarArchiveInputStream(new BufferedInputStream(is, BUFFER_SIZE));
-			TarArchiveEntry entry;
-			while((entry = tis.getNextTarEntry()) != null) {
-				if (entry.getName().contains("..")) 
-					throw new RuntimeException("Upper directory is not allowed to avoid zipslip security volnerability");
-				if (!entry.getName().endsWith("/")) { 
-					File destFile = new File(destDir, entry.getName());
-					File parentFile = destFile.getParentFile();
-					FileUtils.createDir(parentFile);
-					
-					int count;
-		
-					if (destFile.exists()) 
-						FileUtils.deleteFile(destFile);
-					
-				    try (OutputStream bos = new BufferedOutputStream(new FileOutputStream(destFile), BUFFER_SIZE)) {
-				        while((count = tis.read(data)) != -1) 
-				        	bos.write(data, 0, count);
-				        if ((entry.getMode() & 0000100) != 0)
-				        	destFile.setExecutable(true);
-				    } finally {
-				        destFile.setLastModified(entry.getModTime().getTime());
-				    }
-				} else {
-					FileUtils.createDir(new File(destDir, entry.getName()));
-				}
-			}
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		} finally {
-			if (tis != null) {
-				try {
-					tis.close();
-				} catch (IOException e) {
-				}
-			}
-		}
-	}
-		
-    /**
-     * Zip specified directory recursively as specified file, with 
-     * @param dir
-     * @param file
-     */
-    public static void zip(File dir, File file, @Nullable String executables) {
-		Zip zip = new Zip();
-		
-		Project antProject = new Project();
-		antProject.init();
-		antProject.addBuildListener(new BuildListener(){
-
-			@Override
-			public void messageLogged(BuildEvent event) {
-				if (event.getPriority() == Project.MSG_ERR)
-					logger.error(event.getMessage());
-				else if (event.getPriority() == Project.MSG_WARN)
-					logger.warn(event.getMessage());
-				else if (event.getPriority() == Project.MSG_INFO)
-					logger.info(event.getMessage());
-				else
-					logger.debug(event.getMessage());
-			}
-
-			@Override
-			public void buildFinished(BuildEvent event) {
-			}
-
-			@Override
-			public void buildStarted(BuildEvent event) {
-			}
-
-			@Override
-			public void targetFinished(BuildEvent event) {
-			}
-
-			@Override
-			public void targetStarted(BuildEvent event) {
-			}
-
-			@Override
-			public void taskFinished(BuildEvent event) {
-			}
-
-			@Override
-			public void taskStarted(BuildEvent event) {
-			}
-			
-		});
-		
-		zip.setProject(antProject);
-		zip.setDestFile(file);
-		
-		if (executables != null) {
-			ZipFileSet zipFileSet = new ZipFileSet();
-			zipFileSet.setDir(dir);
-			zipFileSet.setExcludes(executables);
-			zip.addZipfileset(zipFileSet);
-			
-			zipFileSet = new ZipFileSet();
-			zipFileSet.setDir(dir);
-			zipFileSet.setIncludes(executables);
-			zipFileSet.setFileMode("755");
-			zip.addZipfileset(zipFileSet);
-		} else {
-			ZipFileSet zipFileSet = new ZipFileSet();
-			zipFileSet.setDir(dir);
-			zip.addZipfileset(zipFileSet);
-		}
-		
-		zip.execute();
-    }
-    
-    /**
-     * Zip specified directory recursively as specified file.
-     * @param dir
-     */
-    public static void zip(File dir, OutputStream os) {
-    	try (ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(os, BUFFER_SIZE))) {
-			zos.setLevel(Deflater.DEFAULT_COMPRESSION);
-			zip(zos, dir, "");
-    	} catch (IOException e) {
-    		throw new RuntimeException(e);
-		}
-    }
-    
-    private static void zip(ZipOutputStream zos, File dir, String basePath) {
-		byte buffer[] = new byte[BUFFER_SIZE];
-		
-		try {
-			if (basePath.length() != 0)
-				zos.putNextEntry(new ZipEntry(basePath + "/"));
-
-			for (File file: dir.listFiles()) {
-				if (file.isDirectory()) {
-					if (basePath.length() != 0)
-						zip(zos, file, basePath + "/" + file.getName());
-					else
-						zip(zos, file, file.getName());
-				} else {
-					try (FileInputStream is = new FileInputStream(file)) {
-						if (basePath.length() != 0)
-							zos.putNextEntry(new ZipEntry(basePath + "/" + file.getName()));
-						else
-							zos.putNextEntry(new ZipEntry(file.getName()));
-						int len;
-					    while ((len = is.read(buffer)) > 0)
-					    	zos.write(buffer, 0, len);
-					}
-				}
-			}
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-    }
-    
-    /**
-	 * Unzip files matching specified matcher from specified file to specified directory.
-	 * 
-	 * @param srcFile 
-	 * 		zip file to extract from
-	 * @param 
-	 * 		destDir destination directory to extract to
-	 */
-	public static void unzip(File srcFile, File destDir) {
-		Bootstrap.unzip(srcFile, destDir);
-	} 	
-	
-	/**
-	 * Unzip files matching specified matcher from input stream to specified directory.
-	 * 
-	 * @param is
-	 * 			input stream to unzip files from. This method will not close the stream 
-	 * 			after using it. Caller should be responsible for closing
-	 * @param destDir
-	 * 			destination directory to extract files to
-	 */
-	public static void unzip(InputStream is, File destDir) {
-		Bootstrap.unzip(is, destDir);
-	} 		
 
 	public static File getTempDir() {
 		return new File(System.getProperty("java.io.tmpdir"));

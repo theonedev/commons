@@ -59,6 +59,8 @@ public class PathUtils {
      */
     public static String parseRelative(String longPath, String shortPath) {
     	shortPath = FilenameUtils.normalizeNoEndSeparator(shortPath);
+		if (shortPath == null)
+			return null;
     	shortPath = StringUtils.replace(shortPath.trim(), "\\", "/");
     	if (shortPath.length() != 0 && shortPath.charAt(0) != '/')
     		shortPath = "/" + shortPath;
@@ -66,6 +68,8 @@ public class PathUtils {
     		shortPath = StringUtils.stripEnd(shortPath, "/");
 
     	longPath = FilenameUtils.normalizeNoEndSeparator(longPath);
+		if (longPath == null)
+			return null;
     	longPath = StringUtils.replace(longPath.trim(), "\\", "/");
     	if (longPath.length() != 0 && longPath.charAt(0) != '/')
     		longPath = "/" + longPath;

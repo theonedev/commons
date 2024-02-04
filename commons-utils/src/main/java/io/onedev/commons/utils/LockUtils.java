@@ -1,14 +1,14 @@
 package io.onedev.commons.utils;
 
+import org.apache.commons.collections4.map.AbstractReferenceMap.ReferenceStrength;
+import org.apache.commons.collections4.map.ReferenceMap;
+
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import org.apache.commons.collections4.map.AbstractReferenceMap.ReferenceStrength;
-import org.apache.commons.collections4.map.ReferenceMap;
 
 public class LockUtils {
 	
@@ -132,7 +132,7 @@ public class LockUtils {
 		try {
     		return callable.call();
     	} catch (Exception e) {
-    		throw new RuntimeException(e);
+			throw ExceptionUtils.unchecked(e);
 		} finally {
 			lock.readLock().unlock();
     	}
@@ -178,7 +178,7 @@ public class LockUtils {
 		try {
     		return callable.call();
     	} catch (Exception e) {
-    		throw new RuntimeException(e);
+    		throw ExceptionUtils.unchecked(e);
 		} finally {
 			lock.writeLock().unlock();
     	}
