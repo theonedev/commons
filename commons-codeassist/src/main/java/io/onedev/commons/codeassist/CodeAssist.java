@@ -141,31 +141,34 @@ public abstract class CodeAssist implements Serializable {
 			
 			TerminalElementSpec elementSpec = terminalExpect.getElementSpec();
 
-			int replaceLen = -1;
-			List<Token> tokens = grammar.lex(contentAfterReplaceBegin);
-			if (tokens.size() >= 1) {
-				Token token = tokens.get(0);
-				if (token.getStartIndex() == 0 && !token.getText().equals(" "))
-					replaceLen = token.getStopIndex() + 1;
-			} 
-			
-			if (replaceLen == -1) {
-				LiteralScan scan = elementSpec.scanMandatories();
-				if (scan.isStop() && !scan.getLiterals().isEmpty()) { 
-					/*
-					 * Below logic checks if there is an empty fence, for instance "". If fence spec 
-					 * does not match an empty fence, we insert a space to see if it matches 
-					 */
-					String fenceOpen = scan.getLiterals().iterator().next();
-					if (contentAfterReplaceBegin.startsWith(fenceOpen)) {
-						String content = fenceOpen + " " + contentAfterReplaceBegin.substring(fenceOpen.length());
-						replaceLen = elementSpec.getEndOfMatch(grammar, content);
-						if (replaceLen != -1)
-							replaceLen--;
+			int replaceEnd = getReplaceEnd(inputStatus);
+			if (replaceEnd == -1) {
+				int replaceLen = -1;
+				List<Token> tokens = grammar.lex(contentAfterReplaceBegin);
+				if (tokens.size() >= 1) {
+					Token token = tokens.get(0);
+					if (token.getStartIndex() == 0 && !token.getText().equals(" "))
+						replaceLen = token.getStopIndex() + 1;
+				}
+
+				if (replaceLen == -1) {
+					LiteralScan scan = elementSpec.scanMandatories();
+					if (scan.isStop() && !scan.getLiterals().isEmpty()) {
+						/*
+						 * Below logic checks if there is an empty fence, for instance "". If fence spec
+						 * does not match an empty fence, we insert a space to see if it matches
+						 */
+						String fenceOpen = scan.getLiterals().iterator().next();
+						if (contentAfterReplaceBegin.startsWith(fenceOpen)) {
+							String content = fenceOpen + " " + contentAfterReplaceBegin.substring(fenceOpen.length());
+							replaceLen = elementSpec.getEndOfMatch(grammar, content);
+							if (replaceLen != -1)
+								replaceLen--;
+						}
 					}
 				}
+				replaceEnd = Math.max(replaceLen + replaceBegin, inputStatus.getCaret());
 			}
-			int replaceEnd = Math.max(replaceLen + replaceBegin, inputStatus.getCaret());
 			
 			List<String> mandatoryList = getMandatoriesAfter(terminalExpect, elementSpec);
 			for (InputSuggestion inputSuggestion: inputSuggestions) {
@@ -284,5 +287,9 @@ public abstract class CodeAssist implements Serializable {
 		else 
 			return Optional.of("space");
 	}
-	
+
+	protected int getReplaceEnd(InputStatus inputStatus) {
+		return -1;
+	}
+
 }
