@@ -220,7 +220,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         }
     }    
     
-	public static void writeFile(File file, String content, String encoding) {
+	public static void writeFile(File file, String content, Charset encoding) {
 		try {
 			org.apache.commons.io.FileUtils.writeStringToFile(file, content, encoding);
 		} catch (IOException e) {
@@ -269,6 +269,10 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 
 	public static File createTempFile(String prefix, String suffix) {
 		return createTempFile(prefix, suffix, getTempDir());
+	}
+
+	public static File createTempFile() {
+		return createTempFile("file", "tmp");
 	}
 
 	public static File createTempFile(String prefix, String suffix, File directory) {
