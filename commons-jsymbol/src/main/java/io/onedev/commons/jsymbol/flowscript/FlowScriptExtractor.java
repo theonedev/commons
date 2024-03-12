@@ -103,6 +103,9 @@ import io.onedev.commons.jsymbol.flowscript.symbols.ReferenceSymbol;
 
 
 public class FlowScriptExtractor extends AbstractSymbolExtractor<FlowScriptSymbol>{
+
+	private final JavaScriptParser parser = new JavaScriptParser(EcmaScriptLexer.SCRIPT);
+
 	/**
 	 * @param args
 	 * @throws IOException
@@ -113,7 +116,7 @@ public class FlowScriptExtractor extends AbstractSymbolExtractor<FlowScriptSymbo
 		List<FlowScriptSymbol> symbols = new ArrayList<>();
 		
 		try {
-			Tree tree = new JavaScriptParser(EcmaScriptLexer.SCRIPT).parse(fileContent);
+			Tree tree = parser.parse(fileContent);
 			processTree(tree, null, symbols);
 		} catch (RecognitionException e) {
 			throw new RuntimeException("Error parsing javascript", e);
