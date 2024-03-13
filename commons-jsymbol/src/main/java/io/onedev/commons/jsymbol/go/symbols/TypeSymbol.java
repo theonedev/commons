@@ -44,11 +44,6 @@ public class TypeSymbol extends GolangSymbol {
 	}
 
 	@Override
-	public boolean isPrimary() {
-		return true;
-	}
-
-	@Override
 	public boolean isLocal() {
 		return false;
 	}

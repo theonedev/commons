@@ -1,16 +1,15 @@
 package io.onedev.commons.jsymbol.go.symbols;
 
-import javax.annotation.Nullable;
-
-import org.apache.wicket.Component;
-import org.apache.wicket.markup.html.image.Image;
-import org.apache.wicket.request.resource.PackageResourceReference;
-
-import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.go.symbols.ui.FunctionSymbolPanel;
 import io.onedev.commons.jsymbol.go.symbols.ui.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
 import io.onedev.commons.utils.LinearRange;
+import io.onedev.commons.utils.PlanarRange;
+import org.apache.wicket.Component;
+import org.apache.wicket.markup.html.image.Image;
+import org.apache.wicket.request.resource.PackageResourceReference;
+
+import javax.annotation.Nullable;
 
 public class FunctionSymbol extends GolangSymbol {
 
@@ -53,11 +52,6 @@ public class FunctionSymbol extends GolangSymbol {
 	public Image renderIcon(String componentId) {
 		String icon = Character.isUpperCase(getName().charAt(0))? "Method_purple_16x.png": "MethodPrivate_16x.png";
 		return new NoAntiCacheImage(componentId, new PackageResourceReference(IconLocator.class, icon));
-	}
-
-	@Override
-	public boolean isPrimary() {
-		return true;
 	}
 
 	@Override

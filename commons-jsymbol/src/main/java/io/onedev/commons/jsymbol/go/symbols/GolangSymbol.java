@@ -52,5 +52,10 @@ public abstract class GolangSymbol extends Symbol {
 	public String getFQNSeparator() {
 		return ".";
 	}
-	
+
+	@Override
+	public boolean isPrimary() {
+		return getParent() == null || getParent() instanceof PackageSymbol;
+	}
+
 }
