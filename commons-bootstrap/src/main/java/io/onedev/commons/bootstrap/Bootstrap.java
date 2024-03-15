@@ -105,6 +105,7 @@ public class Bootstrap {
 				command = null;
 			}
 
+			setupProxies();
 			configureLogging();
 			try {
 				logger.info("Launching application from '" + installDir.getAbsolutePath() + "'...");
@@ -374,6 +375,52 @@ public class Bootstrap {
 		} else if (!dir.mkdirs()) {
             if (!dir.exists())
                 throw new RuntimeException("Unable to create directory: " + dir.getAbsolutePath());
+		}
+	}
+
+	public static void setupProxies() {
+		var httpsProxy = System.getenv("https_proxy");
+		if (httpsProxy == null)
+			httpsProxy = System.getenv("HTTPS_PROXY");
+		if (httpsProxy != null) {
+			if (!httpsProxy.startsWith("http://") && !httpsProxy.startsWith("https://"))
+				httpsProxy = "http://" + httpsProxy;
+			try {
+				var parsedUrl = new URL(httpsProxy);
+				System.setProperty("https.proxyHost", parsedUrl.getHost());
+				int port = parsedUrl.getPort();
+				if (port == -1)
+					port = parsedUrl.getDefaultPort();
+				System.setProperty("https.proxyPort", String.valueOf(port));
+			} catch (MalformedURLException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		var httpProxy = System.getenv("http_proxy");
+		if (httpProxy == null)
+			httpProxy = System.getenv("HTTP_PROXY");
+		if (httpProxy != null) {
+			if (!httpProxy.startsWith("http://") && !httpProxy.startsWith("https://"))
+				httpProxy = "http://" + httpProxy;
+			try {
+				var parsedUrl = new URL(httpProxy);
+				System.setProperty("http.proxyHost", parsedUrl.getHost());
+				int port = parsedUrl.getPort();
+				if (port == -1)
+					port = parsedUrl.getDefaultPort();
+				System.setProperty("http.proxyPort", String.valueOf(port));
+			} catch (MalformedURLException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		var noProxy = System.getenv("no_proxy");
+		if (noProxy == null)
+			noProxy = System.getenv("NO_PROXY");
+		if (noProxy != null) {
+			noProxy = noProxy.replace(',', '|');
+			System.setProperty("https.nonProxyHosts", noProxy);
+			System.setProperty("http.nonProxyHosts", noProxy);
 		}
 	}
 
