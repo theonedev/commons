@@ -4,7 +4,6 @@ import com.google.common.collect.Sets;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
-import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -30,7 +29,8 @@ public class TarUtils {
     public static void tar(File baseDir, OutputStream os, boolean compress) {
         byte[] buffer = new byte[BUFFER_SIZE];
 
-        try (var tos = newTarArchiveOutputStream(os, compress)) {
+        try {
+            var tos = newTarArchiveOutputStream(os, compress);
             if (baseDir.exists() && baseDir.isDirectory()) {
                 var basePath = baseDir.toPath();
                 Files.walkFileTree(baseDir.toPath(), new SimpleFileVisitor<>() {
@@ -64,19 +64,15 @@ public class TarUtils {
                     }
                 });
             }
+            tos.finish();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     public static void tar(File baseDir, @Nullable Collection<String> includes,
-OutputStream os, boolean compress) {
-        tar(baseDir, includes, null, os, compress);
-    }
-
-    public static void tar(File baseDir, @Nullable Collection<String> includes,
-@Nullable Collection<String> excludes, OutputStream os,
-boolean compress) {
+                           @Nullable Collection<String> excludes, OutputStream os,
+                           boolean compress) {
         tar(baseDir, includes, excludes, null, os, compress);
     }
 
@@ -107,19 +103,35 @@ boolean compress) {
 
     private static TarArchiveOutputStream newTarArchiveOutputStream(OutputStream os, boolean compress) throws IOException {
         TarArchiveOutputStream tos;
-        if (compress)
-            tos = new TarArchiveOutputStream(new GZIPOutputStream(new BufferedOutputStream(os, BUFFER_SIZE), BUFFER_SIZE));
-        else
-            tos = new TarArchiveOutputStream(new BufferedOutputStream(os, BUFFER_SIZE));
+        if (compress) {
+            var baos = new BufferedOutputStream(os, BUFFER_SIZE);
+            var zos = new GZIPOutputStream(baos, BUFFER_SIZE);
+            tos = new TarArchiveOutputStream(zos) {
+                @Override
+                public void finish() throws IOException {
+                    super.finish();
+                    zos.finish();
+                    baos.flush();
+                }
+            };
+        } else {
+            var baos = new BufferedOutputStream(os, BUFFER_SIZE);
+            tos = new TarArchiveOutputStream(baos) {
+                public void finish() throws IOException {
+                    super.finish();
+                    baos.flush();
+                }
+            };
+        }
         tos.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
         tos.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_STAR);
         return tos;
     }
 
     public static void tar(File baseDir, @Nullable Collection<String> includes,
-@Nullable Collection<String> excludes,
-@Nullable Collection<String> executables,
-OutputStream os, boolean compress) {
+                           @Nullable Collection<String> excludes,
+                           @Nullable Collection<String> executables,
+                           OutputStream os, boolean compress) {
         if (includes == null)
             includes = Sets.newHashSet("**");
         if (excludes == null)
@@ -127,7 +139,8 @@ OutputStream os, boolean compress) {
 
         byte[] buffer = new byte[BUFFER_SIZE];
 
-        try (var tos = newTarArchiveOutputStream(os, compress)) {
+        try {
+            var tos = newTarArchiveOutputStream(os, compress);
             if (baseDir.exists() && baseDir.isDirectory()) {
                 Collection<File> executableFiles = null;
                 if (executables != null)
@@ -137,6 +150,7 @@ OutputStream os, boolean compress) {
                     addTarEntry(baseDir, path, executableFiles, tos, buffer);
                 }
             }
+            tos.finish();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -146,7 +160,7 @@ OutputStream os, boolean compress) {
         var destPath = destDir.toPath();
         byte[] buffer = new byte[BUFFER_SIZE];
         List<Pair<String, String>> symlinks = new ArrayList<>();
-        TarArchiveInputStream tis = null;
+        TarArchiveInputStream tis;
         try {
             if (compressed)
                 tis = new TarArchiveInputStream(new GZIPInputStream(new BufferedInputStream(is, BUFFER_SIZE), BUFFER_SIZE));
@@ -182,8 +196,6 @@ OutputStream os, boolean compress) {
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(tis);
         }
         for (var symlink: symlinks) {
             var linkPath = destPath.resolve(symlink.getLeft());
