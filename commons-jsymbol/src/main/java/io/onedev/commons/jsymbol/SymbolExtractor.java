@@ -27,8 +27,6 @@ public interface SymbolExtractor<T extends Symbol> {
 	 * 			content of file to extract symbols from
 	 * @return
 	 * 			list of extracted symbols
-	 * 
-	 * @throws ExtractException
 	 */
 	List<T> extract(String fileName, String fileContent);
 	

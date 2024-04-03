@@ -1,13 +1,16 @@
 package main
 {
+  Cache
+  {
+    value [1024]T
+  }
+  CacheProducer
+  slice
   Kitchen
   {
     numOfPlates int
   }
   House
-  {
-    Kitchen
-  }
   MyFloat
   {
     func Abs() float64
@@ -29,9 +32,6 @@ package main
     height float64
     func area() float64
   }
-  func getArea(shape Shape) float64
-  func main()
-  func init()
   nextTextRegexp
   issue16214src
   Command
@@ -63,15 +63,30 @@ package main
   }
   A
   {
-    Intf1
     func method1() int
-    Intf2
+  }
+  B
+  {
+    func sum()
+    func subtract()
+    name string
+    levels map[int]string
   }
   entry
   {
     nlz int
     ntz int
     pop int
+  }
+  func NewProducer() CacheProducer[T]
+  func First(items []T) T
+  func SumNumbers(m map[K]V) V
+  func getArea(shape Shape) float64
+  func main()
+  func init()
+  *slice[E,V]
+  {
+    func Map(iteratee func(E) V) *[]V
   }
   MyDouble
   {

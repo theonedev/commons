@@ -12,7 +12,7 @@ import io.onedev.commons.jsymbol.go.GolangExtractor;
 public class GolangExtractorTest extends DescriptableExtractorTest<GolangSymbol> {
 
 	@Test
-	public void testNamespace() {
+	public void test() {
 		verify(readFile("test.outline"), new GolangExtractor().extract(null, readFile("test.source")));
 	}
 	

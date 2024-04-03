@@ -3,6 +3,47 @@ package main
 import (
 	"fmt"
 )
+type Cache[T any] struct {
+    value [1024]T
+}
+
+type CacheProducer[T any] func() *Cache[T]
+
+func NewProducer[T any]() CacheProducer[T] {
+    var cache *Cache[T]
+    return func() *Cache[T] {
+        if cache != nil {
+            fmt.Println("returning cached")
+            return cache
+        }
+        fmt.Println("instantiating")
+        cache = &Cache[T]{ /* initialize fields */ }
+        return cache
+    }
+}
+
+func First[T int64 | float64](items []T) T {
+	return items[0]
+}
+
+func SumNumbers[K comparable, V Number](m map[K]V) V {
+	var s V
+	for _, v := range m {
+		s += v
+	}
+	return s
+}
+
+type slice[E, V any] []E
+
+func (s *slice[E, V]) Map(iteratee func(E) V) *[]V {
+	result := []V{}
+	for _, item := range *s {
+		result = append(result, iteratee(item))
+	}
+
+	return &result
+}
 
 type Kitchen struct {
 	numOfPlates int
@@ -123,7 +164,16 @@ type A interface {
   method1() int
   Intf2
 }
-
+type B interface {
+	sum()
+	interface {
+		subtract()
+	}
+	(struct {
+		name string
+		levels map[int]string
+	})
+}
 
 type entry = struct {
 	nlz, ntz, pop int
