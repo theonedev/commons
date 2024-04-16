@@ -280,18 +280,13 @@ public class Commandline implements Serializable {
         	environments.put(EXECUTION_ID_ENV, executionId);
         	if (ptyMode != null) {
         		PtyProcess ptyProcess = createPtyProcessBuilder().start();
-        		ptyMode.setResizeSupport(new PtyMode.ResizeSupport() {
-
-					@Override
-					public void resize(int rows, int cols) {
-						try {
-							ptyProcess.setWinSize(new WinSize(cols, rows));
-						} catch (Exception e) {
-							logger.error("Error setting window size", e);
-						}
+        		ptyMode.setResizeSupport((rows, cols) -> {
+					try {
+						ptyProcess.setWinSize(new WinSize(cols, rows));
+					} catch (Exception e) {
+						logger.error("Error setting window size", e);
 					}
-        			
-        		});
+				});
         		process = ptyProcess;
         	} else {
         		process = createProcessBuilder().start();
