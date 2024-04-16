@@ -1,31 +1,23 @@
 package io.onedev.commons.utils.command;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
-
-import javax.annotation.Nullable;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.pty4j.PtyProcess;
 import com.pty4j.PtyProcessBuilder;
 import com.pty4j.WinSize;
-
 import io.onedev.commons.bootstrap.Bootstrap;
 import io.onedev.commons.bootstrap.SensitiveMasker;
 import io.onedev.commons.utils.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 
 public class Commandline implements Serializable {
 	
@@ -229,52 +221,73 @@ public class Commandline implements Serializable {
     	return processBuilder;
     }
 
+	/**
+	 * Various streams passed in will be closed after calling this method
+	 *
+	 * @param output
+	 * @param error
+	 * @return
+	 */
 	public ExecutionResult execute(@Nullable OutputStream output, @Nullable LineConsumer error) {
 		return execute(output, error, null);
 	}
 
 	/**
-	 * Execute the command.
+	 * Execute the command. Various streams passed in will be closed after calling this method
 	 * 
-	 * @param output
+	 * @param stdout
 	 * 			output stream to write standard output, caller is responsible for closing the stream
-	 * @param error
+	 * @param stderr
 	 * 			line consumer to handle standard error
-	 * @param input
+	 * @param stdin
 	 * 			input stream to read standard input from, caller is responsible for closing the stream
 	 * @return
 	 * 			execution result
 	 */
-	public ExecutionResult execute(@Nullable OutputStream output, @Nullable LineConsumer error,
-                                   @Nullable InputStream input) {
-		if (error != null) {
-			ErrorCollector errorCollector = new ErrorCollector(error.getEncoding()) {
+	public ExecutionResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr,
+                                   @Nullable InputStream stdin) {
+		if (stderr != null) {
+			ErrorCollector errorCollector = new ErrorCollector(stderr.getEncoding()) {
 
 				@Override
 				public void consume(String line) {
 					super.consume(line);
-					error.consume(line);
+					stderr.consume(line);
 				}
-				
+
 			};
-			ExecutionResult result = execute(output, (OutputStream)errorCollector, input);
-			result.setStderr(errorCollector.getMessage());
-	        return result;
+			ExecutionResult result = execute(stdout, (OutputStream) errorCollector, stdin);
+			result.setErrorMessage(errorCollector.getMessage());
+			return result;
 		} else {
-			return execute(output, (OutputStream)null, input);
+			return execute(stdout, (OutputStream) null, stdin);
 		}
     }
-    
-	public ExecutionResult execute(@Nullable OutputStream output, @Nullable OutputStream error,
-                                   @Nullable InputStream input) {
-		return execute(new PumpInputToOutput(output), new PumpInputToOutput(error),
-				new PumpOutputFromInput(input));
+
+	/**
+	 * Various stream passed in will be closed after executing this method
+	 * @param stdout
+	 * @param stderr
+	 * @param stdin
+	 * @return
+	 */
+	public ExecutionResult execute(@Nullable OutputStream stdout, @Nullable OutputStream stderr,
+								   @Nullable InputStream stdin) {
+		return execute(StreamPumper.pump(stdout), StreamPumper.pump(stderr), StreamPumper.pump(stdin));
 	}
 
-	public ExecutionResult execute(InputStreamHandler inputHandler, InputStreamHandler errorHandler,
-                                   OutputStreamHandler outputHandler) {
+	/**
+	 * Various handlers should close passed-in streams after dealing with it
+	 *
+	 * @param stdoutHandler
+	 * @param stderrHandler
+	 * @param stdinHandler
+	 * @return
+	 */
+	public ExecutionResult execute(Function<InputStream, Future<?>> stdoutHandler,
+								   Function<InputStream, Future<?>> stderrHandler,
+								   Function<OutputStream, Future<?>> stdinHandler) {
     	String executionId = UUID.randomUUID().toString();
-    	
     	Process process;
         try {
         	environments.put(EXECUTION_ID_ENV, executionId);
@@ -296,18 +309,18 @@ public class Commandline implements Serializable {
         }
 
 		ExecutionResult result = new ExecutionResult(this);
-        if (timeout != 0) {
+		if (timeout != 0) {
 			AtomicBoolean timedout = new AtomicBoolean(false);
-            AtomicLong lastActiveTime = new AtomicLong(System.currentTimeMillis());
-            
-            class InputStreamWrapper extends InputStream {
-            	
-            	private final InputStream delegate;
-            	
-            	public InputStreamWrapper(InputStream delegate) {
-            		this.delegate = delegate;
-            	}
-            	
+			AtomicLong lastActiveTime = new AtomicLong(System.currentTimeMillis());
+
+			class InputStreamWrapper extends InputStream {
+
+				private final InputStream delegate;
+
+				public InputStreamWrapper(InputStream delegate) {
+					this.delegate = delegate;
+				}
+
 				@Override
 				public int read() throws IOException {
 					int readed = delegate.read();
@@ -359,63 +372,64 @@ public class Commandline implements Serializable {
 					return delegate.markSupported();
 				}
 
-            };
+			}
 
-            inputHandler.handle(new InputStreamWrapper(process.getInputStream()));
-            errorHandler.handle(new InputStreamWrapper(process.getErrorStream()));
-            outputHandler.handle(process.getOutputStream());
-            
-        	Thread thread = Thread.currentThread();
-    		AtomicBoolean stoppedRef = new AtomicBoolean(false);
-    		Bootstrap.executorService.execute(new Runnable() {
-
-				@Override
-				public void run() {
-					while (!stoppedRef.get()) {
-						if (System.currentTimeMillis() - lastActiveTime.get() > timeout*1000L) {
-							timedout.set(true);
-							thread.interrupt();
-							break;
-						} else {
-							try {
-								Thread.sleep(1000);
-							} catch (InterruptedException e) {
-							}
+			Thread thread = Thread.currentThread();
+			AtomicBoolean stoppedRef = new AtomicBoolean(false);
+			Bootstrap.executorService.execute(() -> {
+				while (!stoppedRef.get()) {
+					if (System.currentTimeMillis() - lastActiveTime.get() > timeout * 1000L) {
+						timedout.set(true);
+						thread.interrupt();
+						break;
+					} else {
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
 						}
 					}
 				}
-    			
-    		});
-            try {
-            	result.setReturnCode(process.waitFor());
-    		} catch (InterruptedException e) {
-    			processKiller.kill(process, executionId);
-    			if (timedout.get())
-    				throw new RuntimeException(new TimeoutException());
-    			else
-    				throw new RuntimeException(e);
-    		} finally {
-    			stoppedRef.set(true);
-    			inputHandler.waitFor();
-    			errorHandler.waitFor();
-    			outputHandler.waitFor();
-    		}
-        } else {
-            inputHandler.handle(process.getInputStream());
-            errorHandler.handle(process.getErrorStream());
-            outputHandler.handle(process.getOutputStream());
-        	
-            try {
-            	result.setReturnCode(process.waitFor());
-    		} catch (InterruptedException e) {
-    			processKiller.kill(process, executionId);
-    			throw new RuntimeException(e);
-    		} finally {
-    			inputHandler.waitFor();
-    			errorHandler.waitFor();
-    			outputHandler.waitFor();
-    		}
-        }
+			});
+
+			var stdoutFuture = stdoutHandler.apply(new InputStreamWrapper(process.getInputStream()));
+			var stderrFuture = stderrHandler.apply(new InputStreamWrapper(process.getErrorStream()));
+			var stdinFuture = stdinHandler.apply(process.getOutputStream());
+			try {
+				result.setReturnCode(process.waitFor());
+			} catch (InterruptedException e) {
+				processKiller.kill(process, executionId);
+				if (timedout.get())
+					throw new RuntimeException(new TimeoutException());
+				else
+					throw new RuntimeException(e);
+			} finally {
+				stoppedRef.set(true);
+				waitFor(stdoutFuture, stderrFuture, stdinFuture);
+			}
+		} else {
+			var stdoutFuture = stdoutHandler.apply(process.getInputStream());
+			var stderrFuture = stderrHandler.apply(process.getErrorStream());
+			var stdinFuture = stdinHandler.apply(process.getOutputStream());
+			try {
+				result.setReturnCode(process.waitFor());
+			} catch (InterruptedException e) {
+				processKiller.kill(process, executionId);
+				throw new RuntimeException(e);
+			} finally {
+				waitFor(stdoutFuture, stderrFuture, stdinFuture);
+			}
+		}
         return result;
-    }	
+    }
+
+	private void waitFor(Future<?>... futures) {
+		for (var future: futures) {
+			try {
+				future.get();
+			} catch (InterruptedException | ExecutionException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
+
 }

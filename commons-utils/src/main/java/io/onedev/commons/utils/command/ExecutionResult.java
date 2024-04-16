@@ -10,7 +10,7 @@ public class ExecutionResult implements Serializable {
 
 	private int returnCode;
 	
-	private String stderr;
+	private String errorMessage;
 	
 	private String commandDescription;
 
@@ -34,12 +34,12 @@ public class ExecutionResult implements Serializable {
 		this.returnCode = returnCode;
 	}
 
-	public String getStderr() {
-		return stderr;
+	public String getErrorMessage() {
+		return errorMessage;
 	}
 
-	public void setStderr(String stderr) {
-		this.stderr = stderr;
+	public void setErrorMessage(String errorMessage) {
+		this.errorMessage = errorMessage;
 	}
 	
 	/**
@@ -47,11 +47,11 @@ public class ExecutionResult implements Serializable {
 	 * @return
 	 */
 	public RuntimeException buildException() {
-        String errorMessage = String.format("Failed to run command: %s, return code: %d", 
+        String exceptionMessage = String.format("Failed to run command: %s, return code: %d",
         		commandDescription, returnCode);
-    	if (stderr != null) 
-    		errorMessage += "\n" + stderr;
-    	return new ExplicitException(errorMessage);
+    	if (errorMessage != null)
+    		exceptionMessage += "\n" + errorMessage;
+    	return new ExplicitException(exceptionMessage);
 	}
 	
 	/**
