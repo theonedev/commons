@@ -247,15 +247,7 @@ public class Commandline implements Serializable {
 	public ExecutionResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr,
                                    @Nullable InputStream stdin) {
 		if (stderr != null) {
-			ErrorCollector errorCollector = new ErrorCollector(stderr.getEncoding()) {
-
-				@Override
-				public void consume(String line) {
-					super.consume(line);
-					stderr.consume(line);
-				}
-
-			};
+			var errorCollector = ErrorCollector.wrap(stderr);
 			ExecutionResult result = execute(stdout, (OutputStream) errorCollector, stdin);
 			result.setErrorMessage(errorCollector.getMessage());
 			return result;
@@ -273,7 +265,28 @@ public class Commandline implements Serializable {
 	 */
 	public ExecutionResult execute(@Nullable OutputStream stdout, @Nullable OutputStream stderr,
 								   @Nullable InputStream stdin) {
-		return execute(StreamPumper.pump(stdout), StreamPumper.pump(stderr), StreamPumper.pump(stdin));
+		return execute(StreamPumper.pumpTo(stdout), StreamPumper.pumpTo(stderr), StreamPumper.pumpFrom(stdin));
+	}
+
+	/**
+	 * Various handlers should close passed-in streams after dealing with it
+	 *
+	 * @param stdoutHandler
+	 * @param stderr
+	 * @param stdinHandler
+	 * @return
+	 */
+	public ExecutionResult execute(@Nullable Function<InputStream, Future<?>> stdoutHandler,
+								   @Nullable LineConsumer stderr,
+								   @Nullable Function<OutputStream, Future<?>> stdinHandler) {
+		if (stderr != null) {
+			var errorCollector = ErrorCollector.wrap(stderr);
+			var result = execute(stdoutHandler, StreamPumper.pumpTo(errorCollector), stdinHandler);
+			result.setErrorMessage(errorCollector.getMessage());
+			return result;
+		} else {
+			return execute(stdoutHandler, StreamPumper.pumpTo(stderr), stdinHandler);
+		}
 	}
 
 	/**
@@ -284,9 +297,15 @@ public class Commandline implements Serializable {
 	 * @param stdinHandler
 	 * @return
 	 */
-	public ExecutionResult execute(Function<InputStream, Future<?>> stdoutHandler,
-								   Function<InputStream, Future<?>> stderrHandler,
-								   Function<OutputStream, Future<?>> stdinHandler) {
+	public ExecutionResult execute(@Nullable Function<InputStream, Future<?>> stdoutHandler,
+								   @Nullable Function<InputStream, Future<?>> stderrHandler,
+								   @Nullable Function<OutputStream, Future<?>> stdinHandler) {
+		if (stdoutHandler == null)
+			stdoutHandler = StreamPumper.pumpTo(null);
+		if (stderrHandler == null)
+			stderrHandler = StreamPumper.pumpTo(null);
+		if (stdinHandler == null)
+			stdinHandler = StreamPumper.pumpFrom(null);
     	String executionId = UUID.randomUUID().toString();
     	Process process;
         try {

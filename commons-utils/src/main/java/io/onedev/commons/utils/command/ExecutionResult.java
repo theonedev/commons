@@ -47,7 +47,7 @@ public class ExecutionResult implements Serializable {
 	 * @return
 	 */
 	public RuntimeException buildException() {
-        String exceptionMessage = String.format("Failed to run command: %s, return code: %d",
+        String exceptionMessage = String.format("Command execution failed (command: %s, exit code: %d)",
         		commandDescription, returnCode);
     	if (errorMessage != null)
     		exceptionMessage += "\n" + errorMessage;

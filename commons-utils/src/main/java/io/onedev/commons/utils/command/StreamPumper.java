@@ -51,11 +51,11 @@ public class StreamPumper {
 		});
     }
 
-	public static Function<InputStream, Future<?>> pump(@Nullable OutputStream os) {
+	public static Function<InputStream, Future<?>> pumpTo(@Nullable OutputStream os) {
 		return is -> pump(is, os);
 	}
 
-	public static Function<OutputStream, Future<?>> pump(@Nullable InputStream is) {
+	public static Function<OutputStream, Future<?>> pumpFrom(@Nullable InputStream is) {
 		return os -> {
 			if (is != null) {
 				return pump(is, os);

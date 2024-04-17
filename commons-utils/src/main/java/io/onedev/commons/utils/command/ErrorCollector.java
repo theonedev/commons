@@ -3,6 +3,7 @@ package io.onedev.commons.utils.command;
 import javax.annotation.Nullable;
 
 import io.onedev.commons.bootstrap.SensitiveMasker;
+import org.apache.tools.mail.ErrorInQuitException;
 
 public class ErrorCollector extends LineConsumer {
 
@@ -13,7 +14,7 @@ public class ErrorCollector extends LineConsumer {
 	public ErrorCollector(String encoding) {
 		super(encoding);
 	}
-	
+
 	@Override
 	public void consume(String line) {
 		SensitiveMasker masker = SensitiveMasker.get();
@@ -36,5 +37,17 @@ public class ErrorCollector extends LineConsumer {
 		else
 			return null;
 	}
-	
+
+	public static ErrorCollector wrap(LineConsumer consumer) {
+		return new ErrorCollector(consumer.getEncoding()) {
+
+			@Override
+			public void consume(String line) {
+				super.consume(line);
+				consumer.consume(line);
+			}
+
+		};
+	}
+
 }
