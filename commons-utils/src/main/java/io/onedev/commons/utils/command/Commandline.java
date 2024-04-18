@@ -224,37 +224,13 @@ public class Commandline implements Serializable {
 	/**
 	 * Various streams passed in will be closed after calling this method
 	 *
-	 * @param output
-	 * @param error
-	 * @return
-	 */
-	public ExecutionResult execute(@Nullable OutputStream output, @Nullable LineConsumer error) {
-		return execute(output, error, null);
-	}
-
-	/**
-	 * Execute the command. Various streams passed in will be closed after calling this method
-	 * 
 	 * @param stdout
-	 * 			output stream to write standard output, caller is responsible for closing the stream
 	 * @param stderr
-	 * 			line consumer to handle standard error
-	 * @param stdin
-	 * 			input stream to read standard input from, caller is responsible for closing the stream
 	 * @return
-	 * 			execution result
 	 */
-	public ExecutionResult execute(@Nullable OutputStream stdout, @Nullable LineConsumer stderr,
-                                   @Nullable InputStream stdin) {
-		if (stderr != null) {
-			var errorCollector = ErrorCollector.wrap(stderr);
-			ExecutionResult result = execute(stdout, (OutputStream) errorCollector, stdin);
-			result.setErrorMessage(errorCollector.getMessage());
-			return result;
-		} else {
-			return execute(stdout, (OutputStream) null, stdin);
-		}
-    }
+	public ExecutionResult execute(@Nullable OutputStream stdout, @Nullable OutputStream stderr) {
+		return execute(stdout, stderr, null);
+	}
 
 	/**
 	 * Various stream passed in will be closed after executing this method
@@ -266,27 +242,6 @@ public class Commandline implements Serializable {
 	public ExecutionResult execute(@Nullable OutputStream stdout, @Nullable OutputStream stderr,
 								   @Nullable InputStream stdin) {
 		return execute(StreamPumper.pumpTo(stdout), StreamPumper.pumpTo(stderr), StreamPumper.pumpFrom(stdin));
-	}
-
-	/**
-	 * Various handlers should close passed-in streams after dealing with it
-	 *
-	 * @param stdoutHandler
-	 * @param stderr
-	 * @param stdinHandler
-	 * @return
-	 */
-	public ExecutionResult execute(@Nullable Function<InputStream, Future<?>> stdoutHandler,
-								   @Nullable LineConsumer stderr,
-								   @Nullable Function<OutputStream, Future<?>> stdinHandler) {
-		if (stderr != null) {
-			var errorCollector = ErrorCollector.wrap(stderr);
-			var result = execute(stdoutHandler, StreamPumper.pumpTo(errorCollector), stdinHandler);
-			result.setErrorMessage(errorCollector.getMessage());
-			return result;
-		} else {
-			return execute(stdoutHandler, StreamPumper.pumpTo(stderr), stdinHandler);
-		}
 	}
 
 	/**
