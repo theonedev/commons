@@ -53,40 +53,35 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	 * @return
 	 */
     public static String[] parseQuoteTokens(String string) {
-    	List<String> commandTokens = new ArrayList<String>();
-    	
-		StreamTokenizer st = new StreamTokenizer(
-				new BufferedReader(new StringReader(string)));
-		st.resetSyntax();
-		st.wordChars(0, 255);
-		st.ordinaryChar(' ');
-		st.ordinaryChar('\n');
-		st.ordinaryChar('\t');
-		st.ordinaryChar('\r');
-		st.quoteChar('"');
-		
-		try {
-			String token = null;
-			while (st.nextToken() != StreamTokenizer.TT_EOF) {
-				if (st.ttype == '"' || st.ttype == StreamTokenizer.TT_WORD) {
-					if (token == null)
-						token = st.sval;
-					else
-						token += st.sval;
-				} else if (token != null) {
-					commandTokens.add(token);
-					token = null;
+		List<String> result = new ArrayList<>();
+		StringBuilder currentField = new StringBuilder();
+		boolean inQuotes = false;
+		boolean escaping = false;
+
+		for (char c : string.toCharArray()) {
+			if (escaping) {
+				currentField.append(c);
+				escaping = false;
+			} else if (c == '\\') {
+				escaping = true;
+			} else if (c == '"') {
+				inQuotes = !inQuotes;
+			} else if (c == ' ' && !inQuotes) {
+				if (currentField.length() > 0) {
+					result.add(currentField.toString());
+					currentField.setLength(0);
 				}
+			} else {
+				currentField.append(c);
 			}
-			if (token != null)
-				commandTokens.add(token);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
 		}
-		
-		return commandTokens.toArray(new String[commandTokens.size()]);
-    }	
-    
+
+		if (currentField.length() > 0)
+			result.add(currentField.toString());
+
+		return result.toArray(new String[0]);
+	}
+
     /**
      * Tokenize the given String into a String array via a StringTokenizer.
      * Trims tokens and omits empty tokens.
