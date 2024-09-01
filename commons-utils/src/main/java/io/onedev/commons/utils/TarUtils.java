@@ -4,7 +4,6 @@ import com.google.common.collect.Sets;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
@@ -39,14 +38,7 @@ public class TarUtils {
                         var relativePathName = basePath.relativize(filePath).toString().replace('\\', '/');
                         if (Files.isSymbolicLink(filePath)) {
                             TarArchiveEntry entry = new TarArchiveEntry(relativePathName, LF_SYMLINK);
-                            var linkTargetPath = filePath.toRealPath();
-                            var linkTargetRelativePathName = filePath.getParent().relativize(linkTargetPath).toString().replace('\\', '/');
-                            if (basePath.relativize(linkTargetPath).toString().contains("..")) {
-                                var errorMessage = String.format("Symlink target is outside of base directory (link: %s, target: %s)",
-                                        relativePathName, linkTargetRelativePathName);
-                                throw new ExplicitException(errorMessage);
-                            }
-                            entry.setLinkName(linkTargetRelativePathName);
+                            entry.setLinkName(Files.readSymbolicLink(filePath).toString());
                             tos.putArchiveEntry(entry);
                             tos.closeArchiveEntry();
                         } else {
@@ -172,7 +164,7 @@ public class TarUtils {
                 if (entryName.contains(".."))
                     throw new ExplicitException("Tar entry name contains '..': " + entryName);
                 if (entry.isSymbolicLink()) {
-                    symlinks.add(new ImmutablePair<>(entryName, entry.getLinkName()));
+                    createSymbolicLink(destPath.resolve(entryName), Paths.get(entry.getLinkName()));
                 } else if (entry.isFile()) {
                     File entryFile = new File(destDir, entryName);
                     File entryParentFile = entryFile.getParentFile();
@@ -196,19 +188,6 @@ public class TarUtils {
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-        for (var symlink: symlinks) {
-            var linkPath = destPath.resolve(symlink.getLeft());
-            if (destPath.relativize(linkPath.getParent().resolve(symlink.getRight())).toString().contains("..")) {
-                var errorMessage = String.format("Symlink target is outside of destination directory (link: %s, target: %s)",
-                        symlink.getLeft(), symlink.getRight());
-                throw new ExplicitException(errorMessage);
-            }
-            try {
-                createSymbolicLink(linkPath, Paths.get(symlink.getRight()));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
         }
     }
 }
