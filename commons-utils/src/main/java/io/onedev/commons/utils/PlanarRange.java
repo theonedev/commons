@@ -125,10 +125,10 @@ public class PlanarRange implements Serializable {
 			normalizedToColumn = lines.get(toRow).length(); 
 		} else if (fromColumn < 0) {
 			normalizedToColumn = normalizeColumn(lines.get(toRow), toColumn, tabWidth);
-			normalizedFromColumn = normalizedToColumn - 1;
+			normalizedFromColumn = 0;
 		} else if (toColumn < 0) {
 			normalizedFromColumn = normalizeColumn(lines.get(fromRow), fromColumn, tabWidth);
-			normalizedToColumn = normalizedFromColumn + 1;
+			normalizedToColumn = lines.get(toRow).length();
 		} else {
 			normalizedFromColumn = normalizeColumn(lines.get(fromRow), fromColumn, tabWidth);
 			normalizedToColumn = normalizeColumn(lines.get(toRow), toColumn, tabWidth);
