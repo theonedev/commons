@@ -21,8 +21,6 @@ public class PlanarRange implements Serializable {
 	private final int fromRow, fromColumn, toRow, toColumn, tabWidth;
 	
 	public PlanarRange(int fromRow, int fromColumn, int toRow, int toColumn, int tabWidth) {
-		Preconditions.checkArgument(fromRow>=0 && toRow>=0 && tabWidth>=1);
-		
 		this.fromRow = fromRow;
 		this.fromColumn = fromColumn;
 		this.toRow = toRow;
@@ -119,22 +117,41 @@ public class PlanarRange implements Serializable {
 	}
 	
 	public PlanarRange normalize(List<String> lines) {
-		int normalizedFromColumn, normalizedToColumn;
-		if (fromColumn < 0 && toColumn < 0) {
-			normalizedFromColumn = 0;
-			normalizedToColumn = lines.get(toRow).length(); 
-		} else if (fromColumn < 0) {
-			normalizedToColumn = normalizeColumn(lines.get(toRow), toColumn, tabWidth);
-			normalizedFromColumn = 0;
-		} else if (toColumn < 0) {
-			normalizedFromColumn = normalizeColumn(lines.get(fromRow), fromColumn, tabWidth);
-			normalizedToColumn = lines.get(toRow).length();
-		} else {
-			normalizedFromColumn = normalizeColumn(lines.get(fromRow), fromColumn, tabWidth);
-			normalizedToColumn = normalizeColumn(lines.get(toRow), toColumn, tabWidth);
-		}
+		if (!lines.isEmpty()) {
+			int normalizedFromRow, normalizedToRow, normalizedFromColumn, normalizedToColumn;
 
-		return new PlanarRange(fromRow, normalizedFromColumn, toRow, normalizedToColumn, 1);
+			if (fromRow < 0 && toRow < 0) {
+				normalizedFromRow = 0;
+				normalizedToRow = lines.size() - 1;
+			} else if (fromRow < 0) {
+				normalizedFromRow = 0;
+				normalizedToRow = toRow;
+			} else if (toRow < 0) {
+				normalizedFromRow = fromRow;
+				normalizedToRow = lines.size() - 1;
+			} else {
+				normalizedFromRow = fromRow;
+				normalizedToRow = toRow;
+			}
+
+			if (fromColumn < 0 && toColumn < 0) {
+				normalizedFromColumn = 0;
+				normalizedToColumn = lines.get(normalizedToRow).length();
+			} else if (fromColumn < 0) {
+				normalizedToColumn = normalizeColumn(lines.get(normalizedToRow), toColumn, tabWidth);
+				normalizedFromColumn = 0;
+			} else if (toColumn < 0) {
+				normalizedFromColumn = normalizeColumn(lines.get(normalizedFromRow), fromColumn, tabWidth);
+				normalizedToColumn = lines.get(normalizedToRow).length();
+			} else {
+				normalizedFromColumn = normalizeColumn(lines.get(normalizedFromRow), fromColumn, tabWidth);
+				normalizedToColumn = normalizeColumn(lines.get(normalizedToRow), toColumn, tabWidth);
+			}
+
+			return new PlanarRange(normalizedFromRow, normalizedFromColumn, normalizedToRow, normalizedToColumn, 1);
+		} else {
+			return new PlanarRange(0, 0, 0, 0);
+		}
 	}
 	
 	@Override
