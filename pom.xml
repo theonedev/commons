@@ -9,7 +9,7 @@
 		<version>1.2.3</version>
 	</parent>
 	<artifactId>commons</artifactId>
-	<version>3.0.5</version>
+	<version>3.0.6</version>
 	<packaging>pom</packaging>
 	<modules>
 		<module>commons-utils</module>
