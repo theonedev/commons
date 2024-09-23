@@ -164,7 +164,15 @@ public class TarUtils {
                 if (entryName.contains(".."))
                     throw new ExplicitException("Tar entry name contains '..': " + entryName);
                 if (entry.isSymbolicLink()) {
-                    createSymbolicLink(destPath.resolve(entryName), Paths.get(entry.getLinkName()));
+                    var filePath = destPath.resolve(entryName);
+                    if (Files.exists(filePath, LinkOption.NOFOLLOW_LINKS)) {
+                        var file = filePath.toFile();
+                        if (file.isDirectory())
+                            FileUtils.deleteDir(file);
+                        else
+                            FileUtils.deleteFile(file);
+                    }
+                    createSymbolicLink(filePath, Paths.get(entry.getLinkName()));
                 } else if (entry.isFile()) {
                     File entryFile = new File(destDir, entryName);
                     File entryParentFile = entryFile.getParentFile();
