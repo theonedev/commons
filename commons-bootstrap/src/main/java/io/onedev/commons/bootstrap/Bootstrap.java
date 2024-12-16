@@ -351,8 +351,10 @@ public class Bootstrap {
 		    while((entry = zis.getNextEntry()) != null) {
 				if (entry.getName().endsWith("/")) {
 					createDir(new File(destDir, entry.getName()));
-				} else {		    		
-				    try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(new File(destDir, entry.getName())), BUFFER_SIZE);) {
+				} else {
+					var file = new File(destDir, entry.getName());
+					createDir(file.getParentFile());
+				    try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file), BUFFER_SIZE);) {
 				        int count;
 				        byte data[] = new byte[BUFFER_SIZE];
 				        while ((count = zis.read(data, 0, BUFFER_SIZE)) != -1)
