@@ -218,8 +218,8 @@ public abstract class CodeAssist implements Serializable {
 		List<InputCompletion> inputCompletions = new ArrayList<>();
 		
 		Set<String> duplicateContents = new HashSet<>();
-		
-		for (Map.Entry<String, List<ExtendedInputSuggestion>> entry: contentSuggestions.entrySet()) {
+
+		for (var entry: contentSuggestions.entrySet()) {
 			Set<String> mandatoriesSet = new HashSet<>();
 			for (ExtendedInputSuggestion suggestion: entry.getValue())
 				mandatoriesSet.add(suggestion.getMandatories());
@@ -241,7 +241,6 @@ public abstract class CodeAssist implements Serializable {
 			}
 			
 		}
-		
 		inputCompletions.sort((o1, o2) -> {
 			int matchPercent1, matchPercent2;
 			if (o1.getMatch() != null)
@@ -255,7 +254,10 @@ public abstract class CodeAssist implements Serializable {
 
 			return matchPercent2 - matchPercent1;
 		});
-		
+
+		Set<String> duplicateLabels = new HashSet<>();
+		inputCompletions.removeIf(it -> !duplicateLabels.add(it.getLabel()));
+
 		return inputCompletions;
 	}
 	
