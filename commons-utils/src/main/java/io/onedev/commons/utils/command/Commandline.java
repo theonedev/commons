@@ -4,7 +4,7 @@ import com.pty4j.PtyProcess;
 import com.pty4j.PtyProcessBuilder;
 import com.pty4j.WinSize;
 import io.onedev.commons.bootstrap.Bootstrap;
-import io.onedev.commons.bootstrap.SensitiveMasker;
+import io.onedev.commons.bootstrap.SecretMasker;
 import io.onedev.commons.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,7 +128,7 @@ public class Commandline implements Serializable {
         	}
         }
         
-        SensitiveMasker masker = SensitiveMasker.get();
+        SecretMasker masker = SecretMasker.get();
         if (masker != null)
         	return masker.mask(buf.toString().trim());
         else

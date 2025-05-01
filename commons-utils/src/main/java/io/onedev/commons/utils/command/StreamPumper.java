@@ -1,7 +1,7 @@
 package io.onedev.commons.utils.command;
 
 import io.onedev.commons.bootstrap.Bootstrap;
-import io.onedev.commons.bootstrap.SensitiveMasker;
+import io.onedev.commons.bootstrap.SecretMasker;
 import io.onedev.commons.utils.ImmediateFuture;
 
 import javax.annotation.Nullable;
@@ -18,11 +18,11 @@ public class StreamPumper {
     private static final int BUFFER_SIZE = 64*1024;
 
 	public static Future<?> pump(InputStream input, @Nullable OutputStream output) {
-    	SensitiveMasker masker = SensitiveMasker.get();
+    	SecretMasker masker = SecretMasker.get();
     	
     	return Bootstrap.executorService.submit(() -> {
 			if (masker != null)
-				SensitiveMasker.push(masker);
+				SecretMasker.push(masker);
 			try {
 				byte[] buf = new byte[BUFFER_SIZE];
 
@@ -46,7 +46,7 @@ public class StreamPumper {
 				}
 			} finally {
 				if (masker != null)
-					SensitiveMasker.pop();
+					SecretMasker.pop();
 			}
 		});
     }

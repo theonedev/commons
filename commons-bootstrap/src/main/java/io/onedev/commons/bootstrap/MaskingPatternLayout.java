@@ -8,7 +8,7 @@ public class MaskingPatternLayout extends PatternLayout {
 	@Override
 	public String doLayout(ILoggingEvent event) {
 		String layout = super.doLayout(event);
-		SensitiveMasker masker = SensitiveMasker.get();
+		SecretMasker masker = SecretMasker.get();
 		if (masker != null)
 			return masker.mask(layout);
 		else
