@@ -38,7 +38,6 @@ import io.onedev.commons.jsymbol.Symbol;
 import io.onedev.commons.jsymbol.SymbolExtractor;
 import io.onedev.commons.jsymbol.java.JavaExtractor;
 
-@SuppressWarnings("serial")
 public class HomePage extends WebPage {
 	
 	private List<? extends Symbol> symbols = new ArrayList<>();

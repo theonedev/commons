@@ -9,7 +9,6 @@ import io.onedev.commons.jsymbol.cpp.symbols.TypedefSymbol;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
 import io.onedev.commons.utils.LinearRange;
 
-@SuppressWarnings("serial")
 public class TypedefSymbolPanel extends Panel {
 
 	private final TypedefSymbol typedefSymbol;

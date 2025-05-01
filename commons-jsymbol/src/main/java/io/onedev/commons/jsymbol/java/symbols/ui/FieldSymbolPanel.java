@@ -9,7 +9,6 @@ import io.onedev.commons.jsymbol.java.symbols.FieldSymbol;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
 import io.onedev.commons.utils.LinearRange;
 
-@SuppressWarnings("serial")
 public class FieldSymbolPanel extends Panel {
 
 	private final FieldSymbol fieldSymbol;

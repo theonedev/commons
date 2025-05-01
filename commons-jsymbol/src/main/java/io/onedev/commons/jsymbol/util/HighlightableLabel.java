@@ -8,7 +8,6 @@ import org.unbescape.html.HtmlEscape;
 
 import io.onedev.commons.utils.LinearRange;
 
-@SuppressWarnings("serial")
 public class HighlightableLabel extends Label {
 
 	public HighlightableLabel(String id, @Nullable String label, @Nullable LinearRange highlight) {

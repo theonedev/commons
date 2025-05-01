@@ -1,10 +1,32 @@
 package io.onedev.commons.loader;
 
-import com.google.common.collect.Lists;
-import com.google.inject.*;
+import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.inject.AbstractModule;
+import com.google.inject.Binding;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 import com.google.inject.spi.BindingScopingVisitor;
 import com.google.inject.util.Modules;
 import com.google.inject.util.Modules.OverriddenModuleBuilder;
+
 import io.onedev.commons.bootstrap.Bootstrap;
 import io.onedev.commons.bootstrap.Lifecycle;
 import io.onedev.commons.utils.DependencyUtils;
@@ -19,14 +41,6 @@ import javassist.bytecode.SignatureAttribute.ClassSignature;
 import javassist.bytecode.SignatureAttribute.ClassType;
 import javassist.bytecode.SignatureAttribute.TypeArgument;
 import javassist.bytecode.SignatureAttribute.TypeParameter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.*;
 
 public class AppLoader implements Lifecycle {
 
@@ -90,6 +104,7 @@ public class AppLoader implements Lifecycle {
 		return files;
 	}
 
+	@SuppressWarnings("resource")
 	private Map<String, AbstractPluginModule> loadPluginModules() {
 		Map<String, AbstractPluginModule> pluginModules = new HashMap<String, AbstractPluginModule>();
 		

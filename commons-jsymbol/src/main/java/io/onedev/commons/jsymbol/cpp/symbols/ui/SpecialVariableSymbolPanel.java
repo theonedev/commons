@@ -8,7 +8,6 @@ import io.onedev.commons.jsymbol.cpp.symbols.SpecialVariableSymbol;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
 import io.onedev.commons.utils.LinearRange;
 
-@SuppressWarnings("serial")
 public class SpecialVariableSymbolPanel extends Panel {
 
 	private final SpecialVariableSymbol specialVariableSymbol;

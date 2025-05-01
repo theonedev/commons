@@ -10,7 +10,6 @@ import io.onedev.commons.jsymbol.csharp.symbols.MethodSymbol;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
 import io.onedev.commons.utils.LinearRange;
 
-@SuppressWarnings("serial")
 public class MethodSymbolPanel extends Panel {
 
 	private final MethodSymbol methodSymbol;

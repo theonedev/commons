@@ -9,7 +9,6 @@ import io.onedev.commons.jsymbol.cpp.symbols.MemberSymbol;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
 import io.onedev.commons.utils.LinearRange;
 
-@SuppressWarnings("serial")
 public class MemberSymbolPanel extends Panel {
 
 	private final MemberSymbol memberSymbol;

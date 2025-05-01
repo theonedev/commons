@@ -11,7 +11,6 @@ import io.onedev.commons.jsymbol.cpp.symbols.SpecialFunctionSymbol;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
 import io.onedev.commons.utils.LinearRange;
 
-@SuppressWarnings("serial")
 public class SpecialFunctionSymbolPanel extends Panel {
 
 	private final SpecialFunctionSymbol specialFunction;

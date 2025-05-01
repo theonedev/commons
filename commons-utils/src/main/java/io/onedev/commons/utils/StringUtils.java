@@ -1,9 +1,5 @@
 package io.onedev.commons.utils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.StreamTokenizer;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

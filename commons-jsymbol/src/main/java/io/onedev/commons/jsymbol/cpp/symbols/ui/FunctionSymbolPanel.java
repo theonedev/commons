@@ -10,7 +10,6 @@ import io.onedev.commons.jsymbol.cpp.symbols.FunctionSymbol;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
 import io.onedev.commons.utils.LinearRange;
 
-@SuppressWarnings("serial")
 public class FunctionSymbolPanel extends Panel {
 
 	private final FunctionSymbol functionSymbol;

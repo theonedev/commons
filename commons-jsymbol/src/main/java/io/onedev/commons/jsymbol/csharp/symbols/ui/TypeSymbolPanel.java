@@ -8,7 +8,6 @@ import io.onedev.commons.jsymbol.csharp.symbols.TypeSymbol;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
 import io.onedev.commons.utils.LinearRange;
 
-@SuppressWarnings("serial")
 public class TypeSymbolPanel extends Panel {
 
 	private final TypeSymbol typeSymbol;

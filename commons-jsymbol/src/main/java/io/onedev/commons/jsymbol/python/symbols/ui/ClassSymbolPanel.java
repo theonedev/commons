@@ -7,7 +7,6 @@ import io.onedev.commons.jsymbol.python.symbols.ClassSymbol;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
 import io.onedev.commons.utils.LinearRange;
 
-@SuppressWarnings("serial")
 public class ClassSymbolPanel extends Panel {
 
 	private final ClassSymbol symbol;

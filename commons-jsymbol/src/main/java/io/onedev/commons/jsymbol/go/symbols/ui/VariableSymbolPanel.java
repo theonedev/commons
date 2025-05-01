@@ -9,7 +9,6 @@ import io.onedev.commons.jsymbol.go.symbols.VariableSymbol;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
 import io.onedev.commons.utils.LinearRange;
 
-@SuppressWarnings("serial")
 public class VariableSymbolPanel extends Panel {
 
 	private final VariableSymbol variableSymbol;

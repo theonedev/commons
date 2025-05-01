@@ -20,6 +20,7 @@ import java.util.zip.ZipFile;
 import static java.nio.file.Files.isSymbolicLink;
 import static java.util.Arrays.asList;
 
+@SuppressWarnings("deprecation")
 public class FileUtils extends org.apache.commons.io.FileUtils {
 
 	private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);

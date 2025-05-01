@@ -1,25 +1,36 @@
 package io.onedev.commons.utils;
 
-import com.google.common.collect.Sets;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
-import org.apache.commons.lang3.tuple.Pair;
-
-import javax.annotation.Nullable;
-import java.io.*;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-
 import static java.nio.file.Files.createSymbolicLink;
 import static org.apache.commons.compress.archivers.tar.TarConstants.LF_DIR;
 import static org.apache.commons.compress.archivers.tar.TarConstants.LF_SYMLINK;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+
+import javax.annotation.Nullable;
+
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+
+import com.google.common.collect.Sets;
 
 public class TarUtils {
 
@@ -148,10 +159,10 @@ public class TarUtils {
         }
     }
 
+    @SuppressWarnings("deprecation")
     public static void untar(InputStream is, File destDir, boolean compressed) {
         var destPath = destDir.toPath();
         byte[] buffer = new byte[BUFFER_SIZE];
-        List<Pair<String, String>> symlinks = new ArrayList<>();
         TarArchiveInputStream tis;
         try {
             if (compressed)
