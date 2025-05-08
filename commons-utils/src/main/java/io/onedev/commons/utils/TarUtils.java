@@ -30,6 +30,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 
 public class TarUtils {
@@ -172,8 +173,8 @@ public class TarUtils {
             TarArchiveEntry entry;
             while((entry = tis.getNextTarEntry()) != null) {
                 var entryName = entry.getName();
-                if (entryName.contains(".."))
-                    throw new ExplicitException("Tar entry name contains '..': " + entryName);
+                if (Splitter.on('/').trimResults().splitToStream(entryName).anyMatch(it->it.equals("..")))
+                    throw new ExplicitException("Tar entry should not contain path segment '..': " + entryName);
                 if (entry.isSymbolicLink()) {
                     var filePath = destPath.resolve(entryName);
                     if (Files.exists(filePath, LinkOption.NOFOLLOW_LINKS)) {
