@@ -35,6 +35,8 @@ public interface SecretMasker extends Serializable {
 	static SecretMasker create(Collection<String> secrets, String mask) {
 		return new SecretMasker() {
 
+			private static final long serialVersionUID = 1L;
+			
 			@Override
 			public String mask(String value) {
 				for (var secret: secrets) 
