@@ -63,8 +63,6 @@ public class PathMatcher implements Matcher {
 
 	private static final Matcher STRING_MATCHER = new StringMatcher();
 	
-    //TODO - complete JavaDoc
-
     /**
      * Default path separator: "/"
      */

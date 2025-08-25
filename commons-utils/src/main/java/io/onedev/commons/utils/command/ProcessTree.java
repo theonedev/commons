@@ -374,7 +374,6 @@ public abstract class ProcessTree implements Iterable<OSProcess> {
         }
     }
     
-    //TODO: Cleanup once Winp provides proper API 
     /**
      * Wrapper for runtime {@link WinpException}.
      */
@@ -417,7 +416,6 @@ public abstract class ProcessTree implements Iterable<OSProcess> {
                     matched = hasMatchingEnvVars(p, modelEnvVars);
                 } catch (WindowsOSProcessException e) {
                     // likely a missing privilege
-                    // TODO: not a minor issue - causes process termination error in JENKINS-30782
                     if (logger.isTraceEnabled()) {
                         logger.trace("Failed to check environment variable match for process with pid=" + p.getPid() ,e);
                     }
@@ -571,7 +569,6 @@ public abstract class ProcessTree implements Iterable<OSProcess> {
 
     }
 
-    //TODO: can be replaced by multi-release JAR
     /**
      * Reflection used in the Unix support.
      */
@@ -636,7 +633,6 @@ public abstract class ProcessTree implements Iterable<OSProcess> {
             }
         }
 
-        //TODO: We ideally need to update ProcessTree APIs to Support Long (JENKINS-53799).
         public static int pid(@Nonnull Process proc) {
             try {
                 if (JAVA8_PID_FIELD != null) {
