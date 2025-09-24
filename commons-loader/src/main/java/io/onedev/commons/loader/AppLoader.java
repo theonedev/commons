@@ -1,6 +1,7 @@
 package io.onedev.commons.loader;
 
 import java.io.File;
+import java.lang.annotation.Annotation;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -174,6 +175,10 @@ public class AppLoader implements Lifecycle {
 	
 	public static <T> T getInstance(Class<T> type) {
 		return injector.getInstance(type);
+	}
+
+	public static <T> T getInstance(Class<T> type, Class<? extends Annotation> annotationClass) {
+		return injector.getInstance(Key.get(type, annotationClass));
 	}
 	
 	@SuppressWarnings({ "unchecked"})
