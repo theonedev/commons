@@ -9,7 +9,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.request.resource.PackageResourceReference;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class FunctionSymbol extends GolangSymbol {
 

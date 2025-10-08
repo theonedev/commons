@@ -1,6 +1,6 @@
 package io.onedev.commons.jsymbol.scss.symbols;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import io.onedev.commons.jsymbol.Symbol;
 import io.onedev.commons.utils.PlanarRange;

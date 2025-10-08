@@ -2,7 +2,7 @@ package io.onedev.commons.codeassist;
 
 import java.io.Serializable;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import io.onedev.commons.utils.LinearRange;
 

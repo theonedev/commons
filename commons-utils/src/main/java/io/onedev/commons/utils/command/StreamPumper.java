@@ -4,7 +4,7 @@ import io.onedev.commons.bootstrap.Bootstrap;
 import io.onedev.commons.bootstrap.SecretMasker;
 import io.onedev.commons.utils.ImmediateFuture;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

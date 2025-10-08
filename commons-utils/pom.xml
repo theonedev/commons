@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>io.onedev</groupId>
 		<artifactId>commons</artifactId>
-		<version>3.0.14</version>
+		<version>3.0.15</version>
 	</parent>
 	<artifactId>commons-utils</artifactId>
 	<dependencies>
@@ -19,6 +19,10 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-collections4</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.jspecify</groupId>
+			<artifactId>jspecify</artifactId>
+		</dependency>			
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-compress</artifactId>

@@ -9,7 +9,7 @@
 		<version>1.2.3</version>
 	</parent>
 	<artifactId>commons</artifactId>
-	<version>3.0.14</version>
+	<version>3.0.15</version>
 	<packaging>pom</packaging>
 	<modules>
 		<module>commons-utils</module>
@@ -137,7 +137,7 @@
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>32.0.1-jre</version>
+				<version>33.5.0-jre</version>
 			</dependency>
 			<dependency>
 				<groupId>org.jsoup</groupId>
@@ -274,6 +274,11 @@
 				<artifactId>pty4j</artifactId>
 				<version>0.12.5</version>
 			</dependency>
+			<dependency>
+				<groupId>org.jspecify</groupId>
+				<artifactId>jspecify</artifactId>
+				<version>1.0.0</version>
+			</dependency>			
 		</dependencies>
 	</dependencyManagement>
 	<repositories>

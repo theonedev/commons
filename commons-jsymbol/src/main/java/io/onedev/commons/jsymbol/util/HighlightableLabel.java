@@ -1,6 +1,6 @@
 package io.onedev.commons.jsymbol.util;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.LoadableDetachableModel;

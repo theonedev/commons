@@ -2,7 +2,7 @@ package io.onedev.commons.jsymbol.csharp.symbols;
 
 import java.util.EnumSet;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.image.Image;

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import com.google.common.base.Splitter;
 

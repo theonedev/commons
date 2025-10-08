@@ -2,7 +2,7 @@ package io.onedev.commons.jsymbol;
 
 import java.util.List;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.Parser;

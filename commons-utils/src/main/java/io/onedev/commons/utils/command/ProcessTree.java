@@ -48,7 +48,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
 import org.jvnet.winp.WinProcess;
 import org.jvnet.winp.WinpException;
@@ -434,7 +434,7 @@ public abstract class ProcessTree implements Iterable<OSProcess> {
             WinProcess.enableDebugPrivilege();
         }
         
-        private static boolean hasMatchingEnvVars(@Nonnull OSProcess p, @Nonnull Map<String, String> modelEnvVars)
+        private static boolean hasMatchingEnvVars(@NonNull OSProcess p, @NonNull Map<String, String> modelEnvVars)
                 throws WindowsOSProcessException {
             if (p instanceof WindowsOSProcess) {
                 return ((WindowsOSProcess)p).hasMatchingEnvVars2(modelEnvVars);
@@ -633,7 +633,7 @@ public abstract class ProcessTree implements Iterable<OSProcess> {
             }
         }
 
-        public static int pid(@Nonnull Process proc) {
+        public static int pid(@NonNull Process proc) {
             try {
                 if (JAVA8_PID_FIELD != null) {
                     return JAVA8_PID_FIELD.getInt(proc);

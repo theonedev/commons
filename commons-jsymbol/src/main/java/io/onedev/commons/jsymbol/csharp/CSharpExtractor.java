@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import io.onedev.commons.jsymbol.csharp.CSharpParser.*;
 import org.antlr.v4.runtime.BaseErrorListener;

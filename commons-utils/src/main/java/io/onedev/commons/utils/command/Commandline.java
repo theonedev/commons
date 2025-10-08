@@ -9,7 +9,7 @@ import io.onedev.commons.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ExecutionException;

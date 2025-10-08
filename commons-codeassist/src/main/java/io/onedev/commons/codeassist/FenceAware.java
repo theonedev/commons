@@ -3,7 +3,7 @@ package io.onedev.commons.codeassist;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import io.onedev.commons.codeassist.grammar.Grammar;
 import io.onedev.commons.codeassist.parser.TerminalExpect;

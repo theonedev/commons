@@ -2,7 +2,7 @@ package io.onedev.commons.jsymbol.java.symbols;
 
 import java.util.EnumSet;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.behavior.AttributeAppender;

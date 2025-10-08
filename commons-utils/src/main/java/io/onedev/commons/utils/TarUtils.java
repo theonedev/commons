@@ -24,7 +24,7 @@ import java.util.HashSet;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
