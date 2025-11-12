@@ -260,7 +260,7 @@ public class GolangExtractor extends AbstractSymbolExtractor<GolangSymbol> {
 
 	@Override
 	public int getVersion() {
-		return 4;
+		return 5;
 	}
 
 }

@@ -103,11 +103,11 @@ public class CSharpExtractorTest extends DescriptableExtractorTest<CSharpSymbol>
 				builder.append(methodSymbol.getMethodPrefix()).append(" ");
 			if (methodSymbol.getKind() == MethodSymbol.Kind.DELEGATE)
 				builder.append("delegate ");
-			if (methodSymbol.getType() != null)
-				builder.append(methodSymbol.getType()).append(" ");
+			if (methodSymbol.getReturnType() != null)
+				builder.append(methodSymbol.getReturnType()).append(" ");
 			builder.append(methodSymbol.getQualifiedName());
-			if (methodSymbol.getTypeParams() != null)
-				builder.append(methodSymbol.getTypeParams());
+			if (methodSymbol.getReturnTypeParams() != null)
+				builder.append(methodSymbol.getReturnTypeParams());
 			if (methodSymbol.getMethodParams() != null)
 				builder.append("(").append(methodSymbol.getMethodParams()).append(")");
 			else

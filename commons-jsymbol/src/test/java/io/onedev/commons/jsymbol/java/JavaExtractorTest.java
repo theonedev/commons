@@ -56,10 +56,10 @@ public class JavaExtractorTest extends DescriptableExtractorTest<JavaSymbol> {
 			MethodSymbol methodSymbol = (MethodSymbol) symbol;
 			for (Modifier modifier: methodSymbol.getModifiers()) 
 				builder.append(modifier.name().toLowerCase()).append(" ");
-			if (methodSymbol.getTypeParams() != null)
-				builder.append(methodSymbol.getTypeParams()).append(" ");
-			if (methodSymbol.getType() != null)
-				builder.append(methodSymbol.getType()).append(" ");
+			if (methodSymbol.getReturnTypeParams() != null)
+				builder.append(methodSymbol.getReturnTypeParams()).append(" ");
+			if (methodSymbol.getReturnType() != null)
+				builder.append(methodSymbol.getReturnType()).append(" ");
 			builder.append(methodSymbol.getName());
 			if (methodSymbol.getMethodParams() != null)
 				builder.append("(").append(methodSymbol.getMethodParams()).append(")");

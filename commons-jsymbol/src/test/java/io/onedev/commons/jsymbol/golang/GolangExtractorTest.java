@@ -26,8 +26,8 @@ public class GolangExtractorTest extends DescriptableExtractorTest<GolangSymbol>
 		} else if (symbol instanceof FunctionSymbol) {
 			FunctionSymbol functionSymbol = (FunctionSymbol) symbol;
 			builder.append("func ").append(functionSymbol.getName()).append(functionSymbol.getFunctionParams());
-			if (functionSymbol.getType() != null)
-				builder.append(" ").append(functionSymbol.getType());
+			if (functionSymbol.getReturnType() != null)
+				builder.append(" ").append(functionSymbol.getReturnType());
 		} else if (symbol instanceof VariableSymbol) {
 			VariableSymbol variableSymbol = (VariableSymbol) symbol;
 			builder.append(variableSymbol.getName());

@@ -15,7 +15,7 @@ public class FunctionSymbol extends GolangSymbol {
 
 	private static final long serialVersionUID = 1L;
 
-	private final String type;
+	private final String returnType;
 	
 	private final String functionParams;
 	
@@ -26,13 +26,13 @@ public class FunctionSymbol extends GolangSymbol {
 			@Nullable PlanarRange scope) {
 		super(parent, methodName, position, scope);
 
-		this.type = returnType;
+		this.returnType = returnType;
 		this.functionParams = functionParams;
 		this.receiver = receiver;
 	}
 	
-	public String getType() {
-		return type;
+	public String getReturnType() {
+		return returnType;
 	}
 
 	public String getFunctionParams() {

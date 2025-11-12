@@ -27,7 +27,7 @@ public class FunctionSymbolPanel extends Panel {
 		
 		add(new HighlightableLabel("name", functionSymbol.getName(), highlight));
 		add(new Label("functionParams", functionSymbol.getFunctionParams()));
-		add(new Label("type", functionSymbol.getType()).setVisible(functionSymbol.getType()!=null));
+		add(new Label("type", functionSymbol.getReturnType()).setVisible(functionSymbol.getReturnType()!=null));
 	}
 
 	@Override

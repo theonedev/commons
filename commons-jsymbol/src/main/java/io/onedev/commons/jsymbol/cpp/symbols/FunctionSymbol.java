@@ -21,7 +21,7 @@ public class FunctionSymbol extends CppSymbol {
 	
 	private final String params;
 
-	private final String type;
+	private final String returnType;
 	
 	private Modifier modifier;
 	
@@ -33,7 +33,7 @@ public class FunctionSymbol extends CppSymbol {
 		
 		this.definition = definition;
 		this.params = params;
-		this.type = type;
+		this.returnType = type;
         this.modifier=modifier;
 		this.isTemp = isTemp;
 	}
@@ -53,8 +53,8 @@ public class FunctionSymbol extends CppSymbol {
 	}
 
 	@Nullable
-	public String getType() {
-		return type;
+	public String getReturnType() {
+		return returnType;
 	}
 
 	@Override

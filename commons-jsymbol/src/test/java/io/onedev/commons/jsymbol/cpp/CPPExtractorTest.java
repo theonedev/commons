@@ -102,8 +102,8 @@ public class CPPExtractorTest extends DescriptableExtractorTest<CppSymbol> {
 			builder.append("enum ").append(enumSymbol.getName());
 		} else if (symbol instanceof FunctionSymbol) {
 			FunctionSymbol functionSymbol = (FunctionSymbol) symbol;
-			if (functionSymbol.getType() != null) 
-				builder.append(functionSymbol.getType()).append(" ");
+			if (functionSymbol.getReturnType() != null) 
+				builder.append(functionSymbol.getReturnType()).append(" ");
 			builder.append(functionSymbol.getName());
 			builder.append("(");
 			if (functionSymbol.getParams() != null) 

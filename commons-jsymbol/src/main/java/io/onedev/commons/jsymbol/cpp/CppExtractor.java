@@ -1441,7 +1441,7 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
     }
 	@Override
 	public int getVersion() {
-		return 1;
+		return 2;
 	}
 	/*
 	 * getVisivility method will be used for judging visibility of class.
@@ -1852,4 +1852,5 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
     public boolean isSymbolNull(CppSymbol symbol){
     	return symbol == null;
     }
+
 }

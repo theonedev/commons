@@ -21,22 +21,22 @@ public class MethodSymbol extends JavaSymbol {
 
 	private static final long serialVersionUID = 1L;
 
-	private final String type; 
+	private final String returnType; 
 	
 	private final String methodParams;
 	
-	private final String typeParams;
+	private final String returnTypeParams;
 
 	private final EnumSet<Modifier> modifiers;
 	
 	public MethodSymbol(TypeSymbol parent, String methodName, PlanarRange position, PlanarRange scope,
-			@Nullable String type, @Nullable String methodParams, @Nullable String typeParams, 
+			@Nullable String returnType, @Nullable String methodParams, @Nullable String returnTypeParams, 
 			EnumSet<Modifier> modifiers) {
 		super(parent, methodName, position, scope);
 		
-		this.type = type;
+		this.returnType = returnType;
 		this.methodParams = methodParams;
-		this.typeParams = typeParams;
+		this.returnTypeParams = returnTypeParams;
 		this.modifiers = modifiers;
 	}
 
@@ -47,8 +47,8 @@ public class MethodSymbol extends JavaSymbol {
 	 * 			type of this method, or <tt>null</tt> for constructor
 	 */
 	@Nullable
-	public String getType() {
-		return type;
+	public String getReturnType() {
+		return returnType;
 	}
 
 	/**
@@ -69,8 +69,8 @@ public class MethodSymbol extends JavaSymbol {
 	 * 			type params, or <tt>null</tt> if no type params
 	 */
 	@Nullable
-	public String getTypeParams() {
-		return typeParams;
+	public String getReturnTypeParams() {
+		return returnTypeParams;
 	}
 
 	public EnumSet<Modifier> getModifiers() {

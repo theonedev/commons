@@ -33,12 +33,12 @@ public class MethodSymbolPanel extends Panel {
 		else
 			add(new WebMarkupContainer("methodParams").setVisible(false));
 		
-		if (methodSymbol.getTypeParams() != null) 
-			add(new Label("typeParams", methodSymbol.getTypeParams()));
+		if (methodSymbol.getReturnTypeParams() != null) 
+			add(new Label("typeParams", methodSymbol.getReturnTypeParams()));
 		else
 			add(new WebMarkupContainer("typeParams").setVisible(false));
 		
-		add(new Label("type", methodSymbol.getType()).setVisible(methodSymbol.getType()!=null));
+		add(new Label("type", methodSymbol.getReturnType()).setVisible(methodSymbol.getReturnType()!=null));
 	}
 
 	@Override

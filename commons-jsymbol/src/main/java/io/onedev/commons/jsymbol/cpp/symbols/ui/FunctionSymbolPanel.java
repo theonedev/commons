@@ -35,7 +35,7 @@ public class FunctionSymbolPanel extends Panel {
 		
 		add(new WebMarkupContainer("definition").setVisible(functionSymbol.isDefinition()));
 		
-		add(new Label("type", functionSymbol.getType()).setVisible(functionSymbol.getType()!=null));
+		add(new Label("type", functionSymbol.getReturnType()).setVisible(functionSymbol.getReturnType()!=null));
 	}
 
 	@Override

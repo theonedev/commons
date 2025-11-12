@@ -23,9 +23,9 @@ public class MethodSymbol extends CSharpSymbol {
 	
 	private final Kind kind;
 	
-	private final String typeParams;
+	private final String returnTypeParams;
 	
-	private final String type;
+	private final String returnType;
 	
 	private final String methodPrefix;
 	
@@ -34,33 +34,33 @@ public class MethodSymbol extends CSharpSymbol {
 	private final EnumSet<CSharpSymbol.Modifier> modifiers;
 
 	public MethodSymbol(@Nullable CSharpSymbol parent, Kind kind, String methodName, PlanarRange position, 
-			PlanarRange scope, @Nullable String typeParams, @Nullable String returnType, 
+			PlanarRange scope, @Nullable String returnTypeParams, @Nullable String returnType, 
 			@Nullable String methodParams, @Nullable String methodPrefix, EnumSet<CSharpSymbol.Modifier> modifiers) {
 		super(parent, methodName, position, scope);
 
 		this.kind = kind;
-		this.type = returnType;
-		this.typeParams = typeParams;
+		this.returnType = returnType;
+		this.returnTypeParams = returnTypeParams;
 		this.methodParams = methodParams;
 		this.methodPrefix = methodPrefix;
 		this.modifiers = modifiers;
 	}
 	
 	public MethodSymbol(@Nullable CSharpSymbol parent, Kind kind, QualifiedName qualifiedName, PlanarRange position, 
-			PlanarRange scope, @Nullable String typeParams, @Nullable String returnType, 
+			PlanarRange scope, @Nullable String returnTypeParams, @Nullable String returnType, 
 			@Nullable String methodParams, @Nullable String methodPrefix, EnumSet<CSharpSymbol.Modifier> modifiers) {
 		super(parent, qualifiedName, position, scope);
 
 		this.kind = kind;
-		this.type = returnType;
-		this.typeParams = typeParams;
+		this.returnType = returnType;
+		this.returnTypeParams = returnTypeParams;
 		this.methodParams = methodParams;
 		this.methodPrefix = methodPrefix;
 		this.modifiers = modifiers;
 	}
 	
-	public String getType() {
-		return type;
+	public String getReturnType() {
+		return returnType;
 	}
 	
 	public String getMethodPrefix() {
@@ -71,8 +71,8 @@ public class MethodSymbol extends CSharpSymbol {
 		return methodParams;
 	}
 	
-	public String getTypeParams() {
-		return typeParams;
+	public String getReturnTypeParams() {
+		return returnTypeParams;
 	}
 
 	public EnumSet<CSharpSymbol.Modifier> getModifiers() {
