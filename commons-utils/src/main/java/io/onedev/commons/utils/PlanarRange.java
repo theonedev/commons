@@ -16,6 +16,10 @@ import com.google.common.base.Splitter;
 public class PlanarRange implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
+
+	public static final String HIGHLIGHT_BEGIN = "[HIGHLIGHT_BEGIN]";
+
+	public static final String HIGHLIGHT_END = "[HIGHLIGHT_END]";
 	
 	private final int fromRow, fromColumn, toRow, toColumn, tabWidth;
 	
@@ -153,6 +157,20 @@ public class PlanarRange implements Serializable {
 		}
 	}
 	
+	public void highlight(List<String> lines) {		
+		if (toRow >= 0 && toRow < lines.size()) {
+			String endLine = lines.get(toRow);
+			int endPos = Math.min(toColumn, endLine.length());
+			lines.set(toRow, endLine.substring(0, endPos) + HIGHLIGHT_END + endLine.substring(endPos));
+		}
+		
+		if (fromRow >= 0 && fromRow < lines.size()) {
+			String startLine = lines.get(fromRow);
+			int startPos = Math.min(fromColumn, startLine.length());
+			lines.set(fromRow, startLine.substring(0, startPos) + HIGHLIGHT_BEGIN + startLine.substring(startPos));
+		}		
+	}
+
 	@Override
 	public boolean equals(Object other) {
 		if (!(other instanceof PlanarRange))
