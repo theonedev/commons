@@ -17,9 +17,9 @@ public class PlanarRange implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 
-	public static final String HIGHLIGHT_BEGIN = "[HIGHLIGHT_BEGIN]";
+	public static final String HIGHLIGHT_BEGIN = "<!HIGHLIGHT_BEGIN!>";
 
-	public static final String HIGHLIGHT_END = "[HIGHLIGHT_END]";
+	public static final String HIGHLIGHT_END = "<!HIGHLIGHT_END!>";
 	
 	private final int fromRow, fromColumn, toRow, toColumn, tabWidth;
 	
