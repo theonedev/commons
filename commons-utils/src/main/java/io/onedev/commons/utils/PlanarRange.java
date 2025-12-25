@@ -211,10 +211,26 @@ public class PlanarRange implements Serializable {
 		int toRow = normalizedRange.getToRow();
 		int toColumn = normalizedRange.getToColumn();
 		
-		int aroundStart = Math.max(0, fromRow - beforeContextSize);
-		int aroundEnd = Math.min(lines.size() - 1, toRow + afterContextSize);
+		int aroundStart;
+		if (beforeContextSize == Integer.MAX_VALUE) {
+			aroundStart = 0;
+		} else {
+			aroundStart = Math.max(0, fromRow - beforeContextSize);
+		}
 		
-		int startLineCount = Math.min(aroundStart, startContextSize);
+		int aroundEnd;
+		if (afterContextSize == Integer.MAX_VALUE) {
+			aroundEnd = lines.size() - 1;
+		} else {
+			aroundEnd = Math.min(lines.size() - 1, toRow + afterContextSize);
+		}
+		
+		int startLineCount;
+		if (startContextSize == Integer.MAX_VALUE) {
+			startLineCount = aroundStart;
+		} else {
+			startLineCount = Math.min(aroundStart, startContextSize);
+		}
 		for (int i = 0; i < startLineCount; i++) {
 			context.add(lines.get(i));
 		}

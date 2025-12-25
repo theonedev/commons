@@ -278,6 +278,14 @@ public class PlanarRangeTest {
 	}
 
 	@Test
+	public void testGetContextSingleLineNoTruncationWithMaxInteger() {
+		List<String> content = lines("line1", "line2", "line3");
+		PlanarRange range = new PlanarRange(1, 0, 1, 5);
+		List<String> result = range.getContext(content, "[BEGIN]", "[END]", "...", 0, Integer.MAX_VALUE, Integer.MAX_VALUE);
+		assertEquals(lines("line1", "[BEGIN]line2[END]", "line3"), result);
+	}
+
+	@Test
 	public void testGetContextSingleLineWithStartContext() {
 		List<String> content = lines("line1", "line2", "line3", "line4", "line5", "line6");
 		PlanarRange range = new PlanarRange(4, 0, 4, 5);
