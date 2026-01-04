@@ -40,10 +40,6 @@ public class ZipUtils {
                     logger.error(event.getMessage());
                 else if (event.getPriority() == Project.MSG_WARN)
                     logger.warn(event.getMessage());
-                else if (event.getPriority() == Project.MSG_INFO)
-                    logger.info(event.getMessage());
-                else
-                    logger.debug(event.getMessage());
             }
 
             @Override
