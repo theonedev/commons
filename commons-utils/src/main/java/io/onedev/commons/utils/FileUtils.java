@@ -8,12 +8,16 @@ import org.slf4j.LoggerFactory;
 import org.jspecify.annotations.Nullable;
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.stream.Collectors;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -268,6 +272,10 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 		return new File(System.getProperty("java.io.tmpdir"));
 	}
 
+	public static File createTempFile(String prefix, String suffix, File directory) {
+		return createTempFile(prefix, suffix, directory, "rw-rw----");
+	}
+
 	public static File createTempFile(String prefix, String suffix) {
 		return createTempFile(prefix, suffix, getTempDir());
 	}
@@ -276,20 +284,30 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 		return createTempFile("file", "tmp");
 	}
 
-	public static File createTempFile(String prefix, String suffix, File directory) {
+	public static File createTempFile(String prefix, String suffix, File directory, String perms) {
 		try {
-			return File.createTempFile(prefix, suffix, directory);
-		} catch (IOException e) {
+			Set<PosixFilePermission> filePerms = PosixFilePermissions.fromString(perms);
+			FileAttribute<Set<PosixFilePermission>> attrs = PosixFilePermissions.asFileAttribute(filePerms);
+
+			return Files.createTempFile(directory.toPath(), prefix, suffix, attrs).toFile();
+		} catch (IllegalArgumentException | IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static File createTempDir(String prefix, String perms) {
+		try {
+			Set<PosixFilePermission> filePerms = PosixFilePermissions.fromString(perms);
+			FileAttribute<Set<PosixFilePermission>> attrs = PosixFilePermissions.asFileAttribute(filePerms);
+
+			return Files.createTempDirectory(getTempDir().toPath(), prefix, attrs).toFile();
+		} catch (IllegalArgumentException | IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	public static File createTempDir(String prefix) {
-		try {
-			return Files.createTempDirectory(getTempDir().toPath(), prefix).toFile();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		return createTempDir(prefix, "rwxrwx---");
 	}
 
 	public static File createTempDir() {
