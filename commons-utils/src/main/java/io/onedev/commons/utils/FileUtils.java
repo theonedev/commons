@@ -1,28 +1,35 @@
 package io.onedev.commons.utils;
 
-import io.onedev.commons.bootstrap.Bootstrap;
-import org.apache.tools.ant.DirectoryScanner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.nio.file.Files.isSymbolicLink;
+import static java.util.Arrays.asList;
 
-import org.jspecify.annotations.Nullable;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
-import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.stream.Collectors;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import static java.nio.file.Files.isSymbolicLink;
-import static java.util.Arrays.asList;
+import org.apache.tools.ant.DirectoryScanner;
+import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.onedev.commons.bootstrap.Bootstrap;
 
 @SuppressWarnings("deprecation")
 public class FileUtils extends org.apache.commons.io.FileUtils {
@@ -284,12 +291,20 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 		return createTempFile("file", "tmp");
 	}
 
+	public static boolean isPosixFileAttributesSupported() {
+		return FileSystems.getDefault().supportedFileAttributeViews().contains("posix");
+	}
+
 	public static File createTempFile(String prefix, String suffix, File directory, String perms) {
 		try {
-			Set<PosixFilePermission> filePerms = PosixFilePermissions.fromString(perms);
-			FileAttribute<Set<PosixFilePermission>> attrs = PosixFilePermissions.asFileAttribute(filePerms);
+			if (isPosixFileAttributesSupported()) {
+				Set<PosixFilePermission> filePerms = PosixFilePermissions.fromString(perms);
+				FileAttribute<Set<PosixFilePermission>> attrs = PosixFilePermissions.asFileAttribute(filePerms);
 
-			return Files.createTempFile(directory.toPath(), prefix, suffix, attrs).toFile();
+				return Files.createTempFile(directory.toPath(), prefix, suffix, attrs).toFile();
+			} else {
+				return Files.createTempFile(directory.toPath(), prefix, suffix).toFile();
+			}
 		} catch (IllegalArgumentException | IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -297,10 +312,14 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 
 	public static File createTempDir(String prefix, String perms) {
 		try {
-			Set<PosixFilePermission> filePerms = PosixFilePermissions.fromString(perms);
-			FileAttribute<Set<PosixFilePermission>> attrs = PosixFilePermissions.asFileAttribute(filePerms);
+			if (isPosixFileAttributesSupported()) {
+				Set<PosixFilePermission> filePerms = PosixFilePermissions.fromString(perms);
+				FileAttribute<Set<PosixFilePermission>> attrs = PosixFilePermissions.asFileAttribute(filePerms);
 
-			return Files.createTempDirectory(getTempDir().toPath(), prefix, attrs).toFile();
+				return Files.createTempDirectory(getTempDir().toPath(), prefix, attrs).toFile();
+			} else {
+				return Files.createTempDirectory(getTempDir().toPath(), prefix).toFile();
+			}
 		} catch (IllegalArgumentException | IOException e) {
 			throw new RuntimeException(e);
 		}
