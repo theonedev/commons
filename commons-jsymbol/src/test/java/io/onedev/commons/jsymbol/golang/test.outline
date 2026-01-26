@@ -5,16 +5,19 @@ package main
     value [1024]T
   }
   CacheProducer
+  func NewProducer() CacheProducer[T]
+  func First(items []T) T
+  func SumNumbers(m map[K]V) V
   slice
+  func (s *slice[E,V]) Map(iteratee func(E) V) *[]V
   Kitchen
   {
     numOfPlates int
   }
   House
   MyFloat
-  {
-    func Abs() float64
-  }
+  func (f MyFloat) Abs() float64
+  func (f MyDouble) max(value1 int, value2 int) (float64, int)
   Shape
   {
     func area() float64
@@ -24,14 +27,17 @@ package main
     x float64
     y float64
     radius float64
-    func area() float64
   }
   Rectangle
   {
     width float64
     height float64
-    func area() float64
   }
+  func (circle Circle) area() float64
+  func (rect Rectangle) area() float64
+  func getArea(shape Shape) float64
+  func main()
+  func init()
   nextTextRegexp
   issue16214src
   Command
@@ -78,18 +84,79 @@ package main
     ntz int
     pop int
   }
-  func NewProducer() CacheProducer[T]
-  func First(items []T) T
-  func SumNumbers(m map[K]V) V
-  func getArea(shape Shape) float64
-  func main()
-  func init()
-  *slice[E,V]
+  func TestStorageOptions(t *testing.T)
+  func getVersionPeriodically(stopCh <-chan struct{})
+  func scrapeMetrics() (map[string]*dto.MetricFamily, error)
+  func migrate(name string, port uint64, peerListenUrls string, peerAdvertiseUrls string, clientListenUrls string, binPath string, dataDirPath string, etcdDataPrefix string, ttlKeysDirectory string, initialCluster string, target *EtcdVersionPair, bundledVersions SupportedVersions, etcdServerArgs string)
+  storageUnknown EtcdStorageVersion
+  storageEtcd2
+  storageEtcd3
+  TestServerInstanceOptions
   {
-    func Map(iteratee func(E) V) *[]V
+    StorageVersionWrapFunc func(storageversion.Manager) storageversion.Manager
   }
-  MyDouble
+  ControllerContext
   {
-    func max(value1 int, value2 int) (float64, int)
+    InformersStarted chan struct{}
   }
+  func newUserInfo(name string, groups ...string) user.Info
+  ComponentConfig
+  {
+    func Get() interface{}
+  }
+  func newCmdConfigPrintActionDefaults(out io.Writer, action string, configBytesProc func() ([]byte, error)) *cobra.Command
+  func expectedJoinIgnorePreflightErrors(expected sets.Set[string]) func(t *testing.T, data *joinData)
+  func (c *healthCheck) Check() (warnings, errors []error)
+  func CreateOrUpdate(client kubernetesInterface[T], obj T) error
+  func testCreateOrUpdate(t *testing.T, resource, resources string, empty T, clientBuilder func(kubernetes.Interface, T) kubernetesInterface[T])
+  migrateMutator
+  {
+    in []any
+    mutateFunc func(in []any) error
+  }
+  fakeImpl
+  {
+    imageStatusReturns
+    {
+      res *v1.ImageStatusResponse
+      err error
+    }
+  }
+  nestedPointerStruct
+  {
+    data
+    {
+      name string
+      value int
+    }
+    items
+    {
+      id int
+    }
+  }
+  capInstance
+  {
+    once sync.Once
+    lock sync.Mutex
+    capabilities *Capabilities
+  }
+  inUseClaimOld
+  GraphBuilder
+  {
+    informersStarted <-chan struct{}
+  }
+  backoffRecord
+  {
+    key string
+    failuresAfterLastSuccess int32
+    lastFailureTime *time.Time
+  }
+  func (backoff backoffRecord) getRemainingTime(clock clock.WithTicker, defaultBackoff time.Duration, maxBackoff time.Duration) time.Duration
+  func (hu *HostUtil) GetFileType(pathname string) (FileType, error)
+  func (hu *HostUtil) PathExists(pathname string) (bool, error)
+  func (hu *HostUtil) PathExists2(pathname string) (bool, error)
+  testEncodableMap
+  func (testEncodableMap[K]) GetObjectKind() schema.ObjectKind
+  func (testEncodableMap[K]) DeepCopyObject() runtime.Object
+  testEncodableMap2
 }

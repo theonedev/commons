@@ -1,11 +1,11 @@
-package io.onedev.commons.jsymbol.go.symbols.ui;
+package io.onedev.commons.jsymbol.golang.symbols.ui;
 
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 
-import io.onedev.commons.jsymbol.go.symbols.FunctionSymbol;
+import io.onedev.commons.jsymbol.golang.symbols.FunctionSymbol;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
 import io.onedev.commons.utils.LinearRange;
 
@@ -25,9 +25,10 @@ public class FunctionSymbolPanel extends Panel {
 	protected void onInitialize() {
 		super.onInitialize();
 		
+		add(new Label("receiver", functionSymbol.getReceiver()).setVisible(functionSymbol.getReceiver() != null));
 		add(new HighlightableLabel("name", functionSymbol.getName(), highlight));
 		add(new Label("functionParams", functionSymbol.getFunctionParams()));
-		add(new Label("type", functionSymbol.getReturnType()).setVisible(functionSymbol.getReturnType()!=null));
+		add(new Label("type", functionSymbol.getReturnType()).setVisible(functionSymbol.getReturnType() != null));
 	}
 
 	@Override

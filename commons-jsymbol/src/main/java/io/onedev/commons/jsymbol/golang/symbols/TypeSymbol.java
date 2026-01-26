@@ -1,4 +1,4 @@
-package io.onedev.commons.jsymbol.go.symbols;
+package io.onedev.commons.jsymbol.golang.symbols;
 
 import org.jspecify.annotations.Nullable;
 
@@ -7,7 +7,7 @@ import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.request.resource.PackageResourceReference;
 
 import io.onedev.commons.utils.PlanarRange;
-import io.onedev.commons.jsymbol.go.symbols.ui.icon.IconLocator;
+import io.onedev.commons.jsymbol.golang.symbols.ui.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
 import io.onedev.commons.utils.LinearRange;

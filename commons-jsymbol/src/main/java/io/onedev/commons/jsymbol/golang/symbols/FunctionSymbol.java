@@ -1,7 +1,7 @@
-package io.onedev.commons.jsymbol.go.symbols;
+package io.onedev.commons.jsymbol.golang.symbols;
 
-import io.onedev.commons.jsymbol.go.symbols.ui.FunctionSymbolPanel;
-import io.onedev.commons.jsymbol.go.symbols.ui.icon.IconLocator;
+import io.onedev.commons.jsymbol.golang.symbols.ui.FunctionSymbolPanel;
+import io.onedev.commons.jsymbol.golang.symbols.ui.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;
 import io.onedev.commons.utils.LinearRange;
 import io.onedev.commons.utils.PlanarRange;

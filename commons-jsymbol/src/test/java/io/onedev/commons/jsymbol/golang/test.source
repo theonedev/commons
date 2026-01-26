@@ -178,3 +178,122 @@ type B interface {
 type entry = struct {
 	nlz, ntz, pop int
 }
+
+func TestStorageOptions(t *testing.T) {
+}
+
+func getVersionPeriodically(stopCh <-chan struct{}) {
+}
+
+func scrapeMetrics() (map[string]*dto.MetricFamily, error) {
+}
+
+func migrate(name string, port uint64, peerListenUrls string, peerAdvertiseUrls string, clientListenUrls string,
+	binPath string, dataDirPath string, etcdDataPrefix string, ttlKeysDirectory string,
+	initialCluster string, target *EtcdVersionPair, bundledVersions SupportedVersions, etcdServerArgs string) {
+}
+
+const (
+	storageUnknown EtcdStorageVersion = iota
+	storageEtcd2
+	storageEtcd3
+)
+
+type TestServerInstanceOptions struct {
+	StorageVersionWrapFunc func(storageversion.Manager) storageversion.Manager
+}
+
+type ControllerContext struct {
+	InformersStarted chan struct{}
+}
+
+func newUserInfo(name string, groups ...string) user.Info {
+}
+
+type ComponentConfig interface {
+	Get() interface{}
+}
+
+func newCmdConfigPrintActionDefaults(out io.Writer, action string, configBytesProc func() ([]byte, error)) *cobra.Command {
+}
+
+func expectedJoinIgnorePreflightErrors(expected sets.Set[string]) func(t *testing.T, data *joinData) {
+}
+
+func (c *healthCheck) Check() (warnings, errors []error) {
+}
+
+func CreateOrUpdate[T kubernetesObject](client kubernetesInterface[T], obj T) error {
+}
+
+func testCreateOrUpdate[T kubernetesObject](t *testing.T, resource, resources string, empty T, clientBuilder func(kubernetes.Interface, T) kubernetesInterface[T]) {
+}
+
+type migrateMutator struct {
+	in         []any
+	mutateFunc func(in []any) error
+}
+
+type fakeImpl struct {
+	imageStatusReturns struct {
+		res *v1.ImageStatusResponse
+		err error
+	}
+}
+
+type nestedPointerStruct struct {
+	data *struct {
+		name string
+		value int
+	}
+	items []struct {
+		id int
+	}
+}
+
+var capInstance struct {
+	once         sync.Once
+	lock         sync.Mutex
+	capabilities *Capabilities
+}
+
+var (
+    inUseClaimOld = st.FromResourceClaim(inUseClaim).
+        OwnerReference(podName, podUID+"-other", podKind).
+        UID("other").
+        Obj()
+)
+
+type GraphBuilder struct {
+	informersStarted <-chan struct{}
+}
+
+type backoffRecord struct {
+	key                      string
+	failuresAfterLastSuccess int32
+	lastFailureTime          *time.Time
+}
+
+func (backoff backoffRecord) getRemainingTime(clock clock.WithTicker, defaultBackoff time.Duration, maxBackoff time.Duration) time.Duration {
+}
+
+func (hu *HostUtil) GetFileType(pathname string) (FileType, error) {
+}
+
+func (hu *(HostUtil)) PathExists(pathname string) (bool, error) {
+}
+
+func (hu *((HostUtil))) PathExists2(pathname string) (bool, error) {
+}
+
+type testEncodableMap[K comparable] map[K]interface{}
+
+func (testEncodableMap[K]) GetObjectKind() schema.ObjectKind {
+	panic("unimplemented")
+}
+
+func (testEncodableMap[K]) DeepCopyObject() runtime.Object {
+	panic("unimplemented")
+}
+
+type testEncodableMap2[K comparable] map[K]interface{}

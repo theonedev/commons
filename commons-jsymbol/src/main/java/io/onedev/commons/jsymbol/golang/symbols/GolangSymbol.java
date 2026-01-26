@@ -1,4 +1,4 @@
-package io.onedev.commons.jsymbol.go.symbols;
+package io.onedev.commons.jsymbol.golang.symbols;
 
 import org.jspecify.annotations.Nullable;
 

@@ -1,4 +1,4 @@
-package io.onedev.commons.jsymbol.go;
+package io.onedev.commons.jsymbol.golang;
 
 import org.antlr.v4.runtime.BufferedTokenStream;
 import org.antlr.v4.runtime.Parser;

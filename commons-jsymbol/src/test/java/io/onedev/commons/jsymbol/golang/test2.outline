@@ -1,0 +1,27 @@
+package job
+{
+  backoffRecord
+  {
+    key string
+    failuresAfterLastSuccess int32
+    lastFailureTime *time.Time
+  }
+  backoffStore
+  {
+    store cache.Store
+  }
+  func (s *backoffStore) updateBackoffRecord(record backoffRecord) error
+  func (s *backoffStore) removeBackoffRecord(jobId string) error
+  func newBackoffStore() *backoffStore
+  backoffRecordKeyFunc
+  func (s *backoffStore) newBackoffRecord(key string, newSucceededPods []*v1.Pod, newFailedPods []*v1.Pod) backoffRecord
+  func sortByFinishedTime(pods []*v1.Pod)
+  func getFinishedTime(p *v1.Pod) time.Time
+  func getFinishTimeFromContainers(p *v1.Pod) *time.Time
+  func latestFinishTime(prevFinishTime *time.Time, cs []v1.ContainerStatus, check func(status v1.ContainerStatus) bool) *time.Time
+  func getFinishTimeFromPodReadyFalseCondition(p *v1.Pod) *time.Time
+  func getFinishTimeFromDeletionTimestamp(p *v1.Pod) *time.Time
+  func (backoff backoffRecord) getRemainingTime(clock clock.WithTicker, defaultBackoff time.Duration, maxBackoff time.Duration) time.Duration
+  func getRemainingTimePerIndex(logger klog.Logger, clock clock.WithTicker, defaultBackoff time.Duration, maxBackoff time.Duration, lastFailedPod *v1.Pod) time.Duration
+  func getRemainingTimeForFailuresCount(clock clock.WithTicker, defaultBackoff time.Duration, maxBackoff time.Duration, failuresCount int32, lastFailureTime *time.Time) time.Duration
+}

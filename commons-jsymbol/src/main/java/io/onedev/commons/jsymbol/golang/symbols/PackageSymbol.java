@@ -1,4 +1,4 @@
-package io.onedev.commons.jsymbol.go.symbols;
+package io.onedev.commons.jsymbol.golang.symbols;
 
 import io.onedev.commons.jsymbol.java.symbols.ui.icon.IconLocator;
 import io.onedev.commons.jsymbol.util.NoAntiCacheImage;

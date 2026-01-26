@@ -1,4 +1,4 @@
-package io.onedev.commons.jsymbol.go.symbols.ui;
+package io.onedev.commons.jsymbol.golang.symbols.ui;
 
 import org.apache.wicket.request.resource.CssResourceReference;
 

@@ -1,11 +1,11 @@
-package io.onedev.commons.jsymbol.go.symbols.ui;
+package io.onedev.commons.jsymbol.golang.symbols.ui;
 
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 
-import io.onedev.commons.jsymbol.go.symbols.VariableSymbol;
+import io.onedev.commons.jsymbol.golang.symbols.VariableSymbol;
 import io.onedev.commons.jsymbol.util.HighlightableLabel;
 import io.onedev.commons.utils.LinearRange;
 
