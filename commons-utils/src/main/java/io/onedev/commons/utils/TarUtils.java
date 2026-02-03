@@ -47,23 +47,23 @@ public class TarUtils {
                 Files.walkFileTree(baseDir.toPath(), new SimpleFileVisitor<>() {
                     @Override
                     public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
-                        var relativePathName = basePath.relativize(filePath).toString().replace('\\', '/');
+                        var entryName = basePath.relativize(filePath).toString().replace(File.separatorChar, '/');
                         if (Files.isSymbolicLink(filePath)) {
-                            TarArchiveEntry entry = new TarArchiveEntry(relativePathName, LF_SYMLINK);
+                            TarArchiveEntry entry = new TarArchiveEntry(entryName, LF_SYMLINK);
                             entry.setLinkName(Files.readSymbolicLink(filePath).toString());
                             tos.putArchiveEntry(entry);
                             tos.closeArchiveEntry();
                         } else {
-                            addTarEntry(baseDir, relativePathName, null, tos, buffer);
+                            addTarEntry(filePath.toFile(), entryName, null, tos, buffer);
                         }
                         return FileVisitResult.CONTINUE;
                     }
 
                     @Override
                     public FileVisitResult preVisitDirectory(Path dirPath, BasicFileAttributes attrs) throws IOException {
-                        var relativePathName = basePath.relativize(dirPath).toString().replace('\\', '/');
-                        if (relativePathName.length() != 0)
-                            addTarEntry(baseDir, relativePathName, null, tos, buffer);
+                        var entryName = basePath.relativize(dirPath).toString().replace(File.separatorChar, '/');
+                        if (entryName.length() != 0)
+                            addTarEntry(dirPath.toFile(), entryName, null, tos, buffer);
                         return FileVisitResult.CONTINUE;
                     }
                 });
@@ -80,15 +80,14 @@ public class TarUtils {
         tar(baseDir, includes, excludes, null, os, compress);
     }
 
-    private static void addTarEntry(File baseDir, String pathName, @Nullable Collection<File> executableFiles,
+    private static void addTarEntry(File file, String entryName, @Nullable Collection<File> executableFiles,
                                     TarArchiveOutputStream tos, byte[] buffer) throws IOException {
-        var file = new File(baseDir, pathName);
         if (file.isDirectory()) {
-            TarArchiveEntry entry = new TarArchiveEntry(pathName + "/", LF_DIR);
+            TarArchiveEntry entry = new TarArchiveEntry(entryName + "/", LF_DIR);
             tos.putArchiveEntry(entry);
             tos.closeArchiveEntry();
         } else {
-            TarArchiveEntry entry = new TarArchiveEntry(pathName);
+            TarArchiveEntry entry = new TarArchiveEntry(entryName);
             entry.setSize(file.length());
             if (executableFiles != null && executableFiles.stream().anyMatch(it->it.toPath().normalize().equals(file.toPath().normalize()))
                     || executableFiles == null && file.canExecute()) {
@@ -150,8 +149,8 @@ public class TarUtils {
                 if (executables != null)
                     executableFiles = FileUtils.listFiles(baseDir, executables, new HashSet<>());
                 for (String path: FileUtils.listPaths(baseDir, includes, excludes)) {
-                    path = path.replace('\\', '/');
-                    addTarEntry(baseDir, path, executableFiles, tos, buffer);
+                    var entryName = path.replace(File.separatorChar, '/');
+                    addTarEntry(new File(baseDir, path), entryName, executableFiles, tos, buffer);
                 }
             }
             tos.finish();

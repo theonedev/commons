@@ -5,7 +5,7 @@ import io.onedev.commons.bootstrap.Bootstrap;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ExceptionUtils extends org.apache.commons.lang3.exception.ExceptionUtils {
+public class ExceptionUtils {
 	
 	@SuppressWarnings("unchecked")
 	public static <T extends Throwable> T find(Throwable throwable, Class<T> exceptionClass) {

@@ -10,6 +10,7 @@ import org.jspecify.annotations.Nullable;
 
 import com.google.common.base.Splitter;
 
+@SuppressWarnings("deprecation")
 public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
 	private static final Pattern ESCAPE_PATTERN = Pattern.compile("\\\\(.)");

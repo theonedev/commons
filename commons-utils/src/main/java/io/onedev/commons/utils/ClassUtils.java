@@ -19,7 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.Preconditions;
 
-public class ClassUtils extends org.apache.commons.lang3.ClassUtils {
+public class ClassUtils {
 	
 	public static @Nullable InputStream getResourceAsStream(@Nullable Class<?> locator, String path) {
 		path = StringUtils.stripStart(path, "/");
