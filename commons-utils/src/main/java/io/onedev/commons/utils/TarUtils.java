@@ -47,6 +47,8 @@ public class TarUtils {
                 Files.walkFileTree(baseDir.toPath(), new SimpleFileVisitor<>() {
                     @Override
                     public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
+                        if (FileUtils.isUnixSocket(filePath))
+                            return FileVisitResult.CONTINUE;
                         var entryName = basePath.relativize(filePath).toString().replace(File.separatorChar, '/');
                         if (Files.isSymbolicLink(filePath)) {
                             TarArchiveEntry entry = new TarArchiveEntry(entryName, LF_SYMLINK);
@@ -86,7 +88,7 @@ public class TarUtils {
             TarArchiveEntry entry = new TarArchiveEntry(entryName + "/", LF_DIR);
             tos.putArchiveEntry(entry);
             tos.closeArchiveEntry();
-        } else {
+        } else if (!FileUtils.isUnixSocket(file.toPath())) {
             TarArchiveEntry entry = new TarArchiveEntry(entryName);
             entry.setSize(file.length());
             if (executableFiles != null && executableFiles.stream().anyMatch(it->it.toPath().normalize().equals(file.toPath().normalize()))

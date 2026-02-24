@@ -12,6 +12,8 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
@@ -35,6 +37,11 @@ import io.onedev.commons.bootstrap.Bootstrap;
 public class FileUtils extends org.apache.commons.io.FileUtils {
 
 	private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);
+
+	/** Unix file type mask and socket type (S_IFMT, S_IFSOCK) */
+	private static final int S_IFMT = 0170000;
+	
+	private static final int S_IFSOCK = 0140000;
 
 	/**
 	 * Load properties from specified path inside specified directory or jar file. 
@@ -293,6 +300,17 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 
 	public static boolean isPosixFileAttributesSupported() {
 		return FileSystems.getDefault().supportedFileAttributeViews().contains("posix");
+	}
+
+	public static boolean isUnixSocket(Path path) {
+		if (!isPosixFileAttributesSupported())
+			return false;
+		try {
+			Integer mode = (Integer) Files.getAttribute(path, "unix:mode", LinkOption.NOFOLLOW_LINKS);
+			return mode != null && (mode & S_IFMT) == S_IFSOCK;
+		} catch (IOException | UnsupportedOperationException e) {
+			return false;
+		}
 	}
 
 	public static File createTempFile(String prefix, String suffix, File directory, String perms) {
