@@ -111,8 +111,7 @@ public class Commandline implements Serializable {
     	return this;
     }
 
-    @Override
-    public String toString() {
+    private static String toString(String executable, List<String> arguments) {
     	List<String> command = new ArrayList<String>();
     	command.add(executable);
     	command.addAll(arguments);
@@ -135,92 +134,31 @@ public class Commandline implements Serializable {
         	return buf.toString().trim();
     }
 
+    @Override
+    public String toString() {
+		return toString(executable, arguments);
+    }
+
     public Commandline clearArgs() {
         arguments.clear();
         return this;
     }
-    
-    private File getEffectiveWorkingDir() {
-		File workingDir = this.workingDir;
-		if (workingDir == null)
-			workingDir = new File(".");
-		return workingDir;
-    }
-    
-    private String getEffectiveExecutable(File workingDir) {
-		String executable = this.executable;
-		
-        if (!new File(executable).isAbsolute()) {
-            if (new File(workingDir, executable).isFile())
-            	executable = new File(workingDir, executable).getAbsolutePath();
-            else if (new File(workingDir, executable + ".exe").isFile())
-            	executable = new File(workingDir, executable + ".exe").getAbsolutePath();
-            else if (new File(workingDir, executable + ".bat").isFile())
-            	executable = new File(workingDir, executable + ".bat").getAbsolutePath();
-            else if (new File(workingDir, executable + ".cmd").isFile())
-            	executable = new File(workingDir, executable + ".cmd").getAbsolutePath();
-        }
-        return executable;
-    }
-    
-	private ProcessBuilder createProcessBuilder() {
-		File workingDir = getEffectiveWorkingDir();
-		String executable = getEffectiveExecutable(workingDir);
-		
-		List<String> command = new ArrayList<String>();
-		command.add(executable);
-		command.addAll(arguments);
-		
-        ProcessBuilder processBuilder = new ProcessBuilder(command);
-        processBuilder.directory(workingDir);
         
-        processBuilder.environment().putAll(environments);
-        
+	private void log(String executable, List<String> arguments, File workingDir, Map<String, String> environments) {
         if (logger.isDebugEnabled()) {
-    		logger.debug("Executing command: " + this);
+    		logger.debug("Executing command: " + toString(executable, arguments));
     		if (logger.isTraceEnabled()) {
         		logger.trace("Command working directory: " + workingDir.getAbsolutePath());
         		StringBuffer buffer = new StringBuffer();
-        		for (Map.Entry<String, String> entry: processBuilder.environment().entrySet())
+        		for (Map.Entry<String, String> entry: environments.entrySet())
         			buffer.append("	" + entry.getKey() + "=" + entry.getValue() + "\n");
         		logger.trace("Command execution environments:\n" + 
         				StringUtils.stripEnd(buffer.toString(), "\n"));
     		}
     	}
 
-    	return processBuilder;
-    }
-	
-	private PtyProcessBuilder createPtyProcessBuilder() {
-		File workingDir = getEffectiveWorkingDir();
-		String executable = getEffectiveExecutable(workingDir);
-
-		List<String> command = new ArrayList<String>();
-		command.add(executable);
-		command.addAll(arguments);
+	}
 		
-        PtyProcessBuilder processBuilder = new PtyProcessBuilder(command.toArray(new String[command.size()]));
-        processBuilder.setDirectory(workingDir.getAbsolutePath());
-        
-        Map<String, String> ptyEnvironments = new HashMap<>(environments);
-        ptyEnvironments.putAll(System.getenv());
-        processBuilder.setEnvironment(ptyEnvironments);
-        
-        if (logger.isDebugEnabled()) {
-    		logger.debug("Executing command: " + this);
-    		if (logger.isTraceEnabled()) {
-        		logger.trace("Command working directory: " + workingDir.getAbsolutePath());
-        		StringBuffer buffer = new StringBuffer();
-        		for (Map.Entry<String, String> entry: ptyEnvironments.entrySet())
-        			buffer.append("	" + entry.getKey() + "=" + entry.getValue() + "\n");
-        		logger.trace("Command execution environments:\n" + 
-        				StringUtils.stripEnd(buffer.toString(), "\n"));
-    		}
-    	}
-
-    	return processBuilder;
-    }
-
 	/**
 	 * Various streams passed in will be closed after calling this method
 	 *
@@ -261,26 +199,75 @@ public class Commandline implements Serializable {
 			stderrHandler = StreamPumper.pumpTo(null);
 		if (stdinHandler == null)
 			stdinHandler = StreamPumper.pumpFrom(null);
+
     	String executionId = UUID.randomUUID().toString();
     	Process process;
-        try {
-        	environments.put(EXECUTION_ID_ENV, executionId);
-        	if (ptyMode != null) {
-        		PtyProcess ptyProcess = createPtyProcessBuilder().start();
-        		ptyMode.setResizeSupport((rows, cols) -> {
-					try {
-						ptyProcess.setWinSize(new WinSize(cols, rows));
-					} catch (Exception e) {
-						logger.error("Error setting window size", e);
-					}
-				});
-        		process = ptyProcess;
-        	} else {
-        		process = createProcessBuilder().start();
-        	}
-        } catch (IOException e) {
-        	throw new RuntimeException(e);
-        }
+
+		File effectiveWorkingDir = workingDir;
+		if (effectiveWorkingDir == null)
+			effectiveWorkingDir = new File(".");
+
+		String effectiveExecutable;
+        if (!new File(executable).isAbsolute()) {
+            if (new File(effectiveWorkingDir, executable).isFile())
+            	effectiveExecutable = new File(effectiveWorkingDir, executable).getAbsolutePath();
+            else if (new File(effectiveWorkingDir, executable + ".exe").isFile())
+            	effectiveExecutable = new File(effectiveWorkingDir, executable + ".exe").getAbsolutePath();
+            else if (new File(effectiveWorkingDir, executable + ".bat").isFile())
+            	effectiveExecutable = new File(effectiveWorkingDir, executable + ".bat").getAbsolutePath();
+            else if (new File(effectiveWorkingDir, executable + ".cmd").isFile())
+            	effectiveExecutable = new File(effectiveWorkingDir, executable + ".cmd").getAbsolutePath();
+			else
+				effectiveExecutable = executable;
+        } else {
+			effectiveExecutable = executable;
+		}
+
+		List<String> command = new ArrayList<String>();
+		command.add(effectiveExecutable);
+		command.addAll(arguments);
+
+		if (ptyMode != null) {				
+			PtyProcessBuilder processBuilder = new PtyProcessBuilder(command.toArray(new String[command.size()]));
+			processBuilder.setDirectory(effectiveWorkingDir.getAbsolutePath());
+			
+			Map<String, String> ptyEnvironments = new HashMap<>(System.getenv());
+			ptyEnvironments.putAll(environments);
+			if (executionId != null)
+				ptyEnvironments.put(EXECUTION_ID_ENV, executionId);
+			processBuilder.setEnvironment(ptyEnvironments);
+			
+			log(effectiveExecutable, arguments, effectiveWorkingDir, ptyEnvironments);
+	
+			PtyProcess ptyProcess;
+			try {
+				ptyProcess = processBuilder.start();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+			ptyMode.setResizeSupport((rows, cols) -> {
+				try {
+					ptyProcess.setWinSize(new WinSize(cols, rows));
+				} catch (Exception e) {
+					logger.error("Error setting window size", e);
+				}
+			});
+			process = ptyProcess;
+		} else {			
+			ProcessBuilder processBuilder = new ProcessBuilder(command);
+			processBuilder.directory(effectiveWorkingDir);
+			
+			processBuilder.environment().putAll(environments);
+			processBuilder.environment().put(EXECUTION_ID_ENV, executionId);
+			
+			log(effectiveExecutable, arguments, effectiveWorkingDir, processBuilder.environment());
+	
+			try {
+				process = processBuilder.start();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
 
 		ExecutionResult result = new ExecutionResult(this);
 		if (timeout != 0) {

@@ -1,19 +1,23 @@
 package io.onedev.commons.utils.command;
 
-import io.onedev.commons.bootstrap.Bootstrap;
-import io.onedev.commons.bootstrap.SecretMasker;
-import io.onedev.commons.utils.ImmediateFuture;
+import static org.apache.commons.io.IOUtils.closeQuietly;
 
-import org.jspecify.annotations.Nullable;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.function.Function;
 
-import static org.apache.commons.io.IOUtils.closeQuietly;
+import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.onedev.commons.bootstrap.Bootstrap;
+import io.onedev.commons.bootstrap.SecretMasker;
 
 public class StreamPumper {
+
+	private static final Logger logger = LoggerFactory.getLogger(StreamPumper.class);
 
     private static final int BUFFER_SIZE = 64*1024;
 
@@ -26,25 +30,19 @@ public class StreamPumper {
 			try {
 				byte[] buf = new byte[BUFFER_SIZE];
 
-				try {
-					int length;
-					while ((length = input.read(buf)) != -1) {
-						if (output != null) {
-							output.write(buf, 0, length);
-							output.flush();
-						}
+				int length;
+				while ((length = input.read(buf)) != -1) {
+					if (output != null) {
+						output.write(buf, 0, length);
+						output.flush();
 					}
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				} finally {
-					try {
-						while (input.read(buf) != -1);
-					} catch (IOException ignored) {
-					}
-					closeQuietly(input);
-					closeQuietly(output);
 				}
+			} catch (Throwable t) {
+				logger.error("Error pumping stream", t);
 			} finally {
+				closeQuietly(input);
+				closeQuietly(output);
+				
 				if (masker != null)
 					SecretMasker.pop();
 			}
@@ -61,7 +59,7 @@ public class StreamPumper {
 				return pump(is, os);
 			} else {
 				closeQuietly(os);
-				return new ImmediateFuture<Void>(null);
+				return CompletableFuture.completedFuture(null);
 			}
 		};
 	}
