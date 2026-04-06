@@ -11,17 +11,25 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -32,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.onedev.commons.bootstrap.Bootstrap;
+import io.onedev.commons.utils.match.WildcardUtils;
 
 @SuppressWarnings("deprecation")
 public class FileUtils extends org.apache.commons.io.FileUtils {
@@ -349,6 +358,58 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 
 	public static File createTempDir() {
 		return createTempDir("dir");
+	}
+
+	public static boolean hasChangedFiles(List<File> checkDirs, Date sinceDate, @Nullable String excludePaths) {
+		var excludePathList = new ArrayList<String>();
+		if (excludePaths != null)
+			Collections.addAll(excludePathList, StringUtils.parseQuoteTokens(excludePaths));
+		for (var checkDir : checkDirs) {
+			try {
+				var changed = new AtomicBoolean(false);
+				Files.walkFileTree(checkDir.toPath(), new FileVisitor<>() {
+					@Override
+					public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+						if (attrs.isSymbolicLink())
+							return FileVisitResult.SKIP_SUBTREE;
+						else
+							return FileVisitResult.CONTINUE;
+					}
+
+					@Override
+					public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+						if (attrs.isSymbolicLink())
+							return FileVisitResult.SKIP_SUBTREE;
+						for (var excludeFile : excludePathList) {
+							if (WildcardUtils.matchPath(excludeFile, checkDir.toPath().relativize(file).toString()))
+								return FileVisitResult.CONTINUE;
+						}
+						if (attrs.creationTime().toMillis() > sinceDate.getTime()
+								|| attrs.lastModifiedTime().toMillis() > sinceDate.getTime()) {
+							changed.set(true);
+							return FileVisitResult.TERMINATE;
+						} else {
+							return FileVisitResult.CONTINUE;
+						}
+					}
+
+					@Override
+					public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+						throw exc;
+					}
+
+					@Override
+					public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+						return FileVisitResult.CONTINUE;
+					}
+				});
+				if (changed.get())
+					return true;
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		return false;
 	}
 
 }

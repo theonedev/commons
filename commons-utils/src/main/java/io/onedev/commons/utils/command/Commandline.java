@@ -50,7 +50,14 @@ public class Commandline implements Serializable {
     	this.arguments.addAll(arguments);
     	return this;
     }
-    
+
+    public Commandline arguments(String... arguments) {
+		this.arguments.clear();
+    	for (String each: arguments)
+    		this.arguments.add(each);
+    	return this;
+    }
+	
     public Commandline addArgs(String... args) {
     	for (String each: args)
     		arguments.add(each);

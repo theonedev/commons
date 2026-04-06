@@ -33,8 +33,12 @@ public class StreamPumper {
 				int length;
 				while ((length = input.read(buf)) != -1) {
 					if (output != null) {
-						output.write(buf, 0, length);
-						output.flush();
+						try {
+							output.write(buf, 0, length);
+							output.flush();
+						} catch (Throwable t) {
+							logger.error("Error writing to output stream", t);
+						}
 					}
 				}
 			} catch (Throwable t) {
