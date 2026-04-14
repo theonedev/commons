@@ -223,7 +223,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 		}
 	}
 	
-	public static void deleteFile(File file) {
+	public static void deleteFile(File file) {		
 		int maxTries = 10;
     	int numTries = 1;
 
