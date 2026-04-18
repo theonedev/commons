@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
@@ -360,54 +359,52 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 		return createTempDir("dir");
 	}
 
-	public static boolean hasChangedFiles(List<File> checkDirs, Date sinceDate, @Nullable String excludePaths) {
+	public static boolean hasChangedFiles(File checkDir, Date sinceDate, @Nullable String excludePaths) {
 		var excludePathList = new ArrayList<String>();
 		if (excludePaths != null)
 			Collections.addAll(excludePathList, StringUtils.parseQuoteTokens(excludePaths));
-		for (var checkDir : checkDirs) {
-			try {
-				var changed = new AtomicBoolean(false);
-				Files.walkFileTree(checkDir.toPath(), new FileVisitor<>() {
-					@Override
-					public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-						if (attrs.isSymbolicLink())
-							return FileVisitResult.SKIP_SUBTREE;
-						else
+		try {
+			var changed = new AtomicBoolean(false);
+			Files.walkFileTree(checkDir.toPath(), new FileVisitor<>() {
+				@Override
+				public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+					if (attrs.isSymbolicLink())
+						return FileVisitResult.SKIP_SUBTREE;
+					else
+						return FileVisitResult.CONTINUE;
+				}
+
+				@Override
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+					if (attrs.isSymbolicLink())
+						return FileVisitResult.SKIP_SUBTREE;
+					for (var excludeFile : excludePathList) {
+						if (WildcardUtils.matchPath(excludeFile, checkDir.toPath().relativize(file).toString()))
 							return FileVisitResult.CONTINUE;
 					}
-
-					@Override
-					public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-						if (attrs.isSymbolicLink())
-							return FileVisitResult.SKIP_SUBTREE;
-						for (var excludeFile : excludePathList) {
-							if (WildcardUtils.matchPath(excludeFile, checkDir.toPath().relativize(file).toString()))
-								return FileVisitResult.CONTINUE;
-						}
-						if (attrs.creationTime().toMillis() > sinceDate.getTime()
-								|| attrs.lastModifiedTime().toMillis() > sinceDate.getTime()) {
-							changed.set(true);
-							return FileVisitResult.TERMINATE;
-						} else {
-							return FileVisitResult.CONTINUE;
-						}
-					}
-
-					@Override
-					public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-						throw exc;
-					}
-
-					@Override
-					public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+					if (attrs.creationTime().toMillis() > sinceDate.getTime()
+							|| attrs.lastModifiedTime().toMillis() > sinceDate.getTime()) {
+						changed.set(true);
+						return FileVisitResult.TERMINATE;
+					} else {
 						return FileVisitResult.CONTINUE;
 					}
-				});
-				if (changed.get())
-					return true;
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
+				}
+
+				@Override
+				public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+					throw exc;
+				}
+
+				@Override
+				public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+					return FileVisitResult.CONTINUE;
+				}
+			});
+			if (changed.get())
+				return true;
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 		return false;
 	}

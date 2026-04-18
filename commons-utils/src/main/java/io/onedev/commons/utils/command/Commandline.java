@@ -29,7 +29,7 @@ public class Commandline implements Serializable {
 	
     private String executable;
     
-    private List<String> arguments = new ArrayList<String>();
+    private List<String> args = new ArrayList<String>();
     
     private File workingDir;
     
@@ -39,28 +39,28 @@ public class Commandline implements Serializable {
 
 	private ProcessKiller processKiller = new ProcessTreeKiller();
     
-    private Map<String, String> environments = new HashMap<String, String>();
+    private Map<String, String> envs = new HashMap<String, String>();
     
     public Commandline(String executable) {
         this.executable = executable.replace('/', File.separatorChar).replace('\\', File.separatorChar);
     }
     
-    public Commandline arguments(List<String> arguments) {
-    	this.arguments.clear();
-    	this.arguments.addAll(arguments);
+    public Commandline args(List<String> args) {
+    	this.args.clear();
+    	this.args.addAll(args);
     	return this;
     }
 
-    public Commandline arguments(String... arguments) {
-		this.arguments.clear();
-    	for (String each: arguments)
-    		this.arguments.add(each);
+    public Commandline args(String... args) {
+		this.args.clear();
+    	for (String each: args)
+    		this.args.add(each);
     	return this;
     }
 	
     public Commandline addArgs(String... args) {
     	for (String each: args)
-    		arguments.add(each);
+    		this.args.add(each);
     	return this;
     }
     
@@ -105,23 +105,23 @@ public class Commandline implements Serializable {
     	return executable;
     }
     
-    public List<String> arguments() {
-    	return arguments;
+    public List<String> args() {
+    	return args;
     }
     
-    public Map<String, String> environments() {
-    	return environments;
+    public Map<String, String> envs() {
+    	return envs;
     }
     
-    public Commandline environments(Map<String, String> environments) {
-    	this.environments = new HashMap<>(environments);
+    public Commandline envs(Map<String, String> envs) {
+    	this.envs = new HashMap<>(envs);
     	return this;
     }
 
-    private static String toString(String executable, List<String> arguments) {
+    private static String toString(String executable, List<String> args) {
     	List<String> command = new ArrayList<String>();
     	command.add(executable);
-    	command.addAll(arguments);
+    	command.addAll(args);
 
     	StringBuffer buf = new StringBuffer();
         for (String each: command) {
@@ -143,11 +143,11 @@ public class Commandline implements Serializable {
 
     @Override
     public String toString() {
-		return toString(executable, arguments);
+		return toString(executable, args);
     }
 
     public Commandline clearArgs() {
-        arguments.clear();
+        args.clear();
         return this;
     }
         
@@ -232,19 +232,19 @@ public class Commandline implements Serializable {
 
 		List<String> command = new ArrayList<String>();
 		command.add(effectiveExecutable);
-		command.addAll(arguments);
+		command.addAll(args);
 
 		if (ptyMode != null) {				
 			PtyProcessBuilder processBuilder = new PtyProcessBuilder(command.toArray(new String[command.size()]));
 			processBuilder.setDirectory(effectiveWorkingDir.getAbsolutePath());
 			
 			Map<String, String> ptyEnvironments = new HashMap<>(System.getenv());
-			ptyEnvironments.putAll(environments);
+			ptyEnvironments.putAll(envs);
 			if (executionId != null)
 				ptyEnvironments.put(EXECUTION_ID_ENV, executionId);
 			processBuilder.setEnvironment(ptyEnvironments);
 			
-			log(effectiveExecutable, arguments, effectiveWorkingDir, ptyEnvironments);
+			log(effectiveExecutable, args, effectiveWorkingDir, ptyEnvironments);
 	
 			PtyProcess ptyProcess;
 			try {
@@ -264,10 +264,10 @@ public class Commandline implements Serializable {
 			ProcessBuilder processBuilder = new ProcessBuilder(command);
 			processBuilder.directory(effectiveWorkingDir);
 			
-			processBuilder.environment().putAll(environments);
+			processBuilder.environment().putAll(envs);
 			processBuilder.environment().put(EXECUTION_ID_ENV, executionId);
 			
-			log(effectiveExecutable, arguments, effectiveWorkingDir, processBuilder.environment());
+			log(effectiveExecutable, args, effectiveWorkingDir, processBuilder.environment());
 	
 			try {
 				process = processBuilder.start();
