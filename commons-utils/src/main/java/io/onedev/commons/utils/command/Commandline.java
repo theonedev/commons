@@ -1,23 +1,33 @@
 package io.onedev.commons.utils.command;
 
-import com.pty4j.PtyProcess;
-import com.pty4j.PtyProcessBuilder;
-import com.pty4j.WinSize;
-import io.onedev.commons.bootstrap.Bootstrap;
-import io.onedev.commons.bootstrap.SecretMasker;
-import io.onedev.commons.utils.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.jspecify.annotations.Nullable;
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
+
+import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.pty4j.PtyProcess;
+import com.pty4j.PtyProcessBuilder;
+import com.pty4j.WinSize;
+
+import io.onedev.commons.bootstrap.Bootstrap;
+import io.onedev.commons.bootstrap.SecretMasker;
+import io.onedev.commons.utils.StringUtils;
 
 public class Commandline implements Serializable {
 	
@@ -47,23 +57,26 @@ public class Commandline implements Serializable {
     
     public Commandline args(List<String> args) {
     	this.args.clear();
-    	this.args.addAll(args);
-    	return this;
+		return addArgs(args);
     }
 
     public Commandline args(String... args) {
 		this.args.clear();
-    	for (String each: args)
-    		this.args.add(each);
-    	return this;
+		return addArgs(args);
     }
 	
     public Commandline addArgs(String... args) {
-    	for (String each: args)
-    		this.args.add(each);
+    	for (String arg: args)
+    		this.args.add(arg);
     	return this;
     }
-    
+
+    public Commandline addArgs(List<String> args) {
+    	for (String arg: args)
+    		this.args.add(arg);
+    	return this;
+    }
+	
     public Commandline workingDir(File workingDir) {
     	this.workingDir = workingDir;
     	return this;
