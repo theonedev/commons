@@ -28,6 +28,8 @@ public abstract class LineConsumer extends OutputStream {
     private ByteArrayOutputStream buffer = new ByteArrayOutputStream();
     
     private String encoding;
+
+	private boolean lastWasCR;
     
     public LineConsumer(String encoding) {
     	this.encoding = encoding;
@@ -45,11 +47,16 @@ public abstract class LineConsumer extends OutputStream {
 	public void write(int b) throws IOException {
 		byte c = (byte) b;
 		if (c == '\n') {
-			String line = getLine();
-			if (line.length() != 0 && line.charAt(line.length()-1) == '\r')
-				line = line.substring(0, line.length()-1);
-			consume(line);
+			consume(getLine());
+			lastWasCR = false;
+		} else if (c == '\r') {
+			lastWasCR = true;
 		} else {
+			if (lastWasCR) {
+				consume(getLine());
+				buffer.write('\r');
+				lastWasCR = false;
+			}
 			buffer.write(b);
 		}
     }
