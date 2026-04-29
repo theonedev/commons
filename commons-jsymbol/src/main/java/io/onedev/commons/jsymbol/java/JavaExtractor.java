@@ -5,11 +5,13 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
-import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseProblemException;
+import com.github.javaparser.ParserConfiguration;
+import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.AnnotationDeclaration;
 import com.github.javaparser.ast.body.AnnotationMemberDeclaration;
@@ -22,6 +24,7 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.Modifier.Keyword;
 import com.github.javaparser.ast.type.TypeParameter;
 import com.google.common.base.Joiner;
 
@@ -36,6 +39,10 @@ import io.onedev.commons.jsymbol.java.symbols.TypeSymbol.Kind;
 
 public class JavaExtractor extends AbstractSymbolExtractor<JavaSymbol> {
 
+	static {
+		StaticJavaParser.getParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_25);
+	}
+	
 	@Override
 	public List<JavaSymbol> extract(String fileName, String fileContent) {
 		List<JavaSymbol> symbols = new ArrayList<>();
@@ -43,7 +50,7 @@ public class JavaExtractor extends AbstractSymbolExtractor<JavaSymbol> {
 		CompilationUnitSymbol symbol;		
 		CompilationUnit compilationUnit;
 		try {
-			compilationUnit = JavaParser.parse(fileContent);
+			compilationUnit = StaticJavaParser.parse(fileContent);
 		} catch (ParseProblemException e) {
 			throw new RuntimeException("Error parsing java", e);
 		}
@@ -86,7 +93,7 @@ public class JavaExtractor extends AbstractSymbolExtractor<JavaSymbol> {
 		
 		TypeSymbol symbol = new TypeSymbol(parent, typeDeclaration.getNameAsString(), 
 				getPosition(typeDeclaration.getName()), getPosition(typeDeclaration), kind, typeParameters, 
-				typeDeclaration.getModifiers());
+				getModifierKeywords(typeDeclaration.getModifiers()));
 		symbols.add(symbol);
 
 		for (Node child: typeDeclaration.getChildNodes()) {
@@ -136,7 +143,7 @@ public class JavaExtractor extends AbstractSymbolExtractor<JavaSymbol> {
 			typeParams = "<" + Joiner.on(", ").join(listOfTypeParamDesc) + ">";
 		}
 		MethodSymbol symbol = new MethodSymbol(parent, methodName, position, scope, null, methodParams, 
-				typeParams, constructorDeclaration.getModifiers());
+				typeParams, getModifierKeywords(constructorDeclaration.getModifiers()));
 		symbols.add(symbol);
 	}
 
@@ -170,7 +177,7 @@ public class JavaExtractor extends AbstractSymbolExtractor<JavaSymbol> {
 			typeParams = "<" + Joiner.on(", ").join(listOfTypeParamDesc) + ">";
 		}
 		MethodSymbol symbol = new MethodSymbol(parent, methodName, position, scope, type, methodParams, 
-				typeParams, methodDeclaration.getModifiers());
+				typeParams, getModifierKeywords(methodDeclaration.getModifiers()));
 		symbols.add(symbol);
 	}
 	
@@ -181,7 +188,7 @@ public class JavaExtractor extends AbstractSymbolExtractor<JavaSymbol> {
 		PlanarRange scope = getPosition(annotationMemberDeclaration);
 		String type = annotationMemberDeclaration.getType().toString();
 		MethodSymbol symbol = new MethodSymbol(parent, methodName, position, scope, type, null, null, 
-				annotationMemberDeclaration.getModifiers());
+				getModifierKeywords(annotationMemberDeclaration.getModifiers()));
 		symbols.add(symbol);
 	}
 	
@@ -193,7 +200,7 @@ public class JavaExtractor extends AbstractSymbolExtractor<JavaSymbol> {
 			PlanarRange scope = getPosition(variableDeclarator);
 			String type = variableDeclarator.getType().toString();
 			FieldSymbol symbol = new FieldSymbol(parent, fieldName, position, scope, type, 
-					fieldDeclaration.getModifiers());
+					getModifierKeywords(fieldDeclaration.getModifiers()));
 			symbols.add(symbol);
 		}
 	}
@@ -204,8 +211,15 @@ public class JavaExtractor extends AbstractSymbolExtractor<JavaSymbol> {
 		PlanarRange position = getPosition(enumConstantDeclaration.getName());
 		PlanarRange scope = getPosition(enumConstantDeclaration);
 		FieldSymbol symbol = new FieldSymbol(parent, fieldName, position, scope, null, 
-				EnumSet.noneOf(Modifier.class));
+				EnumSet.noneOf(Keyword.class));
 		symbols.add(symbol);
+	}
+	
+	private EnumSet<Keyword> getModifierKeywords(NodeList<Modifier> modifiers) {
+		EnumSet<Keyword> modifierKeywords = EnumSet.noneOf(Keyword.class);
+		for (Modifier modifier: modifiers)
+			modifierKeywords.add(modifier.getKeyword());
+		return modifierKeywords;
 	}
 	
 	private PlanarRange getPosition(Node node) {
@@ -215,7 +229,7 @@ public class JavaExtractor extends AbstractSymbolExtractor<JavaSymbol> {
 	
 	@Override
 	public int getVersion() {
-		return 3;
+		return 4;
 	}
 
 	@Override

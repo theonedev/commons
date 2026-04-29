@@ -9,7 +9,7 @@ import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.request.resource.PackageResourceReference;
 
-import com.github.javaparser.ast.Modifier;
+import com.github.javaparser.ast.Modifier.Keyword;
 
 import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.java.symbols.ui.MethodSymbolPanel;
@@ -27,11 +27,11 @@ public class MethodSymbol extends JavaSymbol {
 	
 	private final String returnTypeParams;
 
-	private final EnumSet<Modifier> modifiers;
+	private final EnumSet<Keyword> modifiers;
 	
 	public MethodSymbol(TypeSymbol parent, String methodName, PlanarRange position, PlanarRange scope,
 			@Nullable String returnType, @Nullable String methodParams, @Nullable String returnTypeParams, 
-			EnumSet<Modifier> modifiers) {
+			EnumSet<Keyword> modifiers) {
 		super(parent, methodName, position, scope);
 		
 		this.returnType = returnType;
@@ -73,7 +73,7 @@ public class MethodSymbol extends JavaSymbol {
 		return returnTypeParams;
 	}
 
-	public EnumSet<Modifier> getModifiers() {
+	public EnumSet<Keyword> getModifiers() {
 		return modifiers;
 	}
 
@@ -90,13 +90,13 @@ public class MethodSymbol extends JavaSymbol {
 	@Override
 	public Image renderIcon(String componentId) {
 		Image icon;
-		if (modifiers.contains(Modifier.PRIVATE)) {
+		if (modifiers.contains(Keyword.PRIVATE)) {
 			icon = new NoAntiCacheImage(componentId, new PackageResourceReference(IconLocator.class, "methpri_obj.png"));
 			icon.add(AttributeAppender.append("title", "private method"));
-		}  else if (modifiers.contains(Modifier.PROTECTED)) {
+		}  else if (modifiers.contains(Keyword.PROTECTED)) {
 			icon = new NoAntiCacheImage(componentId, new PackageResourceReference(IconLocator.class, "methpro_obj.png"));
 			icon.add(AttributeAppender.append("title", "protected method"));
-		} else if (modifiers.contains(Modifier.PUBLIC)) {
+		} else if (modifiers.contains(Keyword.PUBLIC)) {
 			icon = new NoAntiCacheImage(componentId, new PackageResourceReference(IconLocator.class, "methpub_obj.png"));
 			icon.add(AttributeAppender.append("title", "public method"));
 		} else {
@@ -108,7 +108,7 @@ public class MethodSymbol extends JavaSymbol {
 
 	@Override
 	public boolean isLocal() {
-		return modifiers.contains(Modifier.PRIVATE);
+		return modifiers.contains(Keyword.PRIVATE);
 	}
 	
 }

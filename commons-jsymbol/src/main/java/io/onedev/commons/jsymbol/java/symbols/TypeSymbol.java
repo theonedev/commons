@@ -9,7 +9,7 @@ import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.request.resource.PackageResourceReference;
 
-import com.github.javaparser.ast.Modifier;
+import com.github.javaparser.ast.Modifier.Keyword;
 
 import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.java.symbols.ui.TypeSymbolPanel;
@@ -27,10 +27,10 @@ public class TypeSymbol extends JavaSymbol {
 	
 	private final String typeParams;
 	
-	private final EnumSet<Modifier> modifiers;
+	private final EnumSet<Keyword> modifiers;
 
 	public TypeSymbol(@Nullable JavaSymbol parent, String typeName, PlanarRange position, PlanarRange scope,
-			Kind kind, @Nullable String typeParams, EnumSet<Modifier> modifiers) {
+			Kind kind, @Nullable String typeParams, EnumSet<Keyword> modifiers) {
 		super(parent, typeName, position, scope);
 
 		this.kind = kind;
@@ -46,7 +46,7 @@ public class TypeSymbol extends JavaSymbol {
 		return typeParams;
 	}
 
-	public EnumSet<Modifier> getModifiers() {
+	public EnumSet<Keyword> getModifiers() {
 		return modifiers;
 	}
 
@@ -68,13 +68,13 @@ public class TypeSymbol extends JavaSymbol {
 			icon = new NoAntiCacheImage(componentId, new PackageResourceReference(IconLocator.class, "annotation_obj.png"));
 			icon.add(AttributeAppender.append("title", "annotation"));
 		} else if (kind == Kind.CLASS) {
-			if (modifiers.contains(Modifier.PRIVATE)) {
+			if (modifiers.contains(Keyword.PRIVATE)) {
 				icon = new NoAntiCacheImage(componentId, new PackageResourceReference(IconLocator.class, "innerclass_private_obj.png"));
 				icon.add(AttributeAppender.append("title", "private inner class"));
-			}  else if (modifiers.contains(Modifier.PROTECTED)) {
+			}  else if (modifiers.contains(Keyword.PROTECTED)) {
 				icon = new NoAntiCacheImage(componentId, new PackageResourceReference(IconLocator.class, "innerclass_protected_obj.png"));
 				icon.add(AttributeAppender.append("title", "protected inner class"));
-			} else if (modifiers.contains(Modifier.PUBLIC)) {
+			} else if (modifiers.contains(Keyword.PUBLIC)) {
 				icon = new NoAntiCacheImage(componentId, new PackageResourceReference(IconLocator.class, "class_obj.png"));
 				icon.add(AttributeAppender.append("title", "public class"));
 			} else {
@@ -89,7 +89,7 @@ public class TypeSymbol extends JavaSymbol {
 
 	@Override
 	public boolean isLocal() {
-		return modifiers.contains(Modifier.PRIVATE);
+		return modifiers.contains(Keyword.PRIVATE);
 	}
 
 	@Override

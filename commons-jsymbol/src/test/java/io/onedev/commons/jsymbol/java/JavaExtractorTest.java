@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.github.javaparser.ast.Modifier;
+import com.github.javaparser.ast.Modifier.Keyword;
 
 import io.onedev.commons.jsymbol.DescriptableExtractorTest;
 import io.onedev.commons.jsymbol.java.symbols.CompilationUnitSymbol;
@@ -35,7 +35,7 @@ public class JavaExtractorTest extends DescriptableExtractorTest<JavaSymbol> {
 				builder.append("package ").append(compilationUnit.getName());
 		} else if (symbol instanceof TypeSymbol) {
 			TypeSymbol typeSymbol = (TypeSymbol) symbol;
-			for (Modifier modifier: typeSymbol.getModifiers()) 
+			for (Keyword modifier: typeSymbol.getModifiers()) 
 				builder.append(modifier.name().toLowerCase()).append(" ");
 
 			if (typeSymbol.getKind() == Kind.ANNOTATION)
@@ -47,14 +47,14 @@ public class JavaExtractorTest extends DescriptableExtractorTest<JavaSymbol> {
 				builder.append(typeSymbol.getTypeParams());
 		} else if (symbol instanceof FieldSymbol) {
 			FieldSymbol fieldSymbol = (FieldSymbol) symbol;
-			for (Modifier modifier: fieldSymbol.getModifiers()) 
+			for (Keyword modifier: fieldSymbol.getModifiers()) 
 				builder.append(modifier.name().toLowerCase()).append(" ");
 			if (fieldSymbol.getType() != null)
 				builder.append(fieldSymbol.getType()).append(" ");
 			builder.append(fieldSymbol.getName());
 		} else if (symbol instanceof MethodSymbol) {
 			MethodSymbol methodSymbol = (MethodSymbol) symbol;
-			for (Modifier modifier: methodSymbol.getModifiers()) 
+			for (Keyword modifier: methodSymbol.getModifiers()) 
 				builder.append(modifier.name().toLowerCase()).append(" ");
 			if (methodSymbol.getReturnTypeParams() != null)
 				builder.append(methodSymbol.getReturnTypeParams()).append(" ");

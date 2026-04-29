@@ -9,7 +9,7 @@ import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.request.resource.PackageResourceReference;
 
-import com.github.javaparser.ast.Modifier;
+import com.github.javaparser.ast.Modifier.Keyword;
 
 import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.java.symbols.ui.FieldSymbolPanel;
@@ -23,10 +23,10 @@ public class FieldSymbol extends JavaSymbol {
 
 	private final String type;
 	
-	private final EnumSet<Modifier> modifiers;
+	private final EnumSet<Keyword> modifiers;
 	
 	public FieldSymbol(TypeSymbol parent, String fieldName, PlanarRange position, PlanarRange scope, 
-			@Nullable String type, EnumSet<Modifier> modifiers) {
+			@Nullable String type, EnumSet<Keyword> modifiers) {
 		super(parent, fieldName, position, scope);
 		
 		this.type = type;
@@ -44,7 +44,7 @@ public class FieldSymbol extends JavaSymbol {
 		return type;
 	}
 
-	public EnumSet<Modifier> getModifiers() {
+	public EnumSet<Keyword> getModifiers() {
 		return modifiers;
 	}
 
@@ -61,13 +61,13 @@ public class FieldSymbol extends JavaSymbol {
 	@Override
 	public Image renderIcon(String componentId) {
 		Image icon;
-		if (modifiers.contains(Modifier.PRIVATE)) {
+		if (modifiers.contains(Keyword.PRIVATE)) {
 			icon = new NoAntiCacheImage(componentId, new PackageResourceReference(IconLocator.class, "field_private_obj.png"));
 			icon.add(AttributeAppender.append("title", "private field"));
-		}  else if (modifiers.contains(Modifier.PROTECTED)) {
+		}  else if (modifiers.contains(Keyword.PROTECTED)) {
 			icon = new NoAntiCacheImage(componentId, new PackageResourceReference(IconLocator.class, "field_protected_obj.png"));
 			icon.add(AttributeAppender.append("title", "protected field"));
-		} else if (modifiers.contains(Modifier.PUBLIC)) {
+		} else if (modifiers.contains(Keyword.PUBLIC)) {
 			icon = new NoAntiCacheImage(componentId, new PackageResourceReference(IconLocator.class, "field_public_obj.png"));
 			icon.add(AttributeAppender.append("title", "public field"));
 		} else {
@@ -79,7 +79,7 @@ public class FieldSymbol extends JavaSymbol {
 
 	@Override
 	public boolean isLocal() {
-		return modifiers.contains(Modifier.PRIVATE);
+		return modifiers.contains(Keyword.PRIVATE);
 	}
 
 }
