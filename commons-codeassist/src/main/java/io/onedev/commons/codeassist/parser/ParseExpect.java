@@ -101,7 +101,7 @@ public class ParseExpect {
 		String unmatchedText = parser.getText().substring(endCharIndex);
 		for (Token each: parser.getTokens()) {
 			if (each.getStartIndex() == endCharIndex) {
-				// we can not trim leading space as it is not optional
+				// we cannot trim leading space as it is not optional
 				return unmatchedText;
 			}
 		}

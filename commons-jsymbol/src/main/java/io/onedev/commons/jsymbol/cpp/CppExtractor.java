@@ -152,7 +152,7 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
 	            }
 	            visitTree(translationUnit, 1 ,fileSymbol, symbols, 0, false, strLineLength, false);
 			} catch (CoreException e) { 
-				 // rethrow the exception as we can not continue with the parsing. Let caller handle it 
+				 // rethrow the exception as we cannot continue with the parsing. Let caller handle it 
 				throw new RuntimeException(e);
 			}
 		}

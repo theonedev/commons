@@ -1005,7 +1005,7 @@ public abstract class ProcessTree implements Iterable<OSProcess> {
      *     32-bit or 64-bit process.
      *
      *     Note that this means that if PID is a 64-bit process, then a 32-bit Java
-     *     process can not get meaningful values for envp and argv out of the psinfo_t. The
+     *     process cannot get meaningful values for envp and argv out of the psinfo_t. The
      *     values will have been truncated to 32-bits.
      *
      * /proc/PID/as contains the address space of the process we are inspecting. We can

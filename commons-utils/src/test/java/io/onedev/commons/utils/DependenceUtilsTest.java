@@ -66,7 +66,7 @@ public class DependenceUtilsTest {
 		
 		try {
 			DependencyUtils.sortDependencies(context);
-			fail("Can not detect circular dependencies");
+			fail("Cannot detect circular dependencies");
 		} catch (Exception e) {
 		}
 	}
@@ -228,7 +228,7 @@ public class DependenceUtilsTest {
 		
 		try {
 			DependencyUtils.sortDependencies(context);
-			fail("Can not detect missed dependencies");
+			fail("Cannot detect missed dependencies");
 		} catch (Exception e) {
 		}
 	}

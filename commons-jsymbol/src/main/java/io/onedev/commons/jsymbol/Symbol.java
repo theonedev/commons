@@ -72,8 +72,8 @@ public abstract class Symbol implements Serializable {
     public abstract PlanarRange getScope();
     
     /**
-     * Whether or not this symbol is local to its namespace. A local symbol can not be accessed outside of its 
-     * namespace. For instance a Java private method can not be accessed outside of its defining class. This 
+     * Whether or not this symbol is local to its namespace. A local symbol cannot be accessed outside of its 
+     * namespace. For instance a Java private method cannot be accessed outside of its defining class. This 
      * information will be used to calculate {@link #isLocalInHierarchy()} to determine if a symbol should be 
      * considered for matching when doing symbol cross-reference from another file
      * 
@@ -147,7 +147,7 @@ public abstract class Symbol implements Serializable {
 	}
 	
 	/**
-	 * Whether or not the symbol is local in the whole symbol hierarchy. A symbol local in hierarchy can not be 
+	 * Whether or not the symbol is local in the whole symbol hierarchy. A symbol local in hierarchy cannot be 
 	 * accessed outside of the containing file, and will not be considered for matching when doing symbol 
 	 * cross-reference from another file
 	 * 
