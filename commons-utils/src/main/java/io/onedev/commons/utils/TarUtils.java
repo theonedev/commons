@@ -24,13 +24,11 @@ import java.util.HashSet;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.jspecify.annotations.Nullable;
-
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.jspecify.annotations.Nullable;
 
-import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 
 public class TarUtils {
@@ -163,7 +161,7 @@ public class TarUtils {
 
     @SuppressWarnings("deprecation")
     public static void untar(InputStream is, File destDir, boolean compressed) {
-        var destPath = destDir.toPath();
+        var destPath = destDir.toPath().normalize();
         byte[] buffer = new byte[BUFFER_SIZE];
         TarArchiveInputStream tis;
         try {
@@ -174,20 +172,24 @@ public class TarUtils {
             TarArchiveEntry entry;
             while((entry = tis.getNextTarEntry()) != null) {
                 var entryName = entry.getName();
-                if (Splitter.on('/').trimResults().splitToStream(entryName).anyMatch(it->it.equals("..")))
-                    throw new ExplicitException("Tar entry should not contain path segment '..': " + entryName);
+                var entryPath = destPath.resolve(entryName).normalize();
+                if (!entryPath.startsWith(destPath))
+                    throw new ExplicitException("Tar entry escape detected: " + entryName);
+                File entryFile = entryPath.toFile();
                 if (entry.isSymbolicLink()) {
-                    var filePath = destPath.resolve(entryName);
-                    if (Files.exists(filePath, LinkOption.NOFOLLOW_LINKS)) {
-                        var file = filePath.toFile();
-                        if (file.isDirectory())
-                            FileUtils.deleteDir(file);
+                    var linkName = entry.getLinkName();
+                    Path linkTarget = Paths.get(linkName);
+                    if (!entryPath.getParent().resolve(linkTarget).normalize().startsWith(destPath))
+                        throw new ExplicitException("Tar entry symbol link escape detected: " + linkName);
+                
+                    if (Files.exists(entryPath, LinkOption.NOFOLLOW_LINKS)) {
+                        if (entryFile.isDirectory())
+                            FileUtils.deleteDir(entryFile);
                         else
-                            FileUtils.deleteFile(file);
+                            FileUtils.deleteFile(entryFile);
                     }
-                    createSymbolicLink(filePath, Paths.get(entry.getLinkName()));
+                    createSymbolicLink(entryPath, linkTarget);
                 } else if (entry.isFile()) {
-                    File entryFile = new File(destDir, entryName);
                     File entryParentFile = entryFile.getParentFile();
                     FileUtils.createDir(entryParentFile);
 
@@ -204,7 +206,7 @@ public class TarUtils {
                         entryFile.setLastModified(entry.getModTime().getTime());
                     }
                 } else {
-                    FileUtils.createDir(new File(destDir, entryName));
+                    FileUtils.createDir(entryFile);
                 }
             }
         } catch (IOException e) {

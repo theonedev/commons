@@ -1,7 +1,11 @@
 package io.onedev.commons.utils;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import static org.apache.commons.compress.archivers.tar.TarConstants.LF_SYMLINK;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -9,7 +13,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.zip.GZIPOutputStream;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.junit.Test;
 
 public class TarUtilsTest {
@@ -108,6 +118,130 @@ public class TarUtilsTest {
 
 		} finally {
 			FileUtils.deleteDir(sourceDir);
+			FileUtils.deleteDir(destDir);
+		}
+	}
+
+	@Test
+	public void testTarUntarWithSymbolicLink() throws IOException {
+		// Skip this test on Windows where creating symbolic links typically requires
+		// elevated privileges and the path semantics differ
+		if (File.separatorChar == '\\') {
+			return;
+		}
+
+		File sourceDir = Files.createTempDirectory("tar-test-source").toFile();
+		File destDir = Files.createTempDirectory("tar-test-dest").toFile();
+
+		try {
+			File targetFile = new File(sourceDir, "target.txt");
+			Files.writeString(targetFile.toPath(), "target content", StandardCharsets.UTF_8);
+
+			Path symlinkPath = new File(sourceDir, "link.txt").toPath();
+			Files.createSymbolicLink(symlinkPath, Paths.get("target.txt"));
+
+			File subDir = new File(sourceDir, "subdir");
+			subDir.mkdir();
+			Path relativeSymlinkPath = new File(subDir, "link-to-target.txt").toPath();
+			Files.createSymbolicLink(relativeSymlinkPath, Paths.get("../target.txt"));
+
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			TarUtils.tar(sourceDir, baos, true);
+
+			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+			TarUtils.untar(bais, destDir, true);
+
+			File extractedTarget = new File(destDir, "target.txt");
+			assertTrue("Target file should exist", extractedTarget.exists());
+			assertEquals("target content", Files.readString(extractedTarget.toPath(), StandardCharsets.UTF_8));
+
+			Path extractedSymlink = new File(destDir, "link.txt").toPath();
+			assertTrue("Symbolic link should exist", Files.exists(extractedSymlink, LinkOption.NOFOLLOW_LINKS));
+			assertTrue("Should be a symbolic link", Files.isSymbolicLink(extractedSymlink));
+			assertEquals(Paths.get("target.txt"), Files.readSymbolicLink(extractedSymlink));
+			assertEquals("target content", Files.readString(extractedSymlink, StandardCharsets.UTF_8));
+
+			Path extractedRelativeSymlink = new File(destDir, "subdir/link-to-target.txt").toPath();
+			assertTrue("Relative symbolic link should exist", Files.exists(extractedRelativeSymlink, LinkOption.NOFOLLOW_LINKS));
+			assertTrue("Should be a symbolic link", Files.isSymbolicLink(extractedRelativeSymlink));
+			assertEquals(Paths.get("../target.txt"), Files.readSymbolicLink(extractedRelativeSymlink));
+			assertEquals("target content", Files.readString(extractedRelativeSymlink, StandardCharsets.UTF_8));
+
+		} finally {
+			FileUtils.deleteDir(sourceDir);
+			FileUtils.deleteDir(destDir);
+		}
+	}
+
+	@Test
+	public void testUntarRejectsEntryNameEscape() throws IOException {
+		File destDir = Files.createTempDirectory("tar-test-dest").toFile();
+
+		try {
+			byte[] content = "malicious".getBytes(StandardCharsets.UTF_8);
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			try (var gos = new GZIPOutputStream(baos);
+				 var tos = new TarArchiveOutputStream(gos)) {
+				tos.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
+				TarArchiveEntry entry = new TarArchiveEntry("../escape.txt");
+				entry.setSize(content.length);
+				tos.putArchiveEntry(entry);
+				tos.write(content);
+				tos.closeArchiveEntry();
+				tos.finish();
+			}
+
+			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+			try {
+				TarUtils.untar(bais, destDir, true);
+				fail("Expected an exception due to tar entry name escape");
+			} catch (ExplicitException e) {
+				assertTrue("Exception message should mention tar entry escape",
+						e.getMessage().contains("Tar entry escape"));
+			}
+
+			File escapedFile = new File(destDir.getParentFile(), "escape.txt");
+			assertFalse("Escaping file should not be created", escapedFile.exists());
+
+		} finally {
+			FileUtils.deleteDir(destDir);
+		}
+	}
+
+	@Test
+	public void testUntarRejectsSymbolicLinkEscape() throws IOException {
+		if (File.separatorChar == '\\') {
+			return;
+		}
+
+		File destDir = Files.createTempDirectory("tar-test-dest").toFile();
+
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			try (var gos = new GZIPOutputStream(baos);
+				 var tos = new TarArchiveOutputStream(gos)) {
+				tos.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
+				TarArchiveEntry entry = new TarArchiveEntry("escape.txt", LF_SYMLINK);
+				entry.setLinkName("../../../etc/passwd");
+				tos.putArchiveEntry(entry);
+				tos.closeArchiveEntry();
+				tos.finish();
+			}
+
+			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+			try {
+				TarUtils.untar(bais, destDir, true);
+				fail("Expected an exception due to symbolic link escape");
+			} catch (ExplicitException e) {
+				assertTrue("Exception message should mention symbol link escape",
+						e.getMessage().contains("symbol link escape"));
+			}
+
+			File extractedSymlink = new File(destDir, "escape.txt");
+			assertFalse("Escaping symbolic link should not be created",
+					Files.exists(extractedSymlink.toPath(), LinkOption.NOFOLLOW_LINKS));
+
+		} finally {
 			FileUtils.deleteDir(destDir);
 		}
 	}
