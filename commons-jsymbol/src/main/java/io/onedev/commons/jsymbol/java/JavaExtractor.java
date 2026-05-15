@@ -5,9 +5,10 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
+import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseProblemException;
+import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
-import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.Node;
@@ -39,9 +40,8 @@ import io.onedev.commons.jsymbol.java.symbols.TypeSymbol.Kind;
 
 public class JavaExtractor extends AbstractSymbolExtractor<JavaSymbol> {
 
-	static {
-		StaticJavaParser.getParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_25);
-	}
+	private static final ParserConfiguration PARSER_CONFIGURATION = new ParserConfiguration()
+			.setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_25);
 	
 	@Override
 	public List<JavaSymbol> extract(String fileName, String fileContent) {
@@ -50,7 +50,10 @@ public class JavaExtractor extends AbstractSymbolExtractor<JavaSymbol> {
 		CompilationUnitSymbol symbol;		
 		CompilationUnit compilationUnit;
 		try {
-			compilationUnit = StaticJavaParser.parse(fileContent);
+			ParseResult<CompilationUnit> parseResult = new JavaParser(PARSER_CONFIGURATION).parse(fileContent);
+			if (!parseResult.isSuccessful())
+				throw new ParseProblemException(parseResult.getProblems());
+			compilationUnit = parseResult.getResult().orElseThrow();
 		} catch (ParseProblemException e) {
 			throw new RuntimeException("Error parsing java", e);
 		}
@@ -66,7 +69,6 @@ public class JavaExtractor extends AbstractSymbolExtractor<JavaSymbol> {
 		for (TypeDeclaration<?> typeDeclaration: compilationUnit.getTypes()) {
 			processTypeDeclaration(typeDeclaration, symbol, symbols);
 		}
-		
 		return symbols;
 	}
 	
@@ -229,7 +231,7 @@ public class JavaExtractor extends AbstractSymbolExtractor<JavaSymbol> {
 	
 	@Override
 	public int getVersion() {
-		return 4;
+		return 5;
 	}
 
 	@Override
