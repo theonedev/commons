@@ -18,6 +18,7 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.HashSet;
@@ -35,14 +36,34 @@ public class TarUtils {
 
     private static final int BUFFER_SIZE = 64*1024;
 
-    public static void tar(File baseDir, OutputStream os, boolean compress) {
-        byte[] buffer = new byte[BUFFER_SIZE];
+    private static final String SINGLE_FILE_PAX_HEADER = "OneDev.singleFile";
 
+    public static void tar(File dirOrFile, OutputStream os, boolean compress) {        
+        byte[] buffer = new byte[BUFFER_SIZE];
         try {
             var tos = newTarArchiveOutputStream(os, compress);
-            if (baseDir.exists() && baseDir.isDirectory()) {
-                var basePath = baseDir.toPath();
-                Files.walkFileTree(baseDir.toPath(), new SimpleFileVisitor<>() {
+            if (dirOrFile.isFile()) {
+                if (Files.isSymbolicLink(dirOrFile.toPath()))
+                    throw new ExplicitException("Symbolic link is not allowed: " + dirOrFile.getAbsolutePath());
+                if (FileUtils.isUnixSocket(dirOrFile.toPath()))
+                    throw new ExplicitException("Unix socket is not allowed: " + dirOrFile.getAbsolutePath());
+        
+                TarArchiveEntry entry = new TarArchiveEntry(dirOrFile.getName());
+                entry.setSize(dirOrFile.length());
+                if (dirOrFile.canExecute())
+                    entry.setMode(entry.getMode() | 0000100);
+                entry.setModTime(dirOrFile.lastModified());
+                entry.addPaxHeader(SINGLE_FILE_PAX_HEADER, "true");
+                tos.putArchiveEntry(entry);
+                try (InputStream is = new FileInputStream(dirOrFile)) {
+                    int count;
+                    while ((count = is.read(buffer)) != -1)
+                        tos.write(buffer, 0, count);
+                }
+                tos.closeArchiveEntry();    
+            } else if (dirOrFile.isDirectory()) {
+                var basePath = dirOrFile.toPath();
+                Files.walkFileTree(dirOrFile.toPath(), new SimpleFileVisitor<>() {
                     @Override
                     public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
                         if (FileUtils.isUnixSocket(filePath))
@@ -160,8 +181,7 @@ public class TarUtils {
     }
 
     @SuppressWarnings("deprecation")
-    public static void untar(InputStream is, File destDir, boolean compressed) {
-        var destPath = destDir.toPath().normalize();
+    public static void untar(InputStream is, File destDirOrFile, boolean compressed) {
         byte[] buffer = new byte[BUFFER_SIZE];
         TarArchiveInputStream tis;
         try {
@@ -169,48 +189,157 @@ public class TarUtils {
                 tis = new TarArchiveInputStream(new GZIPInputStream(new BufferedInputStream(is, BUFFER_SIZE), BUFFER_SIZE));
             else
                 tis = new TarArchiveInputStream(new BufferedInputStream(is, BUFFER_SIZE));
-            TarArchiveEntry entry;
-            while((entry = tis.getNextTarEntry()) != null) {
-                var entryName = entry.getName();
-                var entryPath = destPath.resolve(entryName).normalize();
-                if (!entryPath.startsWith(destPath))
-                    throw new ExplicitException("Tar entry escape detected: " + entryName);
-                File entryFile = entryPath.toFile();
-                if (entry.isSymbolicLink()) {
-                    var linkName = entry.getLinkName();
-                    Path linkTarget = Paths.get(linkName);
-                    if (!entryPath.getParent().resolve(linkTarget).normalize().startsWith(destPath))
-                        throw new ExplicitException("Tar entry symbol link escape detected: " + linkName);
-                
-                    if (Files.exists(entryPath, LinkOption.NOFOLLOW_LINKS)) {
-                        if (entryFile.isDirectory())
-                            FileUtils.deleteDir(entryFile);
-                        else
-                            FileUtils.deleteFile(entryFile);
-                    }
-                    createSymbolicLink(entryPath, linkTarget);
-                } else if (entry.isFile()) {
-                    File entryParentFile = entryFile.getParentFile();
-                    FileUtils.createDir(entryParentFile);
 
-                    if (entryFile.exists())
-                        FileUtils.deleteFile(entryFile);
+            TarArchiveEntry firstEntry = tis.getNextTarEntry();
+            if (firstEntry == null)
+                return;
 
-                    try (var bos = new BufferedOutputStream(new FileOutputStream(entryFile), BUFFER_SIZE)) {
-                        int count;
-                        while((count = tis.read(buffer)) != -1)
-                            bos.write(buffer, 0, count);
-                        if ((entry.getMode() & 0000100) != 0)
-                            entryFile.setExecutable(true);
-                    } finally {
-                        entryFile.setLastModified(entry.getModTime().getTime());
-                    }
-                } else {
-                    FileUtils.createDir(entryFile);
-                }
-            }
+            if ("true".equals(firstEntry.getExtraPaxHeader(SINGLE_FILE_PAX_HEADER)))
+                untarSingleFile(tis, firstEntry, destDirOrFile, buffer);
+            else
+                untarToDir(tis, firstEntry, destDirOrFile, buffer);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @SuppressWarnings("deprecation")
+    private static void untarSingleFile(TarArchiveInputStream tis, TarArchiveEntry entry,
+                                        File destFile, byte[] buffer) throws IOException {
+        if (destFile.exists() && destFile.isDirectory())
+            throw new ExplicitException("Destination should not be a directory: " + destFile.getAbsolutePath());
+        if (entry.isSymbolicLink())
+            throw new ExplicitException("Symbolic link entry is not allowed: " + entry.getName());
+        if (!entry.isFile())
+            throw new ExplicitException("Expecting a file entry: " + entry.getName());
+
+        File parentDir = destFile.getParentFile();
+        if (parentDir != null)
+            FileUtils.createDir(parentDir);
+
+        try (var bos = new BufferedOutputStream(new FileOutputStream(destFile), BUFFER_SIZE)) {
+            int count;
+            while((count = tis.read(buffer)) != -1)
+                bos.write(buffer, 0, count);
+            if ((entry.getMode() & 0000100) != 0)
+                destFile.setExecutable(true);
+        } finally {
+            destFile.setLastModified(entry.getModTime().getTime());
+        }
+
+        if (tis.getNextTarEntry() != null)
+            throw new ExplicitException("Expecting a single file entry but got more");
+    }
+
+    private static Path resolveEntryPath(Path destPath, String entryName) {
+        var entryPath = destPath.resolve(entryName).normalize();
+        if (!entryPath.startsWith(destPath))
+            throw new ExplicitException("Tar entry escape detected: " + entryName);
+        return entryPath;
+    }
+
+    private static void ensureLinkTargetInside(Path destPath, Path linkTargetPath) throws IOException {
+        var relativePath = destPath.relativize(linkTargetPath);
+        var currentPath = destPath;
+        var linkFollowCount = 0;
+        for (var pathSegment: relativePath) {
+            currentPath = currentPath.resolve(pathSegment);
+            while (Files.isSymbolicLink(currentPath)) {
+                if (++linkFollowCount > 40)
+                    throw new ExplicitException("Too many levels of symbolic links: " + currentPath);
+                var target = Files.readSymbolicLink(currentPath);
+                var parent = currentPath.getParent();
+                if (parent == null)
+                    throw new ExplicitException("Tar entry symbol link resolves outside destination: " + currentPath);
+                currentPath = parent.resolve(target).normalize();
+                if (!currentPath.startsWith(destPath))
+                    throw new ExplicitException("Tar entry symbol link resolves outside destination: " + currentPath);
+            }
+            if (!Files.exists(currentPath, LinkOption.NOFOLLOW_LINKS))
+                return;
+        }
+    }
+
+    private static void createDirInside(Path destPath, Path dirPath) throws IOException {
+        if (!dirPath.startsWith(destPath))
+            throw new ExplicitException("Tar entry parent escape detected: " + dirPath);
+
+        var relativePath = destPath.relativize(dirPath);
+        var currentPath = destPath;
+        for (var pathSegment: relativePath) {
+            currentPath = currentPath.resolve(pathSegment);
+            if (Files.isSymbolicLink(currentPath))
+                FileUtils.deleteFile(currentPath.toFile());
+            if (Files.exists(currentPath, LinkOption.NOFOLLOW_LINKS)) {
+                if (!Files.isDirectory(currentPath, LinkOption.NOFOLLOW_LINKS)) {
+                    throw new ExplicitException("Tar entry can not create directory over file: "
+                            + currentPath);
+                }
+            } else {
+                Files.createDirectory(currentPath);
+            }
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    private static void untarToDir(TarArchiveInputStream tis, TarArchiveEntry firstEntry,
+                                   File destDir, byte[] buffer) throws IOException {
+        if (destDir.exists() && !destDir.isDirectory())
+            throw new ExplicitException("Destination should be a directory: " + destDir.getAbsolutePath());
+        
+        FileUtils.createDir(destDir);
+        var destPath = destDir.toPath().toRealPath().normalize();
+        TarArchiveEntry entry = firstEntry;
+        do {
+            var entryName = entry.getName();
+            var entryPath = resolveEntryPath(destPath, entryName);
+            File entryFile = entryPath.toFile();
+            if (entry.isSymbolicLink()) {
+                var entryParentPath = entryPath.getParent();
+                if (entryParentPath == null || !entryParentPath.startsWith(destPath))
+                    throw new ExplicitException("Tar entry parent escape detected: " + entryName);
+                var linkName = entry.getLinkName();
+                Path linkTarget = Paths.get(linkName);
+                var linkTargetPath = entryParentPath.resolve(linkTarget).normalize();
+                if (!linkTargetPath.startsWith(destPath))
+                    throw new ExplicitException("Tar entry symbol link escape detected: " + linkName);
+                ensureLinkTargetInside(destPath, linkTargetPath);
+
+                createDirInside(destPath, entryParentPath);
+                if (Files.exists(entryPath, LinkOption.NOFOLLOW_LINKS)) {
+                    if (Files.isDirectory(entryPath, LinkOption.NOFOLLOW_LINKS))
+                        FileUtils.deleteDir(entryFile);
+                    else
+                        FileUtils.deleteFile(entryFile);
+                }
+                createSymbolicLink(entryPath, linkTarget);
+            } else if (entry.isFile()) {
+                var entryParentPath = entryPath.getParent();
+                if (entryParentPath == null || !entryParentPath.startsWith(destPath))
+                    throw new ExplicitException("Tar entry parent escape detected: " + entryName);
+                createDirInside(destPath, entryParentPath);
+
+                if (Files.exists(entryPath, LinkOption.NOFOLLOW_LINKS)) {
+                    if (Files.isDirectory(entryPath, LinkOption.NOFOLLOW_LINKS))
+                        FileUtils.deleteDir(entryFile);
+                    else
+                        FileUtils.deleteFile(entryFile);
+                }
+
+                try (var os = Files.newOutputStream(entryPath, StandardOpenOption.CREATE_NEW,
+                        StandardOpenOption.WRITE);
+                     var bos = new BufferedOutputStream(os, BUFFER_SIZE)) {
+                    int count;
+                    while((count = tis.read(buffer)) != -1)
+                        bos.write(buffer, 0, count);
+                    if ((entry.getMode() & 0000100) != 0)
+                        entryFile.setExecutable(true);
+                } finally {
+                    entryFile.setLastModified(entry.getModTime().getTime());
+                }
+            } else {
+                createDirInside(destPath, entryPath);
+            }
+        } while ((entry = tis.getNextTarEntry()) != null);
     }
 }

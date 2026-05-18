@@ -245,4 +245,186 @@ public class TarUtilsTest {
 			FileUtils.deleteDir(destDir);
 		}
 	}
+
+	@Test
+	public void testUntarChainedSymbolicLinks() throws IOException {
+		if (File.separatorChar == '\\') {
+			return;
+		}
+
+		File destDir = Files.createTempDirectory("tar-test-dest").toFile();
+
+		try {
+			byte[] content = "target content".getBytes(StandardCharsets.UTF_8);
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			try (var gos = new GZIPOutputStream(baos);
+				 var tos = new TarArchiveOutputStream(gos)) {
+				tos.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
+
+				TarArchiveEntry fileEntry = new TarArchiveEntry("target.txt");
+				fileEntry.setSize(content.length);
+				tos.putArchiveEntry(fileEntry);
+				tos.write(content);
+				tos.closeArchiveEntry();
+
+				TarArchiveEntry aliasEntry = new TarArchiveEntry("alias", LF_SYMLINK);
+				aliasEntry.setLinkName("target.txt");
+				tos.putArchiveEntry(aliasEntry);
+				tos.closeArchiveEntry();
+
+				TarArchiveEntry chainEntry = new TarArchiveEntry("chain", LF_SYMLINK);
+				chainEntry.setLinkName("alias");
+				tos.putArchiveEntry(chainEntry);
+				tos.closeArchiveEntry();
+
+				tos.finish();
+			}
+
+			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+			TarUtils.untar(bais, destDir, true);
+
+			Path extractedAlias = new File(destDir, "alias").toPath();
+			assertTrue("Alias symlink should exist", Files.isSymbolicLink(extractedAlias));
+			assertEquals(Paths.get("target.txt"), Files.readSymbolicLink(extractedAlias));
+
+			Path extractedChain = new File(destDir, "chain").toPath();
+			assertTrue("Chain symlink should exist", Files.isSymbolicLink(extractedChain));
+			assertEquals(Paths.get("alias"), Files.readSymbolicLink(extractedChain));
+
+			assertEquals("target content",
+					Files.readString(extractedChain, StandardCharsets.UTF_8));
+		} finally {
+			FileUtils.deleteDir(destDir);
+		}
+	}
+
+	@Test
+	public void testUntarSymbolicLinkThroughDirectorySymlink() throws IOException {
+		if (File.separatorChar == '\\') {
+			return;
+		}
+
+		File destDir = Files.createTempDirectory("tar-test-dest").toFile();
+
+		try {
+			byte[] content = "inside content".getBytes(StandardCharsets.UTF_8);
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			try (var gos = new GZIPOutputStream(baos);
+				 var tos = new TarArchiveOutputStream(gos)) {
+				tos.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
+
+				TarArchiveEntry dirEntry = new TarArchiveEntry("versions/A/");
+				tos.putArchiveEntry(dirEntry);
+				tos.closeArchiveEntry();
+
+				TarArchiveEntry fileEntry = new TarArchiveEntry("versions/A/payload.txt");
+				fileEntry.setSize(content.length);
+				tos.putArchiveEntry(fileEntry);
+				tos.write(content);
+				tos.closeArchiveEntry();
+
+				TarArchiveEntry currentEntry = new TarArchiveEntry("versions/Current", LF_SYMLINK);
+				currentEntry.setLinkName("A");
+				tos.putArchiveEntry(currentEntry);
+				tos.closeArchiveEntry();
+
+				TarArchiveEntry topEntry = new TarArchiveEntry("payload", LF_SYMLINK);
+				topEntry.setLinkName("versions/Current/payload.txt");
+				tos.putArchiveEntry(topEntry);
+				tos.closeArchiveEntry();
+
+				tos.finish();
+			}
+
+			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+			TarUtils.untar(bais, destDir, true);
+
+			Path extractedTop = new File(destDir, "payload").toPath();
+			assertTrue("Top symlink should exist", Files.isSymbolicLink(extractedTop));
+			assertEquals("inside content",
+					Files.readString(extractedTop, StandardCharsets.UTF_8));
+		} finally {
+			FileUtils.deleteDir(destDir);
+		}
+	}
+
+	@Test
+	public void testUntarSymbolicLinkRejectedWhenPathEscapesThroughExistingSymlink() throws IOException {
+		if (File.separatorChar == '\\') {
+			return;
+		}
+
+		File destDir = Files.createTempDirectory("tar-test-dest").toFile();
+		File outsideDir = Files.createTempDirectory("tar-test-outside").toFile();
+
+		try {
+			Files.createSymbolicLink(new File(destDir, "shortcut").toPath(),
+					outsideDir.toPath().toAbsolutePath());
+
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			try (var gos = new GZIPOutputStream(baos);
+				 var tos = new TarArchiveOutputStream(gos)) {
+				tos.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
+
+				TarArchiveEntry entry = new TarArchiveEntry("important", LF_SYMLINK);
+				entry.setLinkName("shortcut/secret.txt");
+				tos.putArchiveEntry(entry);
+				tos.closeArchiveEntry();
+
+				tos.finish();
+			}
+
+			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+			try {
+				TarUtils.untar(bais, destDir, true);
+				fail("Expected an exception due to symbolic link escape via existing symlink");
+			} catch (ExplicitException e) {
+				assertTrue("Exception message should mention resolves outside",
+						e.getMessage().contains("resolves outside"));
+			}
+
+			assertFalse("Escaping symlink should not be created",
+					Files.exists(new File(destDir, "important").toPath(), LinkOption.NOFOLLOW_LINKS));
+		} finally {
+			FileUtils.deleteDir(destDir);
+			FileUtils.deleteDir(outsideDir);
+		}
+	}
+
+	@Test
+	public void testUntarRejectsSymbolicLinkCycle() throws IOException {
+		if (File.separatorChar == '\\') {
+			return;
+		}
+
+		File destDir = Files.createTempDirectory("tar-test-dest").toFile();
+
+		try {
+			Files.createSymbolicLink(new File(destDir, "loop").toPath(), Paths.get("loop"));
+
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			try (var gos = new GZIPOutputStream(baos);
+				 var tos = new TarArchiveOutputStream(gos)) {
+				tos.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
+
+				TarArchiveEntry entry = new TarArchiveEntry("follower", LF_SYMLINK);
+				entry.setLinkName("loop");
+				tos.putArchiveEntry(entry);
+				tos.closeArchiveEntry();
+
+				tos.finish();
+			}
+
+			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+			try {
+				TarUtils.untar(bais, destDir, true);
+				fail("Expected an exception due to symbolic link cycle");
+			} catch (ExplicitException e) {
+				assertTrue("Exception message should mention too many symbolic links",
+						e.getMessage().contains("Too many"));
+			}
+		} finally {
+			FileUtils.deleteDir(destDir);
+		}
+	}
 }
