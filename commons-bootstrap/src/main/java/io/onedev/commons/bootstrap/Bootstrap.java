@@ -1,26 +1,38 @@
 package io.onedev.commons.bootstrap;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.joran.JoranConfigurator;
-import ch.qos.logback.core.joran.spi.JoranException;
-import ch.qos.logback.core.util.StatusPrinter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.bridge.SLF4JBridgeHandler;
-
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.jar.JarFile;
 import java.util.logging.Handler;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
+
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.joran.spi.JoranException;
+import ch.qos.logback.core.util.StatusPrinter;
 
 public class Bootstrap {
 
@@ -349,10 +361,13 @@ public class Bootstrap {
 	    try {
 		    ZipEntry entry;
 		    while((entry = zis.getNextEntry()) != null) {
-				if (entry.getName().endsWith("/")) {
-					createDir(new File(destDir, entry.getName()));
+				var entryName = entry.getName();
+				if (entryName.contains(".."))
+					throw new RuntimeException("No parent directory reference allowed: " + entryName);
+				if (entryName.endsWith("/")) {
+					createDir(new File(destDir, entryName));
 				} else {
-					var file = new File(destDir, entry.getName());
+					var file = new File(destDir, entryName);
 					createDir(file.getParentFile());
 				    try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file), BUFFER_SIZE);) {
 				        int count;
