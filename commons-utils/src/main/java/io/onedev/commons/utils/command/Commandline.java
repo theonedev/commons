@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
+import org.apache.commons.lang3.Strings;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,10 +140,10 @@ public class Commandline implements Serializable {
     	StringBuffer buf = new StringBuffer();
         for (String each: command) {
         	if (each.contains(" ") || each.contains("\t")) {
-        		buf.append("\"").append(StringUtils.replace(
+        		buf.append("\"").append(Strings.CS.replace(
         				each, "\n", "\\n")).append("\"").append(" ");
         	} else {
-        		buf.append(StringUtils.replace(
+        		buf.append(Strings.CS.replace(
         				each, "\n", "\\n")).append(" ");
         	}
         }

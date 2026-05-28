@@ -4,9 +4,9 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
-import org.jspecify.annotations.Nullable;
-
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.Strings;
+import org.jspecify.annotations.Nullable;
 
 import com.google.common.base.Splitter;
 
@@ -61,7 +61,7 @@ public class PathUtils {
     	shortPath = FilenameUtils.normalizeNoEndSeparator(shortPath);
 		if (shortPath == null)
 			return null;
-    	shortPath = StringUtils.replace(shortPath.trim(), "\\", "/");
+    	shortPath = Strings.CS.replace(shortPath.trim(), "\\", "/");
     	if (shortPath.length() != 0 && shortPath.charAt(0) != '/')
     		shortPath = "/" + shortPath;
     	if (shortPath.endsWith("/"))
@@ -70,7 +70,7 @@ public class PathUtils {
     	longPath = FilenameUtils.normalizeNoEndSeparator(longPath);
 		if (longPath == null)
 			return null;
-    	longPath = StringUtils.replace(longPath.trim(), "\\", "/");
+    	longPath = Strings.CS.replace(longPath.trim(), "\\", "/");
     	if (longPath.length() != 0 && longPath.charAt(0) != '/')
     		longPath = "/" + longPath;
     	if (longPath.endsWith("/"))

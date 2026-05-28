@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
-import org.jspecify.annotations.Nullable;
-
-import io.onedev.commons.jsymbol.csharp.CSharpParser.*;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -20,13 +17,58 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenSource;
 import org.antlr.v4.runtime.TokenStream;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
 
 import io.onedev.commons.jsymbol.AbstractSymbolExtractor;
-import io.onedev.commons.utils.PlanarRange;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.All_member_modifierContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.All_member_modifiersContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Arg_declarationContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Class_definitionContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Class_member_declarationContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Common_member_declarationContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Compilation_unitContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Constant_declarationContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Constant_declaratorContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Constructor_declarationContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Conversion_operator_declaratorContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Delegate_definitionContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Destructor_definitionContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Enum_definitionContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Enum_member_declarationContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Event_declarationContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Field_declarationContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Fixed_parameterContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Fixed_parametersContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Fixed_size_buffer_declaratorContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Formal_parameter_listContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.IdentifierContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Indexer_declarationContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Interface_definitionContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Interface_member_declarationContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Method_declarationContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Namespace_declarationContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Namespace_member_declarationContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Namespace_member_declarationsContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Namespace_or_type_nameContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Operator_declarationContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Property_declarationContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Qualified_identifierContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Return_typeContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Struct_definitionContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Struct_member_declarationContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.TypeContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Type_declarationContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Type_parameterContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Type_parameter_listContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Typed_member_declarationContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Variable_declaratorContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Variant_type_parameterContext;
+import io.onedev.commons.jsymbol.csharp.CSharpParser.Variant_type_parameter_listContext;
 import io.onedev.commons.jsymbol.csharp.symbols.CSharpSymbol;
 import io.onedev.commons.jsymbol.csharp.symbols.FieldSymbol;
 import io.onedev.commons.jsymbol.csharp.symbols.MethodSymbol;
@@ -35,6 +77,7 @@ import io.onedev.commons.jsymbol.csharp.symbols.TypeSymbol;
 import io.onedev.commons.jsymbol.csharp.symbols.TypeSymbol.Kind;
 import io.onedev.commons.jsymbol.util.QualifiedName;
 import io.onedev.commons.jsymbol.util.Utils;
+import io.onedev.commons.utils.PlanarRange;
 
 public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 
@@ -153,12 +196,12 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 
 		String prefix = source.substring(type.start.getStartIndex(), unqualified.start.getStartIndex());
 		if (prefix != null)
-			prefix = StringUtils.remove(prefix, "@");
+			prefix = Strings.CS.remove(prefix, "@");
 		if (prefix.length() == 0)
 			prefix = null;
 		String suffix = source.substring(unqualified.stop.getStopIndex()+1, type.stop.getStopIndex()+1);
 		if (suffix != null)
-			suffix = StringUtils.remove(suffix, "@");
+			suffix = Strings.CS.remove(suffix, "@");
 		if (suffix.length() == 0)
 			suffix = null;
 		String unqualifiedName = getText(unqualified);
