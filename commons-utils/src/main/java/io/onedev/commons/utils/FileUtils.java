@@ -35,16 +35,12 @@ import java.util.zip.ZipFile;
 
 import org.apache.tools.ant.DirectoryScanner;
 import org.jspecify.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.onedev.commons.bootstrap.Bootstrap;
 import io.onedev.commons.utils.match.WildcardUtils;
 
 @SuppressWarnings("deprecation")
 public class FileUtils extends org.apache.commons.io.FileUtils {
-
-	private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);
 
 	/** Unix file type mask and socket type (S_IFMT, S_IFSOCK) */
 	private static final int S_IFMT = 0170000;
@@ -194,52 +190,54 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 	}
 
     public static void deleteDir(File dir) {
-    	if (isSymbolicLink(dir.toPath())) {
-    		deleteFile(dir);
-    	} else if (dir.exists()) {
-    		cleanDir(dir);
-    		deleteFile(dir);
-    	}
+		deleteDir(dir, 0);
     }
 
 	public static void deleteDir(File dir, int retries) {
 		int retried = 0;
 		while (dir.exists()) {
 			try {
-				deleteDir(dir);
+				if (isSymbolicLink(dir.toPath())) {
+					deleteFile(dir);
+				} else if (dir.exists()) {
+					cleanDir(dir);
+					deleteFile(dir);
+				}
 				break;
 			} catch (Exception e) {
-				if (retried++ < retries) {
-					logger.error("Error deleting directory '" + dir.getAbsolutePath() + "', will retry later...", e);
+				if (retried < retries) {
 					try {
-						Thread.sleep(5000);
+						Thread.sleep(1000);
 					} catch (InterruptedException e2) {
 					}
+					retried++;
 				} else {
-					throw e;
+					throw new RuntimeException("Failed to delete directory '" + dir.getAbsolutePath() + "'", e);
 				}
 			}
 		}
 	}
 	
-	public static void deleteFile(File file) {		
-		int maxTries = 10;
-    	int numTries = 1;
+	public static void deleteFile(File file) {
+		deleteFile(file, 0);
+	}
+
+	public static void deleteFile(File file, int retries) {		
+    	int retried = 0;
 
     	while (true) {
     		if (file.delete())
     			break;
     		
     		if (file.exists()) {
-            	if (numTries == maxTries) {
-            		throw new RuntimeException("Failed to delete file " + file);
+            	if (retried >= retries) {
+            		throw new RuntimeException("Failed to delete file '" + file.getAbsolutePath() + "'");
             	} else {
-                    System.gc();
                     try {
                         Thread.sleep(100);
-                    } catch (InterruptedException e2) {
+                    } catch (InterruptedException e) {
                     }
-                    numTries++;
+                    retried++;
             	}
     		} else {
     			break;
@@ -276,16 +274,37 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 	}
 
 	public static void cleanDir(File dir) {
+		cleanDir(dir, 0);
+	}
+
+	public static void cleanDir(File dir, int retries) {
 		if (dir.exists()) {
-	        for (File file : dir.listFiles()) {
-	        	if (file.isDirectory())
-	        		deleteDir(file);
-	        	else
-	        		deleteFile(file);
-	        }
+			File[] children;
+			int retried = 0;
+			while ((children = dir.listFiles()).length != 0) {
+				try {
+					for (File file : children) {
+						if (file.isDirectory())
+							deleteDir(file);
+						else
+							deleteFile(file);
+					}	
+					break;
+				} catch (Exception e) {
+					if (retried < retries) {
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e2) {
+						}
+						retried++;
+					} else {
+						throw new RuntimeException("Failed to clean directory '" + dir.getAbsolutePath() + "'", e);
+					}	
+				}
+			}
 		} else {
 			if (isSymbolicLink(dir.toPath()))
-				deleteFile(dir);
+				deleteFile(dir, retries);
 			createDir(dir);
 		}
 	}
