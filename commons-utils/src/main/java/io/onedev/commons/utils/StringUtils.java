@@ -49,7 +49,10 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	 * @param string
 	 * @return
 	 */
-    public static String[] parseQuoteTokens(String string) {
+    public static String[] parseQuoteTokens(@Nullable String string) {
+        if (string == null)
+            return new String[0];
+        
 		List<String> result = new ArrayList<>();
 		StringBuilder currentField = new StringBuilder();
 		boolean inQuotes = false;

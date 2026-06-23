@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
@@ -116,6 +117,45 @@ public class TarUtilsTest {
 			assertTrue("File with backslash should exist", extractedFileWithBackslash.exists());
 			assertEquals("backslash content", Files.readString(extractedFileWithBackslash.toPath(), StandardCharsets.UTF_8));
 
+		} finally {
+			FileUtils.deleteDir(sourceDir);
+			FileUtils.deleteDir(destDir);
+		}
+	}
+
+	@Test
+	public void testTarUntarWithExcludedPathPatterns() throws IOException {
+		File sourceDir = Files.createTempDirectory("tar-test-source").toFile();
+		File destDir = Files.createTempDirectory("tar-test-dest").toFile();
+
+		try {
+			File keepFile = new File(sourceDir, "keep.txt");
+			Files.writeString(keepFile.toPath(), "keep content", StandardCharsets.UTF_8);
+
+			File ignoredFile = new File(sourceDir, "ignored.log");
+			Files.writeString(ignoredFile.toPath(), "ignored content", StandardCharsets.UTF_8);
+
+			File ignoredDir = new File(sourceDir, "ignored-dir");
+			ignoredDir.mkdir();
+			File ignoredChild = new File(ignoredDir, "child.txt");
+			Files.writeString(ignoredChild.toPath(), "child content", StandardCharsets.UTF_8);
+
+			File nestedDir = new File(sourceDir, "nested");
+			nestedDir.mkdir();
+			File nestedKeep = new File(nestedDir, "keep.txt");
+			Files.writeString(nestedKeep.toPath(), "nested keep content", StandardCharsets.UTF_8);
+
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			TarUtils.tar(sourceDir, List.of("*.log", "ignored-dir"), baos, true);
+
+			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+			TarUtils.untar(bais, destDir, true);
+
+			assertTrue("Unmatched file should exist", new File(destDir, "keep.txt").exists());
+			assertTrue("Unmatched nested file should exist", new File(destDir, "nested/keep.txt").exists());
+			assertFalse("Matched file should be excluded", new File(destDir, "ignored.log").exists());
+			assertFalse("Matched directory children should be excluded", new File(destDir, "ignored-dir").exists());
+			assertFalse("Matched directory children should be excluded", new File(destDir, "ignored-dir/child.txt").exists());
 		} finally {
 			FileUtils.deleteDir(sourceDir);
 			FileUtils.deleteDir(destDir);

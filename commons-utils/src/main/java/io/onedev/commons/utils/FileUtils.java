@@ -20,11 +20,10 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
@@ -378,10 +377,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 		return createTempDir("dir");
 	}
 
-	public static boolean hasChangedFiles(File checkDir, Date sinceDate, @Nullable String excludePaths) {
-		var excludePathList = new ArrayList<String>();
-		if (excludePaths != null)
-			Collections.addAll(excludePathList, StringUtils.parseQuoteTokens(excludePaths));
+	public static boolean hasChangedFiles(File checkDir, Date sinceDate, List<String> excludePathPatterns) {
 		try {
 			var changed = new AtomicBoolean(false);
 			Files.walkFileTree(checkDir.toPath(), new FileVisitor<>() {
@@ -397,8 +393,8 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
 					if (attrs.isSymbolicLink())
 						return FileVisitResult.SKIP_SUBTREE;
-					for (var excludeFile : excludePathList) {
-						if (WildcardUtils.matchPath(excludeFile, checkDir.toPath().relativize(file).toString()))
+					for (var excludePathPattern : excludePathPatterns) {
+						if (WildcardUtils.matchPath(excludePathPattern, checkDir.toPath().relativize(file).toString()))
 							return FileVisitResult.CONTINUE;
 					}
 					if (attrs.creationTime().toMillis() > sinceDate.getTime()

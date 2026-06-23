@@ -21,7 +21,9 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -32,13 +34,19 @@ import org.jspecify.annotations.Nullable;
 
 import com.google.common.collect.Sets;
 
+import io.onedev.commons.utils.match.WildcardUtils;
+
 public class TarUtils {
 
     private static final int BUFFER_SIZE = 64*1024;
 
     private static final String SINGLE_FILE_PAX_HEADER = "OneDev.singleFile";
 
-    public static void tar(File dirOrFile, OutputStream os, boolean compress) {        
+    public static void tar(File dirOrFile, OutputStream os, boolean compress) {
+        tar(dirOrFile, Collections.emptyList(), os, compress);
+    }
+
+    public static void tar(File dirOrFile, List<String> excludedPathPatterns, OutputStream os, boolean compress) {
         byte[] buffer = new byte[BUFFER_SIZE];
         try {
             var tos = newTarArchiveOutputStream(os, compress);
@@ -69,6 +77,8 @@ public class TarUtils {
                         if (FileUtils.isUnixSocket(filePath))
                             return FileVisitResult.CONTINUE;
                         var entryName = basePath.relativize(filePath).toString().replace(File.separatorChar, '/');
+                        if (isExcluded(entryName, excludedPathPatterns))
+                            return FileVisitResult.CONTINUE;
                         if (Files.isSymbolicLink(filePath)) {
                             TarArchiveEntry entry = new TarArchiveEntry(entryName, LF_SYMLINK);
                             entry.setLinkName(Files.readSymbolicLink(filePath).toString());
@@ -83,8 +93,11 @@ public class TarUtils {
                     @Override
                     public FileVisitResult preVisitDirectory(Path dirPath, BasicFileAttributes attrs) throws IOException {
                         var entryName = basePath.relativize(dirPath).toString().replace(File.separatorChar, '/');
-                        if (entryName.length() != 0)
+                        if (entryName.length() != 0) {
+                            if (isExcluded(entryName, excludedPathPatterns))
+                                return FileVisitResult.SKIP_SUBTREE;
                             addTarEntry(dirPath.toFile(), entryName, null, tos, buffer);
+                        }
                         return FileVisitResult.CONTINUE;
                     }
                 });
@@ -93,6 +106,10 @@ public class TarUtils {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static boolean isExcluded(String entryName, List<String> excludedPathPatterns) {
+        return excludedPathPatterns.stream().anyMatch(it -> WildcardUtils.matchPath(it, entryName));
     }
 
     public static void tar(File baseDir, @Nullable Collection<String> includes,
