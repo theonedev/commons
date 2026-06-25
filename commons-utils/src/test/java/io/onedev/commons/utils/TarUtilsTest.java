@@ -275,6 +275,8 @@ public class TarUtilsTest {
 			} catch (ExplicitException e) {
 				assertTrue("Exception message should mention symbol link escape",
 						e.getMessage().contains("symbol link escape"));
+				assertTrue("Exception message should mention tar entry name",
+						e.getMessage().contains("escape.txt"));
 			}
 
 			File extractedSymlink = new File(destDir, "escape.txt");
@@ -421,6 +423,8 @@ public class TarUtilsTest {
 			} catch (ExplicitException e) {
 				assertTrue("Exception message should mention resolves outside",
 						e.getMessage().contains("resolves outside"));
+				assertTrue("Exception message should mention tar entry name",
+						e.getMessage().contains("important"));
 			}
 
 			assertFalse("Escaping symlink should not be created",

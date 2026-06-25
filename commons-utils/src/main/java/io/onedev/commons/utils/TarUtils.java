@@ -255,7 +255,7 @@ public class TarUtils {
         return entryPath;
     }
 
-    private static void ensureLinkTargetInside(Path destPath, Path linkTargetPath) throws IOException {
+    private static void ensureLinkTargetInside(Path destPath, Path linkTargetPath, String entryName) throws IOException {
         var relativePath = destPath.relativize(linkTargetPath);
         var currentPath = destPath;
         var linkFollowCount = 0;
@@ -263,14 +263,17 @@ public class TarUtils {
             currentPath = currentPath.resolve(pathSegment);
             while (Files.isSymbolicLink(currentPath)) {
                 if (++linkFollowCount > 40)
-                    throw new ExplicitException("Too many levels of symbolic links: " + currentPath);
+                    throw new ExplicitException("Too many levels of symbolic links for tar entry "
+                            + entryName + ": " + currentPath);
                 var target = Files.readSymbolicLink(currentPath);
                 var parent = currentPath.getParent();
                 if (parent == null)
-                    throw new ExplicitException("Tar entry symbol link resolves outside destination: " + currentPath);
+                    throw new ExplicitException("Tar entry symbol link resolves outside destination: "
+                            + entryName + " -> " + currentPath);
                 currentPath = parent.resolve(target).normalize();
                 if (!currentPath.startsWith(destPath))
-                    throw new ExplicitException("Tar entry symbol link resolves outside destination: " + currentPath);
+                    throw new ExplicitException("Tar entry symbol link resolves outside destination: "
+                            + entryName + " -> " + currentPath);
             }
             if (!Files.exists(currentPath, LinkOption.NOFOLLOW_LINKS))
                 return;
@@ -319,8 +322,9 @@ public class TarUtils {
                 Path linkTarget = Paths.get(linkName);
                 var linkTargetPath = entryParentPath.resolve(linkTarget).normalize();
                 if (!linkTargetPath.startsWith(destPath))
-                    throw new ExplicitException("Tar entry symbol link escape detected: " + linkName);
-                ensureLinkTargetInside(destPath, linkTargetPath);
+                    throw new ExplicitException("Tar entry symbol link escape detected: "
+                            + entryName + " -> " + linkName);
+                ensureLinkTargetInside(destPath, linkTargetPath, entryName);
 
                 createDirInside(destPath, entryParentPath);
                 if (Files.exists(entryPath, LinkOption.NOFOLLOW_LINKS)) {
