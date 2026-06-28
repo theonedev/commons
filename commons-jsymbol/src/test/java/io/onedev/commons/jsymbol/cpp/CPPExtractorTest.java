@@ -102,6 +102,14 @@ public class CPPExtractorTest extends DescriptableExtractorTest<CppSymbol> {
 		verify(readFile("modern.outline"), new CppExtractor().extract(null, readFile("modern.source")));
 	}
 
+	@Test
+	public void testAnonymousEnumWithoutSpace() {
+		String source = "#define EVENT(_name, _code) enum{_name = _code}\n\n"
+				+ "EVENT(CTL_RES_CNT, 0x1);\n"
+				+ "enum{BAR=2};\n";
+		new CppExtractor().extract("nd_perf.c", source);
+	}
+
 	@Override
 	protected List<String> describe(List<CppSymbol> context, CppSymbol symbol) {
 		List<String> lines = new ArrayList<>();

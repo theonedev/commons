@@ -256,7 +256,7 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
 	    	  visibility = getMethodType(nodeFunction,visibility);
 	      }
 	      scope = getScope(nodeFunction, strLineLength);
-	      if(!definition){
+	      if(scope != null && !definition){
 	    	  scope = new PlanarRange(scope.getFromRow(), scope.getFromColumn(), scope.getToRow(), scope.getToColumn()-1);
 	      }
        	  for(IASTNode ob : node)
@@ -475,8 +475,10 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
     				if(ob1 instanceof CPPASTName || ob1 instanceof CPPASTTemplateId){
     	    	    	if(isNameNull){
     	    	    		name = "(anonymous)";
-    	    	    		int toCh = getAnonymousTextRange(ob.getRawSignature(),scope.getFromColumn());
-    	    	    		token = new PlanarRange(scope.getFromRow(),scope.getFromColumn(),scope.getToRow(), toCh);
+    	    	    		if (scope != null) {
+    	    	    			int toCh = getAnonymousTextRange(ob.getRawSignature(), scope.getFromColumn());
+    	    	    			token = new PlanarRange(scope.getFromRow(), scope.getFromColumn(), scope.getToRow(), toCh);
+    	    	    		}
     	    	    	    symbol = new EnumSymbol(fileSymbol, name, isLocal, token, scope,modifier, isTemp);
     	    	    	    tempSymbols.add(symbol);
     	    	    	}
@@ -968,8 +970,10 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
         			if(ob1 instanceof CPPASTName || ob1 instanceof CPPASTTemplateId){
         				if(isNameNull){
         					name = "(anonymous)";
-        					int toCh = getAnonymousTextRange(ob.getRawSignature(),scope.getFromColumn());
-        					token = new PlanarRange(scope.getFromRow(),scope.getFromColumn(),scope.getFromRow(),toCh);
+        					if (scope != null) {
+        						int toCh = getAnonymousTextRange(ob.getRawSignature(), scope.getFromColumn());
+        						token = new PlanarRange(scope.getFromRow(), scope.getFromColumn(), scope.getFromRow(), toCh);
+        					}
         				}
         				else{
     					    name = ob1.getRawSignature();
@@ -1137,8 +1141,10 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
     			}
     			if("".equals(name)){
     				name = "(anonymous)";
-    				int toCh = getAnonymousTextRange(nameNode.getRawSignature(),scope.getFromColumn());
-    			    token = new PlanarRange(scope.getFromRow(),scope.getFromColumn(),scope.getFromRow(),toCh);
+    				if (scope != null) {
+    					int toCh = getAnonymousTextRange(nameNode.getRawSignature(), scope.getFromColumn());
+    				    token = new PlanarRange(scope.getFromRow(), scope.getFromColumn(), scope.getFromRow(), toCh);
+    				}
     			}else
     			{
     			    token = getPosition(ob,strLineLength);
@@ -1495,7 +1501,7 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
      * TextRange method will gain declaration position in source file.
      * */
     public PlanarRange getPosition(IASTNode node, int[] strLineLength){
-    	if(null != node && !"".equals(node.getRawSignature())){// if string "" equals node.getRawSignature(),it will throw NPE
+    	if(null != node && !"".equals(node.getRawSignature()) && node.getFileLocation() != null){
     	    int fromLine, toLine, fromCh, length;
     	    fromLine = node.getFileLocation().getStartingLineNumber();
     	    toLine = node.getFileLocation().getEndingLineNumber();  
@@ -1515,8 +1521,11 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
      * */
     public int getAnonymousTextRange(String str,int fromCh){
         int toCh = 0;
-        while(!" ".equals(str.substring(toCh,toCh+1)) && !"\n".equals(str.substring(toCh,toCh+1)) && !"\r".equals(str.substring(toCh,toCh+1))){
-            ++toCh;
+        while (toCh < str.length()) {
+        	char c = str.charAt(toCh);
+        	if (c == ' ' || c == '\n' || c == '\r' || c == '{' || c == '(')
+        		break;
+        	toCh++;
         }
         return toCh + fromCh;
     }
@@ -1524,7 +1533,7 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
      * getScope method will gain node's scope in source file.
      * */
     public PlanarRange getScope(IASTNode node, int[] strLineLength){
-    	if(null != node && !"".equals(node.getRawSignature())){
+    	if(null != node && !"".equals(node.getRawSignature()) && node.getFileLocation() != null){
     	    int fromLine, toLine, fromCh, toCh ;
     	    fromLine = node.getFileLocation().getStartingLineNumber();
     	    toLine = node.getFileLocation().getEndingLineNumber();
