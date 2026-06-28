@@ -1,0 +1,29 @@
+class Sample<TOne,TTwo>
+{
+    private static Dictionary<string, HashSet<Entry>> parameters = new Dictionary<string, HashSet<Entry>>
+    {
+        { "x", new HashSet<Entry>() }
+    };
+
+    private static Dictionary<string, Entry> parameterSets = new();
+
+    public static int Compare<T>(this IEnumerable values, bool flag = false)
+    {
+        return 0;
+    }
+
+    ExpandCollapseState IExpandCollapseProvider.ExpandCollapseState
+    {
+        get { return default; }
+    }
+}
+
+enum ProtocolType
+{
+    Default,
+
+    [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly")]
+    Dcom,
+
+    Wsman
+}

@@ -1,0 +1,16 @@
+const Alert
+{
+  property propTypes
+  {
+    property action
+    property children
+  }
+  property defaultProps
+  {
+    property closeText
+  }
+}
+const standalone local
+{
+  property nested
+}

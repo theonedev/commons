@@ -1,0 +1,42 @@
+protocol IdentifiableEntity
+{
+  associatedtype Identifier
+  var id
+  func displayName(for locale: Locale)
+}
+class UserViewModel
+{
+  var name
+  let cacheKey local
+  var token local
+  init init(name: String)
+  deinit deinit
+  func refresh(force: Bool = false)
+  func reset() local
+  subscript subscript(index: Int)
+}
+struct User
+{
+  let id
+  var name
+}
+enum LoadState
+{
+  case idle
+  case loading
+  case loaded
+  case failed
+}
+extension User
+{
+  typealias Identifier
+  func make(id: UUID, name: String)
+  var displayTitle
+}
+actor SessionStore
+{
+  var current
+}
+func globalFunction(_ value: Int)
+let globalConstant
+var fileSecret local

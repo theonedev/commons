@@ -104,7 +104,7 @@ public class TypeSymbol extends CSharpSymbol {
 			if (modifiers.contains(CSharpSymbol.Modifier.PUBLIC))
 				icon = "Class_yellow_16x.png";
 			else if (modifiers.contains(CSharpSymbol.Modifier.PROTECTED))
-				icon = "ClassProtect_16x.png";
+				icon = "ClassProtected_16x.png";
 			else if (modifiers.contains(CSharpSymbol.Modifier.PRIVATE))
 				icon = "ClassPrivate_16x.png";
 			else if (modifiers.contains(CSharpSymbol.Modifier.SEALED))

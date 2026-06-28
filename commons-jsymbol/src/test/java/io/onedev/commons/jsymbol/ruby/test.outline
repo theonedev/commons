@@ -1,0 +1,32 @@
+require json
+require support/parser
+module Billing
+{
+  constant VERSION
+  autoload Ledger
+  class Invoice
+  {
+    attr_reader total
+    attr_reader currency
+    attr_writer draft local
+    attr_accessor number
+    constant DEFAULT_CURRENCY
+    initialize(total,currency=DEFAULT_CURRENCY)
+    paid?
+    self.build(attrs={})
+    self.from_json(json)
+    number=(value)
+    [](key)
+    <=>(other)
+    complete?
+  }
+  module Formatting
+  {
+    format(invoice)
+  }
+}
+class Billing::LegacyInvoice
+{
+  constant LEGACY
+  self.load(id)
+}

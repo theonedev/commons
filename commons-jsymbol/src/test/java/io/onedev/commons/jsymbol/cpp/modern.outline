@@ -1,0 +1,15 @@
+namespace math
+{
+  namespace v1
+  {
+    concept Addable
+    class Box
+    {
+      Box(){...}
+      auto operator<=>(const Box&)
+    }
+    Box(T)
+    T identity(T){...}
+    int cache
+  }
+}

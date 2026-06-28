@@ -68,6 +68,38 @@ public class CSharpExtractorTest extends DescriptableExtractorTest<CSharpSymbol>
 				new CSharpExtractor().extract(null, readFile("v7.source")));
 	}
 	
+	@Test
+	public void testTargetTypedNewCollectionInitializer() {
+		new CSharpExtractor().extract(null, readFile("target_typed_new.source"));
+	}
+	
+	@Test
+	public void testAnonymousDelegate() {
+		new CSharpExtractor().extract(null, readFile("anonymous_delegate.source"));
+	}
+	
+	@Test
+	public void testComInterfaceOutParameter() {
+		new CSharpExtractor().extract(null, readFile("com_interface.source"));
+	}
+
+	@Test
+	public void testCorpusRegressions() {
+		CSharpExtractor extractor = new CSharpExtractor();
+		verify(readFile("namespace.outline"), extractor.extract(null, readFile("namespace.source")));
+		verify(readFile("class.outline"), extractor.extract(null, readFile("class.source")));
+		verify(readFile("preprocess.outline"), extractor.extract(null, readFile("preprocess.source")));
+		verify(readFile("explicit_implements.outline"), extractor.extract(null, readFile("explicit_implements.source")));
+		verify(readFile("operator_overloading.outline"), extractor.extract(null, readFile("operator_overloading.source")));
+		verify(readFile("varargs.outline"), extractor.extract(null, readFile("varargs.source")));
+		verify(readFile("delegate_event.outline"), extractor.extract(null, readFile("delegate_event.source")));
+		verify(readFile("v7.outline"), extractor.extract(null, readFile("v7.source")));
+		verify(readFile("corpus_regressions.outline"), extractor.extract(null, readFile("corpus_regressions.source")));
+		extractor.extract(null, readFile("target_typed_new.source"));
+		extractor.extract(null, readFile("anonymous_delegate.source"));
+		extractor.extract(null, readFile("com_interface.source"));
+	}
+	
 	@Override
 	protected List<String> describe(List<CSharpSymbol> context, CSharpSymbol symbol) {
 		List<String> lines = new ArrayList<>();

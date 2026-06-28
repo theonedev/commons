@@ -72,48 +72,28 @@
 		</dependency>
 		<dependency>
 		    <groupId>org.eclipse.core</groupId>
-		    <artifactId>org.eclipse.core.contenttype</artifactId>
+		    <artifactId>org.eclipse.core.runtime</artifactId>
 		</dependency>
 		<dependency>
 		    <groupId>org.eclipse.core</groupId>
 		    <artifactId>org.eclipse.core.jobs</artifactId>
 		</dependency>
 		<dependency>
-		    <groupId>org.eclipse.core</groupId>
-		    <artifactId>org.eclipse.core.resources</artifactId>
-		</dependency>
-		<dependency>
-		    <groupId>org.eclipse.core</groupId>
-		    <artifactId>org.eclipse.core.runtime</artifactId>
-		</dependency>
-		<dependency>
-		    <groupId>org.eclipse.core</groupId>
-		    <artifactId>org.eclipse.core.filesystem</artifactId>
-		</dependency>
-		<dependency>
-		    <groupId>org.osgi</groupId>
-		    <artifactId>org.osgi.core</artifactId>
-		</dependency>
-		<dependency>
 		    <groupId>org.eclipse</groupId>
 		    <artifactId>org.eclipse.osgi</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.equinox</groupId>
-			<artifactId>org.eclipse.equinox.registry</artifactId>
-		</dependency>
-		<dependency>
 		    <groupId>org.eclipse.equinox</groupId>
 		    <artifactId>org.eclipse.equinox.common</artifactId>
-		</dependency>		
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.service.prefs</artifactId>
+		</dependency>
 		<dependency>
 		    <groupId>org.eclipse.cdt</groupId>
 		    <artifactId>org.eclipse.cdt.core</artifactId>
 		</dependency>	
-		<dependency>  
-            <groupId>org.sonarsource.javascript</groupId>  
-            <artifactId>javascript-frontend</artifactId>  
-        </dependency> 
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>

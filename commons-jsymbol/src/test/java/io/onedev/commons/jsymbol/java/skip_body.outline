@@ -1,0 +1,12 @@
+package com.example 
+{
+  public class SkipBody 
+  {
+    public SkipBody()
+    public <T> String read(List<T>)
+    class Nested 
+    {
+      void ok()
+    }
+  }
+}

@@ -1,0 +1,44 @@
+// class Ignored {}
+let ignoredString = "struct NotReal {}"
+let ignoredRaw = #"func fake() {}"#
+let ignoredMulti = """
+enum Nope {
+	case never
+}
+"""
+
+@available(iOS 17, *)
+public struct Fancy<Value> where Value: Equatable {
+	@propertyWrapper
+	struct Wrapper {
+		var wrappedValue: Value
+	}
+
+	var (left, right) = (1, 2)
+
+	static func == (lhs: Fancy, rhs: Fancy) -> Bool {
+		true
+	}
+
+	class func build(
+		value: Value
+	) -> Fancy {
+		Fancy()
+	}
+}
+
+extension Array where Element == String {
+	func joinedNames() -> String {
+		joined()
+	}
+}
+
+extension Dictionary where Key: Hashable {
+	func keyedValues() -> [Value] {
+		Array(values)
+	}
+}
+
+private extension String {
+	var redacted: String { "***" }
+}

@@ -1,0 +1,25 @@
+namespace math::v1 {
+
+template <class T>
+concept Addable = requires(T a, T b) {
+    a + b;
+};
+
+template <Addable T>
+class Box {
+public:
+    consteval Box() = default;
+    auto operator<=>(const Box&) const = default;
+};
+
+template <class T>
+Box(T) -> Box<T>;
+
+template <Addable T>
+consteval T identity(T value) {
+    auto local = value;
+    return local;
+}
+
+constinit int cache = 0;
+}

@@ -34,6 +34,11 @@ public class PythonExtractorTest extends DescriptableExtractorTest<PythonSymbol>
 		verify(readFile("realworld.outline"), new PythonExtractor().extract(null, readFile("realworld.source")));
 	}
 	
+	@Test
+	public void testSignature() {
+		verify(readFile("signature.outline"), new PythonExtractor().extract(null, readFile("signature.source")));
+	}
+
 	@Override
 	protected List<String> describe(List<PythonSymbol> context, PythonSymbol symbol) {
 		List<String> lines = new ArrayList<>();

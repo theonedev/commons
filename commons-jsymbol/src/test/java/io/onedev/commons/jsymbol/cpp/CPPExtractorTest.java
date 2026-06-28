@@ -7,12 +7,14 @@ import org.junit.Test;
 
 import io.onedev.commons.jsymbol.DescriptableExtractorTest;
 import io.onedev.commons.jsymbol.cpp.symbols.ClassSymbol;
+import io.onedev.commons.jsymbol.cpp.symbols.ConceptSymbol;
 import io.onedev.commons.jsymbol.cpp.symbols.CppSymbol;
 import io.onedev.commons.jsymbol.cpp.symbols.EnumSymbol;
 import io.onedev.commons.jsymbol.cpp.symbols.FunctionSymbol;
 import io.onedev.commons.jsymbol.cpp.symbols.HeaderFileSymbol;
 import io.onedev.commons.jsymbol.cpp.symbols.MacroSymbol;
 import io.onedev.commons.jsymbol.cpp.symbols.MemberSymbol;
+import io.onedev.commons.jsymbol.cpp.symbols.ModuleSymbol;
 import io.onedev.commons.jsymbol.cpp.symbols.NamespaceSymbol;
 import io.onedev.commons.jsymbol.cpp.symbols.SourceFileSymbol;
 import io.onedev.commons.jsymbol.cpp.symbols.SpecialFunctionSymbol;
@@ -90,6 +92,16 @@ public class CPPExtractorTest extends DescriptableExtractorTest<CppSymbol> {
 		verify(readFile("module.outline"), new CppExtractor().extract(null, readFile("module.source")));
 	}
 
+	@Test
+	public void testModernModule() {
+		verify(readFile("modern_module.outline"), new CppExtractor().extract(null, readFile("modern_module.source")));
+	}
+
+	@Test
+	public void testModern() {
+		verify(readFile("modern.outline"), new CppExtractor().extract(null, readFile("modern.source")));
+	}
+
 	@Override
 	protected List<String> describe(List<CppSymbol> context, CppSymbol symbol) {
 		List<String> lines = new ArrayList<>();
@@ -97,7 +109,11 @@ public class CPPExtractorTest extends DescriptableExtractorTest<CppSymbol> {
 		if(symbol.isLocal()){
 			builder.append("local ");
 		}
-		if (symbol instanceof EnumSymbol) {
+		if (symbol instanceof ConceptSymbol) {
+			builder.append("concept ").append(symbol.getName());
+		} else if (symbol instanceof ModuleSymbol) {
+			builder.append("module ").append(symbol.getName());
+		} else if (symbol instanceof EnumSymbol) {
 			EnumSymbol enumSymbol = (EnumSymbol) symbol;
 			builder.append("enum ").append(enumSymbol.getName());
 		} else if (symbol instanceof FunctionSymbol) {

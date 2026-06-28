@@ -1,0 +1,18 @@
+variable a local
+{
+  property b
+  {
+    function c()
+  }
+}
+const config local
+{
+  property timeout
+  property nested
+  {
+    property enabled
+  }
+  function handler()
+  function arrow(x)
+  function method()
+}

@@ -44,7 +44,7 @@ public class TypedefSymbol extends CppSymbol {
 		case NORMAL:
 			loadIcon="typedef_obj.png";
 			if(isTemp){
-				loadIcon="temp_obj.png";
+				loadIcon="template_obj.png";
 			}
 			break;
 		case PRIVATE:

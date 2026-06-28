@@ -1,0 +1,74 @@
+use std::fmt::Display;
+
+const PRIVATE_LIMIT: usize = 8;
+pub const PUBLIC_LIMIT: usize = 16;
+pub static APP_NAME: &str = "demo";
+
+pub extern "C" fn exported_callback(code: i32) {
+}
+
+extern "C" {
+	pub(super) fn TISCopyCurrentKeyboardLayoutInputSource() -> *mut Object;
+	static kTISPropertyInputSourceID: CFStringRef;
+}
+
+macro_rules! private_macro {
+	() => {};
+}
+
+pub macro public_macro() {
+}
+
+type PrivateAlias = String;
+pub type PublicAlias = String;
+
+pub mod service {
+	pub struct User {
+		pub id: u64,
+		name: String,
+	}
+
+	pub enum State {
+		Ready,
+		Failed(String),
+		Custom {
+			code: u16,
+		},
+	}
+
+	pub trait Repository {
+		fn get(&self, id: u64) -> Option<User>;
+		fn save(&mut self, user: User) {
+		}
+	}
+
+	impl User {
+		pub fn new(id: u64, name: String) -> Self {
+			let local_value = id;
+			Self { id: local_value, name }
+		}
+
+		fn private_name(&self) -> &str {
+			&self.name
+		}
+	}
+
+	impl<T: Display> From<T> for User {
+		fn from(value: T) -> Self {
+			Self::new(0, value.to_string())
+		}
+	}
+}
+
+struct PrivateStruct {
+	field: usize,
+}
+
+pub fn run() {
+	let _raw = r#"fn not_a_symbol() {}"#;
+	fn local_fn() {
+	}
+}
+
+fn private_run<'a>(name: &'a str) {
+}

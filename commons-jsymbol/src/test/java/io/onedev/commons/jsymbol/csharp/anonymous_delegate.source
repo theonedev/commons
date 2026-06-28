@@ -1,0 +1,10 @@
+namespace N
+{
+    public class C
+    {
+        public void M()
+        {
+            handler.Callback = delegate { return true; };
+        }
+    }
+}

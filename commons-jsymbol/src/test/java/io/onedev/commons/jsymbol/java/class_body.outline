@@ -1,0 +1,13 @@
+package com.example 
+{
+  public class ClassBody 
+  {
+    private static final String TEXT
+    private int value
+    public void method()
+    interface Nested 
+    {
+      void run()
+    }
+  }
+}

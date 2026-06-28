@@ -95,7 +95,7 @@ public class MethodSymbol extends CSharpSymbol {
 			if (modifiers.contains(CSharpSymbol.Modifier.PUBLIC))
 				icon = "Delegate_purple_16x.png";
 			else if (modifiers.contains(CSharpSymbol.Modifier.PROTECTED))
-				icon = "DelegateProtect_16x.png";
+				icon = "DelegateProtected_16x.png";
 			else if (modifiers.contains(CSharpSymbol.Modifier.PRIVATE))
 				icon = "DelegatePrivate_16x.png";
 			else if (modifiers.contains(CSharpSymbol.Modifier.SEALED))

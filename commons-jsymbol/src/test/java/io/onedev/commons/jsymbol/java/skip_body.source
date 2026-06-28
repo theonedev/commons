@@ -1,0 +1,22 @@
+package com.example;
+
+import java.io.IOException;
+import java.util.List;
+
+public class SkipBody {
+
+  public SkipBody() {
+    this is not valid java;
+  }
+
+  public <T> String read(List<T> values) throws IOException {
+    neither is this;
+  }
+
+  class Nested {
+    void ok() {
+      still not java;
+    }
+  }
+
+}

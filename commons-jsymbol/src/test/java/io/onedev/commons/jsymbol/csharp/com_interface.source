@@ -1,0 +1,7 @@
+namespace N
+{
+    internal interface I
+    {
+        void GetIconLocation([Out()] out StringBuilder pszIconPath, int cchIconPath, out int iIcon);
+    }
+}

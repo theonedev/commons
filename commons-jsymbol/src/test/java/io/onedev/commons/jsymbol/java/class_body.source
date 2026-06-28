@@ -1,0 +1,25 @@
+package com.example;
+
+@SuppressWarnings("unused")
+public class ClassBody {
+
+  private static final String TEXT = """
+      some content
+      """;
+
+  private int value;
+
+  public void method() {
+    this is not valid java;
+  }
+
+  /**
+   * Mentions a method call ({@code invoke()}) before an interface body.
+   */
+  interface Nested {
+
+    void run();
+
+  }
+
+}

@@ -1,0 +1,47 @@
+const hiddenValue local
+const exportedValue
+const useUser
+const UserProvider
+type InternalShape local
+{
+  property id
+}
+type FirstNavigationSample
+{
+  property observedAtMs
+  property source
+  property destination
+  property content
+  property pathname
+  property center
+}
+interface UserRecord
+{
+  property id
+  property name
+  function updateName(name: string)
+}
+class UserService
+{
+  function create(name: string)
+  property token local
+  property count
+  function constructor(private name: string)
+  function displayName()
+  function load(id: string)
+}
+enum Status
+{
+  member Ready
+  member Failed
+}
+namespace Api
+{
+  function fetchUser(id: string)
+  const version
+  class PrivateClient
+  {
+    function send()
+  }
+}
+function moduleOnly() local

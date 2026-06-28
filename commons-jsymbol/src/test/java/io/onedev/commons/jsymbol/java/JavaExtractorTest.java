@@ -23,6 +23,8 @@ public class JavaExtractorTest extends DescriptableExtractorTest<JavaSymbol> {
 		verify(readFile("composite.outline"), new JavaExtractor().extract(null, readFile("composite.source")));
 		verify(readFile("lcount.outline"), new JavaExtractor().extract(null, readFile("lcount.source")));
 		verify(readFile("resource.outline"), new JavaExtractor().extract(null, readFile("resource.source")));
+		verify(readFile("skip_body.outline"), new JavaExtractor().extract(null, readFile("skip_body.source")));
+		verify(readFile("class_body.outline"), new JavaExtractor().extract(null, readFile("class_body.source")));
 	}
 
 	@Override

@@ -1,0 +1,31 @@
+import React, { forwardRef, memo } from "react"
+
+const LocalPanel = ({ title }) => (
+	<section>
+		<h2>{title}</h2>
+	</section>
+)
+export const Button = ({ children, onClick }) => (
+	<button onClick={onClick}>{children}</button>
+)
+export const { Provider: ThemeProvider, Consumer: ThemeConsumer } = React.createContext()
+
+export function Header({ title }) {
+	return <h1>{title}</h1>
+}
+
+export default class App extends React.Component {
+	render() {
+		return <Header title="Home" />
+	}
+}
+
+export const FancyInput = forwardRef(function FancyInput(props, ref) {
+	return <input ref={ref} {...props} />
+})
+const MemoCard = memo(function MemoCard({ children }) {
+	return <article>{children}</article>
+})
+export default function Footer() {
+	return <footer />
+}

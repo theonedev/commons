@@ -1,0 +1,44 @@
+const PRIVATE_LIMIT local
+const PUBLIC_LIMIT
+static APP_NAME
+fn exported_callback(code: i32)
+fn TISCopyCurrentKeyboardLayoutInputSource()
+static kTISPropertyInputSourceID local
+macro private_macro local
+macro public_macro
+type PrivateAlias local
+type PublicAlias
+mod service
+{
+  struct User
+  {
+    field id
+    field name local
+  }
+  enum State
+  {
+    variant Ready
+    variant Failed
+    variant Custom
+  }
+  trait Repository
+  {
+    fn get(&self, id: u64)
+    fn save(&mut self, user: User)
+  }
+  impl User
+  {
+    fn new(id: u64, name: String)
+    fn private_name(&self) local
+  }
+  impl <T: Display> From<T> for User
+  {
+    fn from(value: T) local
+  }
+}
+struct PrivateStruct local
+{
+  field field local
+}
+fn run()
+fn private_run(name: &'a str) local

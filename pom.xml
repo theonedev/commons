@@ -191,63 +191,38 @@
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.core</groupId>
-				<artifactId>org.eclipse.core.contenttype</artifactId>
-				<version>3.4.200.v20140207</version>
+				<artifactId>org.eclipse.core.runtime</artifactId>
+				<version>3.34.200.v20251220-0953</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.core</groupId>
 				<artifactId>org.eclipse.core.jobs</artifactId>
-				<version>3.5.300.v20130429</version>
-			</dependency>
-			<dependency>
-				<groupId>org.eclipse.core</groupId>
-				<artifactId>org.eclipse.core.resources</artifactId>
-				<version>3.9.1.v20140825</version>
-			</dependency>
-			<dependency>
-				<groupId>org.eclipse.core</groupId>
-				<artifactId>org.eclipse.core.runtime</artifactId>
-				<version>3.13.0.v20170207</version>
-			</dependency>
-			<dependency>
-				<groupId>org.eclipse.core</groupId>
-				<artifactId>org.eclipse.core.filesystem</artifactId>
-				<version>1.7.0.v20170406</version>
-			</dependency>
-			<dependency>
-				<groupId>org.osgi</groupId>
-				<artifactId>org.osgi.core</artifactId>
-				<version>6.0.0</version>
+				<version>3.15.800.v20260325-1353</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse</groupId>
 				<artifactId>org.eclipse.osgi</artifactId>
-				<version>3.12.0.v20170512</version>
-			</dependency>
-			<dependency>
-				<groupId>org.eclipse.equinox</groupId>
-				<artifactId>org.eclipse.equinox.registry</artifactId>
-				<version>3.5.400.v20140428</version>
+				<version>3.24.200.v20260515-1403</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.equinox</groupId>
 				<artifactId>org.eclipse.equinox.common</artifactId>
-				<version>3.6.200.v20130402</version>
+				<version>3.20.400.v20260512-1534</version>
+			</dependency>
+			<dependency>
+				<groupId>org.osgi</groupId>
+				<artifactId>org.osgi.service.prefs</artifactId>
+				<version>1.1.2.202109301733</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.cdt</groupId>
 				<artifactId>org.eclipse.cdt.core</artifactId>
-				<version>5.11.0</version>
+				<version>9.3.100.202512101642</version>
 			</dependency>
 			<dependency>
 				<groupId>com.github.oshi</groupId>
 				<artifactId>oshi-core</artifactId>
 				<version>5.8.2</version>
-			</dependency>
-			<dependency>
-				<groupId>org.sonarsource.javascript</groupId>
-				<artifactId>javascript-frontend</artifactId>
-				<version>7.4.4.15624</version>
 			</dependency>
 			<dependency>
 				<groupId>junit</groupId>

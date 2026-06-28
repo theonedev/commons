@@ -1,0 +1,22 @@
+a = {
+  b: {
+    c: function() {
+    }
+  }
+}
+
+const config = {
+  timeout: 100,
+  nested: {
+    enabled: true
+  },
+  handler: function() {
+    const inside = 1;
+  },
+  arrow: (x) => {
+    return x;
+  },
+  method() {
+    const inside = 2;
+  }
+}

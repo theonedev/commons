@@ -1,0 +1,7 @@
+namespace N
+{
+    public class C : Base
+    {
+        private static readonly HashSet<int> x = new() { new Foo(A.B, 1) };
+    }
+}

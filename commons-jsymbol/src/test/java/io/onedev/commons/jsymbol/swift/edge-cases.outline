@@ -1,0 +1,28 @@
+let ignoredString
+let ignoredRaw
+let ignoredMulti
+struct Fancy
+{
+  struct Wrapper
+  {
+    var wrappedValue
+  }
+  var left
+  var right
+  func ==(lhs: Fancy, rhs: Fancy)
+  func build(
+		value: Value
+	)
+}
+extension Array where Element == String
+{
+  func joinedNames()
+}
+extension Dictionary where Key: Hashable
+{
+  func keyedValues()
+}
+extension String local
+{
+  var redacted
+}

@@ -1,0 +1,64 @@
+import Foundation
+
+public protocol IdentifiableEntity {
+	associatedtype Identifier
+	var id: Identifier { get }
+	func displayName(for locale: Locale) -> String
+}
+
+@MainActor
+open class UserViewModel: ObservableObject {
+	@Published private(set) var name: String
+	fileprivate let cacheKey = "user"
+	private var token: String?
+
+	public init(name: String) {
+		self.name = name
+	}
+
+	deinit {
+		print("gone")
+	}
+
+	func refresh(force: Bool = false) async throws -> User {
+		func nestedHelper() {}
+		return try await service.load()
+	}
+
+	private func reset() {}
+
+	subscript(index: Int) -> String {
+		name
+	}
+}
+
+struct User {
+	let id: UUID
+	var name: String
+}
+
+enum LoadState<Value> {
+	case idle
+	case loading(progress: Double), loaded(Value), failed(Error)
+}
+
+extension User: IdentifiableEntity {
+	typealias Identifier = UUID
+	static func make(id: UUID, name: String) -> User {
+		User(id: id, name: name)
+	}
+	var displayTitle: String {
+		name
+	}
+}
+
+actor SessionStore {
+	var current: User?
+}
+
+func globalFunction(_ value: Int) -> Int {
+	value
+}
+
+let globalConstant = 1
+private var fileSecret = 2

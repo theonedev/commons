@@ -1,0 +1,2 @@
+import imported_name
+build_value(request:"ChatCompletionRequest | ResponsesRequest",mode:str="auto",)

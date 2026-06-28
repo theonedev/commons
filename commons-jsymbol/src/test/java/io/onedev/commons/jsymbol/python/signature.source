@@ -1,0 +1,7 @@
+from sample.module import imported_name  # inline comments should not become part of symbol names
+
+def build_value(
+    request: "ChatCompletionRequest | ResponsesRequest",
+    mode: str = "auto",  # inline comments should not become part of parameters
+):
+    pass

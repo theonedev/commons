@@ -1,0 +1,74 @@
+import {BaseModel} from "./base";
+
+export type { ExternalType } from "./external";
+export { externalValue } from "./external";
+
+const hiddenValue = 1;
+export const exportedValue = hiddenValue;
+export const { use: useUser, provider: UserProvider } = createContext();
+
+type InternalShape = {
+	id: string;
+};
+
+export type FirstNavigationSample = {
+	observedAtMs: number
+	source: boolean
+	destination: boolean
+	content: boolean
+	pathname?: string
+	center?: string
+}
+
+export interface UserRecord {
+	id: string;
+	readonly name?: string;
+	updateName(name: string): void;
+}
+
+export default class UserService extends BaseModel {
+	static create(name: string): UserService {
+		const localFactory = () => new UserService(name);
+		return localFactory();
+	}
+
+	private token: string;
+	readonly count = 0;
+
+	constructor(private name: string) {
+	}
+
+	get displayName(): string {
+		return this.name;
+	}
+
+	async load(id: string): Promise<UserRecord> {
+		function localHelper() {
+			return id;
+		}
+		return fetchUser(localHelper());
+	}
+}
+
+export enum Status {
+	Ready = "ready",
+	Failed = "failed",
+}
+
+export namespace Api {
+	export function fetchUser(id: string): Promise<UserRecord> {
+		return Promise.resolve({id});
+	}
+
+	export const version = "v1";
+
+	class PrivateClient {
+		send(): void {
+		}
+	}
+}
+
+function moduleOnly(): void {
+	class LocalClass {
+	}
+}

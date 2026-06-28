@@ -1,0 +1,24 @@
+import PropTypes from 'prop-types';
+
+const Alert = React.forwardRef(function Alert(inProps, ref) {
+  return null;
+});
+
+Alert.propTypes /* remove-proptypes */ = {
+  action: PropTypes.node,
+  children: PropTypes.node,
+};
+
+Mui.Alert.propTypes = {
+  variant: PropTypes.string,
+};
+
+Alert?.defaultProps = {
+  closeText: 'Close',
+};
+
+const standalone = {
+  nested: true,
+};
+
+export default Alert;

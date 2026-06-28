@@ -1,0 +1,13 @@
+class Sample<TOne, TTwo>
+{
+  private static Dictionary<string,HashSet<Entry>> parameters
+  private static Dictionary<string,Entry> parameterSets
+  public static int Compare<T>(this IEnumerable, bool)
+  ExpandCollapseState IExpandCollapseProvider.ExpandCollapseState
+}
+enum ProtocolType
+{
+  Default
+  Dcom
+  Wsman
+}

@@ -2,6 +2,8 @@
 namespace MyLib;
 
 use some\namespace\{ClassA, ClassB, ClassC as C};
+use function some\namespace\test_function as testAlias;
+use const some\namespace\TEST_CONST;
 
 define(Version, "1.0.0");
 
@@ -52,6 +54,9 @@ function test($name, $value) {
 class Person {
     var $firstName;
     
+    #[Column]
+    public ?string $nickName = null;
+
     protected $middleName = "Robin";
     
     private $lastName;

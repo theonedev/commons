@@ -2,6 +2,7 @@ package io.onedev.commons.jsymbol.util;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
+import org.jspecify.annotations.Nullable;
 
 import io.onedev.commons.utils.PlanarRange;
 
@@ -24,7 +25,10 @@ public class Utils {
 				to.getCharPositionInLine() + to.getText().length());
 	}
 
-	public static PlanarRange getTextRange(ParserRuleContext context) {
+	@Nullable
+	public static PlanarRange getTextRange(@Nullable ParserRuleContext context) {
+		if (context == null || context.start == null || context.stop == null)
+			return null;
 		return getTextRange(context.start, context.stop);
 	}
 	

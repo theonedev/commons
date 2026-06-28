@@ -1,0 +1,19 @@
+const AVATAR_COLOR_KEYS local
+type AvatarColorKey
+function getAvatarColors(key?: string)
+type LayoutRoute
+function hasProjectPermissions(
+  request: Record<string, T[] | undefined> | undefined,
+  include: (item: T) => boolean = () => true,
+)
+const categories local
+function startChromeTrace(page: Page, name: string)
+function prepareChromeTrace(
+  directory: string,
+  name: string,
+  nonce = randomUUID().slice(0, 8),
+)
+function projectForSession(
+  session: Session,
+  projects: T[],
+)

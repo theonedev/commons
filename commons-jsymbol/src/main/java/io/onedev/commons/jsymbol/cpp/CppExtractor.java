@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.cdt.core.dom.ICodeReaderFactory;
 import org.eclipse.cdt.core.dom.ast.IASTNode;
@@ -53,12 +55,14 @@ import org.slf4j.LoggerFactory;
 import io.onedev.commons.jsymbol.AbstractSymbolExtractor;
 import io.onedev.commons.utils.PlanarRange;
 import io.onedev.commons.jsymbol.cpp.symbols.ClassSymbol;
+import io.onedev.commons.jsymbol.cpp.symbols.ConceptSymbol;
 import io.onedev.commons.jsymbol.cpp.symbols.CppSymbol;
 import io.onedev.commons.jsymbol.cpp.symbols.EnumSymbol;
 import io.onedev.commons.jsymbol.cpp.symbols.FunctionSymbol;
 import io.onedev.commons.jsymbol.cpp.symbols.HeaderFileSymbol;
 import io.onedev.commons.jsymbol.cpp.symbols.MacroSymbol;
 import io.onedev.commons.jsymbol.cpp.symbols.MemberSymbol;
+import io.onedev.commons.jsymbol.cpp.symbols.ModuleSymbol;
 import io.onedev.commons.jsymbol.cpp.symbols.NamespaceSymbol;
 import io.onedev.commons.jsymbol.cpp.symbols.SourceFileSymbol;
 import io.onedev.commons.jsymbol.cpp.symbols.SpecialFunctionSymbol;
@@ -80,6 +84,10 @@ import io.onedev.commons.jsymbol.cpp.symbols.CppSymbol.Modifier;
 public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
 
 	private static final Logger logger = LoggerFactory.getLogger(CppExtractor.class);
+
+	private static final Pattern MODULE_DECLARATION = Pattern.compile("^(?:export\\s+)?module\\s+([A-Za-z_][A-Za-z0-9_:.]*)\\s*;?$");
+
+	private static final Pattern CONCEPT_DECLARATION = Pattern.compile("^(?:template\\s*<.*>\\s*)?concept\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*=.*", Pattern.DOTALL);
 	
 	@Override
 	/*
@@ -216,6 +224,8 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
 		     }
 			    
 	         if(no instanceof CPPASTProblemDeclaration || no instanceof CPPASTProblem){
+                 if (no instanceof CPPASTProblemDeclaration)
+                     visitModernProblemDeclaration(no, fileSymbol, symbols, visibility, isTemp, strLineLength, isPrivate);
 	        	 logger.trace("problem node:"+((no.getRawSignature().length()<20)?no.getRawSignature():no.getRawSignature().substring(0,20)));
 	         }
 		}
@@ -504,6 +514,8 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
     			}
     		}
     		if(ob instanceof CPPASTProblemDeclaration || ob instanceof CPPASTProblem){
+                if (ob instanceof CPPASTProblemDeclaration)
+                    visitModernProblemDeclaration(ob, fileSymbol, tempSymbols, visibility, isTemp, strLineLength, isPrivate);
     			logger.trace("Problem node:"+((ob.getRawSignature().length()<20)?ob.getRawSignature():ob.getRawSignature().substring(0,20)));
     		}
     	}
@@ -564,6 +576,8 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
      * And it  also used for special declaration,such as class cla; 
      * */
     public void visitGlobalVariable(IASTNode globalnode,CppSymbol fileSymbol,List<CppSymbol> tempSymbols,int visibility, boolean isTemp, int []strLineLength, boolean isPrivate){
+        if (stripExport(globalnode.getRawSignature().trim()).startsWith("import "))
+            return;
     	IASTNode[] node = globalnode.getChildren();
     	VariableSymbol variable = null;
     	TypedefSymbol tsymbol = null;
@@ -847,6 +861,15 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
 	    		type = "";
 	    		return type;
 	    	}
+            if(type.startsWith("consteval "))
+            {
+                type = type.substring(10);
+                return type;
+            }
+            if("consteval".equals(type)){
+                type = "";
+                return type;
+            }
 	    	if(type.startsWith("friend "))
 	    	{
 	    		type = type.substring(7);
@@ -1054,6 +1077,15 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
     			    	    visitNamespace(ob1,symbol,tempSymbols,tempVisibility,false,strLineLength,isPrivate);
     			    	}
     			    }
+                    if(ob1 instanceof CPPASTProblemDeclaration || ob1 instanceof CPPASTProblem){
+                        if (ob1 instanceof CPPASTProblemDeclaration) {
+                            if(isTypedef && !isSymbolNull(tsymbol))
+                                visitModernProblemDeclaration(ob1, tsymbol, typesymbols, tempVisibility, false, strLineLength, isPrivate);
+                            if(!isSymbolNull(symbol))
+                                visitModernProblemDeclaration(ob1, symbol, tempSymbols, tempVisibility, false, strLineLength, isPrivate);
+                        }
+                        logger.trace("Problem node:"+((ob1.getRawSignature().length()<20)?ob1.getRawSignature():ob1.getRawSignature().substring(0,20)));
+                    }
     			}
     		}
     		if(ob instanceof CPPASTDeclarator){
@@ -1066,6 +1098,8 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
     			}
     		}
     		if(ob instanceof CPPASTProblemDeclaration || ob instanceof CPPASTProblem){
+                if (ob instanceof CPPASTProblemDeclaration)
+                    visitModernProblemDeclaration(ob, symbol, tempSymbols, visibility, isTemp, strLineLength, isPrivate);
     			logger.trace("Problem node:"+((ob.getRawSignature().length()<20)?ob.getRawSignature():ob.getRawSignature().substring(0,20)));
     		}
     	}
@@ -1146,6 +1180,8 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
     			visitNamespace(ob,nameSymbol,tempSymbols,0,false,strLineLength,isPrivate);
     	    }
     	    if(ob instanceof CPPASTProblemDeclaration || ob instanceof CPPASTProblem){
+                if (ob instanceof CPPASTProblemDeclaration)
+                    visitModernProblemDeclaration(ob, nameSymbol, tempSymbols, 0, false, strLineLength, isPrivate);
     	    	logger.trace("Problem node:"+((ob.getRawSignature().length()<20)?ob.getRawSignature():ob.getRawSignature().substring(0,20)));
     	    }
     	}
@@ -1186,10 +1222,199 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
     	    	visitGlobalVariable(ob,fileSymbol,tempSymbols,0,true,strLineLength,isPrivate);
     	    }
     		if(ob instanceof CPPASTProblemDeclaration || ob instanceof CPPASTProblem){
-    			
-    			logger.trace("Problem node:"+((ob.getRawSignature().length()<20)?ob.getRawSignature():ob.getRawSignature().substring(0,20)));
-    		}
-    	}    	
+                if (ob instanceof CPPASTProblemDeclaration)
+                    visitModernProblemDeclaration(ob, fileSymbol, tempSymbols, visibility, true, strLineLength, isPrivate);
+                logger.trace("Problem node:"+((ob.getRawSignature().length()<20)?ob.getRawSignature():ob.getRawSignature().substring(0,20)));
+            }
+        }
+    }
+
+    private void visitModernProblemDeclaration(IASTNode node, CppSymbol parentSymbol, List<CppSymbol> symbols,
+            int visibility, boolean isTemp, int[] strLineLength, boolean isPrivate) {
+        String signature = node.getRawSignature().trim();
+        if (signature.isEmpty())
+            return;
+
+        String declaration = stripExport(signature);
+        Matcher moduleMatcher = MODULE_DECLARATION.matcher(declaration);
+        if (moduleMatcher.matches()) {
+            String name = moduleMatcher.group(1);
+            symbols.add(new ModuleSymbol(parentSymbol, name, false,
+                    getPosition(node, signature.indexOf(name), name.length(), strLineLength)));
+            return;
+        }
+        if (declaration.startsWith("import "))
+            return;
+
+        Matcher conceptMatcher = CONCEPT_DECLARATION.matcher(declaration);
+        if (conceptMatcher.matches()) {
+            String name = conceptMatcher.group(1);
+            boolean isLocal = isModernLocal(parentSymbol, declaration, isPrivate);
+            symbols.add(new ConceptSymbol(parentSymbol, name, isLocal,
+                    getPosition(node, signature.indexOf(name), name.length(), strLineLength)));
+            return;
+        }
+
+        ModernFunction modernFunction = parseModernFunction(declaration);
+        if (modernFunction != null) {
+            boolean isLocal = isModernLocal(parentSymbol, declaration, isPrivate);
+            PlanarRange token = getPosition(node, signature.indexOf(modernFunction.name), modernFunction.name.length(), strLineLength);
+            PlanarRange scope = declaration.contains("{") ? getScope(node, strLineLength) : null;
+            if (modernFunction.returnType.isEmpty()) {
+                symbols.add(new SpecialFunctionSymbol(parentSymbol, modernFunction.name, isLocal, declaration.contains("{"),
+                        modernFunction.params, token, scope, getModifier(visibility)));
+            } else {
+                symbols.add(new FunctionSymbol(parentSymbol, modernFunction.name, isLocal, declaration.contains("{"),
+                        modernFunction.params, modernFunction.returnType, token, scope, getModifier(visibility), isTemp));
+            }
+        }
+    }
+
+    private String stripExport(String signature) {
+        if (signature.startsWith("export "))
+            return signature.substring("export ".length()).trim();
+        return signature;
+    }
+
+    private boolean isModernLocal(CppSymbol parentSymbol, String declaration, boolean isPrivate) {
+        String header = stripBody(declaration);
+        return (isPrivate || hasStaticModifier(header) || hasExternModifier(header)) && findEnclosingHeader(parentSymbol) == null;
+    }
+
+    private ModernFunction parseModernFunction(String signature) {
+        if (!signature.contains("consteval") && !signature.contains("operator<=>"))
+            return null;
+        String header = stripBody(signature);
+        if (header.endsWith(";"))
+            header = header.substring(0, header.length()-1).trim();
+        header = stripTemplatePrefix(header);
+        int openParen = header.indexOf("(");
+        if (openParen < 0)
+            return null;
+        int closeParen = findClosingParen(header, openParen);
+        if (closeParen < 0)
+            return null;
+        header = header.substring(0, closeParen+1);
+        String beforeName = header.substring(0, openParen).trim();
+        String params = normalizeParams(header.substring(openParen+1, closeParen));
+        String name;
+        String returnType;
+        int operatorIndex = beforeName.indexOf("operator");
+        if (operatorIndex >= 0) {
+            name = beforeName.substring(operatorIndex).trim();
+            returnType = normalizeModernReturnType(beforeName.substring(0, operatorIndex));
+        } else {
+            int nameStart = Math.max(beforeName.lastIndexOf(' '), beforeName.lastIndexOf('\t')) + 1;
+            if (nameStart <= 0 || nameStart >= beforeName.length())
+                return null;
+            name = beforeName.substring(nameStart).trim();
+            returnType = normalizeModernReturnType(beforeName.substring(0, nameStart).trim());
+        }
+        if (name.isEmpty() || name.contains(" "))
+            return null;
+        return new ModernFunction(name, returnType, params);
+    }
+
+    private String stripBody(String signature) {
+        int braceIndex = signature.indexOf("{");
+        if (braceIndex >= 0)
+            return signature.substring(0, braceIndex).trim();
+        return signature;
+    }
+
+    private String stripTemplatePrefix(String header) {
+        while (header.startsWith("template")) {
+            int open = header.indexOf("<");
+            if (open < 0)
+                return header;
+            int close = findMatchingAngle(header, open);
+            if (close < 0)
+                return header;
+            header = header.substring(close+1).trim();
+        }
+        return header;
+    }
+
+    private int findMatchingAngle(String value, int open) {
+        int depth = 0;
+        for (int i=open; i<value.length(); i++) {
+            char ch = value.charAt(i);
+            if (ch == '<')
+                depth++;
+            else if (ch == '>') {
+                depth--;
+                if (depth == 0)
+                    return i;
+            }
+        }
+        return -1;
+    }
+
+    private int findClosingParen(String value, int open) {
+        int depth = 0;
+        for (int i=open; i<value.length(); i++) {
+            char ch = value.charAt(i);
+            if (ch == '(')
+                depth++;
+            else if (ch == ')') {
+                depth--;
+                if (depth == 0)
+                    return i;
+            }
+        }
+        return -1;
+    }
+
+    private String normalizeModernReturnType(String returnType) {
+        return returnType.replaceAll("\\b(?:export|consteval|constexpr|inline|static|extern|friend|virtual|explicit)\\b", "")
+                .replaceAll("\\s+", " ").trim();
+    }
+
+    private String normalizeParams(String params) {
+        params = params.trim();
+        if (params.isEmpty())
+            return "";
+        StringBuilder normalized = new StringBuilder();
+        for (String param: params.split(",")) {
+            param = param.replaceAll("=.*", "").trim();
+            param = param.replaceAll("\\s+[A-Za-z_][A-Za-z0-9_]*$", "").trim();
+            if (normalized.length() != 0)
+                normalized.append(",");
+            normalized.append(param);
+        }
+        return normalized.toString();
+    }
+
+    private PlanarRange getPosition(IASTNode node, int relativeOffset, int length, int[] strLineLength) {
+        if (node == null || node.getFileLocation() == null || relativeOffset < 0)
+            return null;
+        int absoluteOffset = node.getFileLocation().getNodeOffset() + relativeOffset;
+        int lineStart = 0;
+        for (int row=0; row<strLineLength.length; row++) {
+            int lineEnd = lineStart + strLineLength[row];
+            if (absoluteOffset <= lineEnd) {
+                int column = absoluteOffset - lineStart;
+                return new PlanarRange(row, column, row, column + length);
+            }
+            lineStart = lineEnd;
+        }
+        return null;
+    }
+
+    private static class ModernFunction {
+
+        private final String name;
+
+        private final String returnType;
+
+        private final String params;
+
+        private ModernFunction(String name, String returnType, String params) {
+            this.name = name;
+            this.returnType = returnType;
+            this.params = params;
+        }
+
     }
     
 	@Override
@@ -1441,7 +1666,7 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
     }
 	@Override
 	public int getVersion() {
-		return 2;
+		return 3;
 	}
 	/*
 	 * getVisivility method will be used for judging visibility of class.

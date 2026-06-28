@@ -1,0 +1,47 @@
+const AVATAR_COLOR_KEYS = ["pink", "mint"] as const
+
+export type AvatarColorKey = (typeof AVATAR_COLOR_KEYS)[number]
+
+export function getAvatarColors(key?: string) {
+  return {
+    background: "var(--surface-info-base)",
+    foreground: "var(--text-base)",
+  }
+}
+
+export type LayoutRoute =
+  | { type: "home" }
+  | { type: "session"; sessionId: string }
+
+export function hasProjectPermissions<T>(
+  request: Record<string, T[] | undefined> | undefined,
+  include: (item: T) => boolean = () => true,
+) {
+  return Object.values(request ?? {}).some((list) => list?.some(include))
+}
+
+const categories = [
+  "-*",
+  "devtools.timeline",
+]
+
+export async function startChromeTrace(page: Page, name: string) {
+  return () => (async () => {
+    const inside = 1
+  })()
+}
+
+export async function prepareChromeTrace(
+  directory: string,
+  name: string,
+  nonce = randomUUID().slice(0, 8),
+) {
+  return `${directory}/${name}-${nonce}`
+}
+
+export function projectForSession<T extends { id?: string; worktree: string }>(
+  session: Session,
+  projects: T[],
+) {
+  return projects[0]
+}

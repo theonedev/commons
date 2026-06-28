@@ -1,0 +1,75 @@
+require "json"
+require_relative 'support/parser'
+
+module Billing
+  VERSION = "1.0"
+  autoload :Ledger, "billing/ledger"
+
+  class Invoice < ApplicationRecord
+    attr_reader :total, :currency
+    attr_writer "draft"
+    attr_accessor :number
+
+    DEFAULT_CURRENCY = "USD"
+
+    def initialize(total, currency = DEFAULT_CURRENCY)
+      @total = total
+      @currency = currency
+    end
+
+    def paid?
+      return false if @total.nil?
+      @paid ||= begin
+        status == "paid"
+      end
+      state = if status == "paid"
+                :paid
+              else
+                :open
+              end
+      if status == "paid"
+        true
+      else
+        false
+      end
+    end
+
+    def self.build(attrs = {})
+      new(attrs[:total])
+    end
+
+    class << self
+      def from_json(json)
+        build(JSON.parse(json))
+      end
+    end
+
+    def number=(value)
+      @number = value
+    end
+
+    def [](key)
+      data[key]
+    end
+
+    def <=>(other)
+      total <=> other.total
+    end
+
+    alias_method :complete?, :paid?
+  end
+
+  module Formatting
+    def format(invoice)
+      "#{invoice.total} #{invoice.currency}"
+    end
+  end
+end
+
+class Billing::LegacyInvoice
+  LEGACY = true
+
+  def self.load(id)
+    find(id)
+  end
+end
