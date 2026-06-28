@@ -28,7 +28,7 @@ public class TypescriptExtractor extends AbstractSymbolExtractor<TypeScriptSymbo
 
 	@Override
 	public int getVersion() {
-		return 17;
+		return 18;
 	}
 
 	private static class Scanner {
@@ -382,7 +382,10 @@ public class TypescriptExtractor extends AbstractSymbolExtractor<TypeScriptSymbo
 				}
 				return end;
 			}
-			return nameEnd;
+			symbols.add(new VariableSymbol(parent, name, "variable", position(nameStart, nameEnd), null,
+					isLocal(parent, exported, false)));
+			int statementEnd = findStatementEnd(valueStart, end);
+			return statementEnd < end? statementEnd+1: end;
 		}
 
 		private int scanMemberAssignment(int propNameStart, int propNameEnd, int end,
@@ -415,6 +418,8 @@ public class TypescriptExtractor extends AbstractSymbolExtractor<TypeScriptSymbo
 						return objEnd+1;
 					}
 				}
+				symbols.add(new VariableSymbol(targetParent, targetSegment.name, "property",
+						position(targetSegment.start, targetSegment.end), null, false));
 				return skipMemberAssignmentStatement(propNameStart, end);
 			}
 			if (objectSymbol == null)

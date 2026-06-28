@@ -50,6 +50,11 @@ variable collision local
     }
   }
 }
+variable plainGlobal local
+variable plainNamespace local
+{
+  property member
+}
 variable a local
 {
   property b

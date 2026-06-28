@@ -26,6 +26,10 @@ collision.a.b.c = {
   }
 }
 
+plainGlobal = 1;
+
+plainNamespace.member = 1;
+
 a = {
   b: {
     c: function() {
