@@ -1,3 +1,55 @@
+variable onedev local
+{
+  property server
+  {
+    function getSeverityInfo(problems)
+    function renderProblems(problems, translations)
+    property codeProblem
+    {
+      function getSeverityInfo(problems)
+      function renderProblems(problems, translations)
+    }
+  }
+}
+variable deep local
+{
+  property a
+  {
+    property b
+    {
+      property c
+      {
+        property d
+        {
+          property e
+          {
+            property f
+            {
+              function leaf(value)
+            }
+          }
+        }
+      }
+    }
+  }
+}
+variable b local
+{
+  property unrelated
+}
+variable collision local
+{
+  property a
+  {
+    property b
+    {
+      property c
+      {
+        function nested()
+      }
+    }
+  }
+}
 variable a local
 {
   property b

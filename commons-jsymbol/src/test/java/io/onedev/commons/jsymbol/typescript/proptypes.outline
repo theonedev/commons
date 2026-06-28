@@ -10,6 +10,16 @@ const Alert
     property closeText
   }
 }
+variable Mui local
+{
+  property Alert
+  {
+    property propTypes
+    {
+      property variant
+    }
+  }
+}
 const standalone local
 {
   property nested

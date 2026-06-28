@@ -1,3 +1,31 @@
+onedev.server  = {
+  getSeverityInfo: function(problems) {
+  },
+  renderProblems: function(problems, translations) {
+  }
+}
+
+onedev.server.codeProblem = {
+  getSeverityInfo: function(problems) {
+  },
+  renderProblems: function(problems, translations) {
+  }
+}
+
+deep.a.b.c.d.e.f = {
+  leaf: function(value) {
+  }
+}
+
+b = {
+  unrelated: true
+}
+
+collision.a.b.c = {
+  nested: function() {
+  }
+}
+
 a = {
   b: {
     c: function() {

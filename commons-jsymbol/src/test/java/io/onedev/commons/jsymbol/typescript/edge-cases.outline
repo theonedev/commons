@@ -17,3 +17,4 @@ function projectForSession(
   session: Session,
   projects: T[],
 )
+const malformedObjectWithBracket local

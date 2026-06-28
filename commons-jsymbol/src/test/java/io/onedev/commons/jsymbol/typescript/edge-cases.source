@@ -45,3 +45,7 @@ export function projectForSession<T extends { id?: string; worktree: string }>(
 ) {
   return projects[0]
 }
+
+const malformedObjectWithBracket = {
+  ]
+}
