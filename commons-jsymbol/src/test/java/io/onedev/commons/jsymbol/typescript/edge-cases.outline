@@ -18,3 +18,10 @@ function projectForSession(
   projects: T[],
 )
 const malformedObjectWithBracket local
+variable regexNamespace local
+{
+  property server
+  {
+    property form
+  }
+}

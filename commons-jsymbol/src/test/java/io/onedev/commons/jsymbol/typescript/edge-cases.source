@@ -49,3 +49,12 @@ export function projectForSession<T extends { id?: string; worktree: string }>(
 const malformedObjectWithBracket = {
   ]
 }
+
+var regexNamespace = {};
+String.prototype.escape = function() {
+  return (this + '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+};
+regexNamespace.server = {
+  form: {
+  }
+};

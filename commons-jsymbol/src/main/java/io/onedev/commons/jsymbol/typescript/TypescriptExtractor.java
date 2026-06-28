@@ -28,7 +28,7 @@ public class TypescriptExtractor extends AbstractSymbolExtractor<TypeScriptSymbo
 
 	@Override
 	public int getVersion() {
-		return 18;
+		return 19;
 	}
 
 	private static class Scanner {
@@ -208,11 +208,7 @@ public class TypescriptExtractor extends AbstractSymbolExtractor<TypeScriptSymbo
 						if (afterWord < end && code.charAt(afterWord) == '='
 								&& (afterWord + 1 >= end
 										|| (code.charAt(afterWord + 1) != '=' && code.charAt(afterWord + 1) != '>'))) {
-							if (isMemberAccessTarget(index)) {
-								index = scanMemberAssignment(index, wordEnd, end, parent)-1;
-							} else {
-								index = scanAssignment(index, wordEnd, end, parent, exported)-1;
-							}
+							index = scanAssignment(index, wordEnd, end, parent, exported)-1;
 						} else {
 							index = wordEnd-1;
 						}
@@ -362,93 +358,53 @@ public class TypescriptExtractor extends AbstractSymbolExtractor<TypeScriptSymbo
 			int eq = skipWhitespace(nameEnd, end);
 			if (eq >= end || code.charAt(eq) != '=')
 				return nameEnd;
+			AssignmentTarget target = parseAssignmentTarget(nameStart, nameEnd);
 			int valueStart = skipWhitespace(eq+1, end);
-			String name = code.substring(nameStart, nameEnd);
-			String params = functionValueParams(valueStart, end);
-			if (params != null) {
-				symbols.add(new FunctionSymbol(parent, name, params, position(nameStart, nameEnd), null,
-						isLocal(parent, exported, false)));
-				int statementEnd = findStatementEnd(valueStart, end);
-				return statementEnd < end? statementEnd+1: end;
-			}
+			if (target != null)
+				addAssignedSymbol(target, valueStart, end, parent, exported);
+			return skipAssignedValue(valueStart, end);
+		}
+
+		private int skipAssignedValue(int valueStart, int end) {
 			if (valueStart < end && code.charAt(valueStart) == '{') {
 				int objEnd = findMatching(valueStart, end, '{', '}');
-				if (objEnd != -1) {
-					VariableSymbol variable = new VariableSymbol(parent, name, "variable", position(nameStart, nameEnd),
-							null, isLocal(parent, exported, false));
-					symbols.add(variable);
-					scanObjectMembers(valueStart+1, objEnd, variable);
+				if (objEnd != -1)
 					return objEnd+1;
-				}
-				return end;
 			}
-			symbols.add(new VariableSymbol(parent, name, "variable", position(nameStart, nameEnd), null,
-					isLocal(parent, exported, false)));
 			int statementEnd = findStatementEnd(valueStart, end);
 			return statementEnd < end? statementEnd+1: end;
 		}
 
-		private int scanMemberAssignment(int propNameStart, int propNameEnd, int end,
-				@Nullable TypeScriptSymbol parent) {
-			String objectName = parseMemberAssignmentObject(propNameStart);
-			TypeScriptSymbol objectSymbol = objectName != null? findSymbol(parent, objectName): null;
-			int eq = skipWhitespace(propNameEnd, end);
-			if (eq >= end || code.charAt(eq) != '=')
-				return propNameEnd;
-			int valueStart = skipWhitespace(eq+1, end);
-			String propName = code.substring(propNameStart, propNameEnd);
-			List<NamespaceSegment> namespaceTarget = parseNamespaceAssignmentTarget(propNameStart, propNameEnd);
-			if (namespaceTarget != null) {
-				TypeScriptSymbol targetParent = getOrCreateNamespaceParent(namespaceTarget, parent);
-				NamespaceSegment targetSegment = namespaceTarget.get(namespaceTarget.size()-1);
-				String params = functionValueParams(valueStart, end);
-				if (params != null) {
-					symbols.add(new FunctionSymbol(targetParent, targetSegment.name, params,
-							position(targetSegment.start, targetSegment.end), null, false));
-					int statementEnd = findStatementEnd(valueStart, end);
-					return statementEnd < end? statementEnd+1: end;
-				}
-				if (valueStart < end && code.charAt(valueStart) == '{') {
-					int objEnd = findMatching(valueStart, end, '{', '}');
-					if (objEnd != -1) {
-						VariableSymbol variable = new VariableSymbol(targetParent, targetSegment.name, "property",
-								position(targetSegment.start, targetSegment.end), null, false);
-						symbols.add(variable);
-						scanObjectMembers(valueStart+1, objEnd, variable);
-						return objEnd+1;
-					}
-				}
-				symbols.add(new VariableSymbol(targetParent, targetSegment.name, "property",
-						position(targetSegment.start, targetSegment.end), null, false));
-				return skipMemberAssignmentStatement(propNameStart, end);
+		private void addAssignedSymbol(AssignmentTarget target, int valueStart, int end,
+				@Nullable TypeScriptSymbol parent, boolean exported) {
+			IdentifierSegment segment = target.getLastSegment();
+			TypeScriptSymbol targetParent = getOrCreateAssignmentParent(target, parent, exported);
+			String params = functionValueParams(valueStart, end);
+			if (params != null) {
+				symbols.add(new FunctionSymbol(targetParent, segment.name, params, position(segment.start, segment.end),
+						null, target.isSimple() && isLocal(parent, exported, false)));
+				return;
 			}
-			if (objectSymbol == null)
-				return skipMemberAssignmentStatement(propNameStart, end);
-			VariableSymbol property = new VariableSymbol(objectSymbol, propName, "property",
-					position(propNameStart, propNameEnd), null, false);
-			symbols.add(property);
+			VariableSymbol variable = new VariableSymbol(targetParent, segment.name, target.isSimple()? "variable": "property",
+					position(segment.start, segment.end), null, target.isSimple() && isLocal(parent, exported, false));
+			symbols.add(variable);
 			if (valueStart < end && code.charAt(valueStart) == '{') {
 				int objEnd = findMatching(valueStart, end, '{', '}');
 				if (objEnd != -1)
-					scanObjectMembers(valueStart+1, objEnd, property);
+					scanObjectMembers(valueStart+1, objEnd, variable);
 			}
-			return skipMemberAssignmentStatement(propNameStart, end);
 		}
 
-		private int skipMemberAssignmentStatement(int propNameStart, int end) {
-			int statementEnd = findStatementEnd(propNameStart, end);
-			return statementEnd < end? statementEnd: end;
-		}
-
-		private TypeScriptSymbol getOrCreateNamespaceParent(List<NamespaceSegment> segments,
-				@Nullable TypeScriptSymbol parent) {
+		private TypeScriptSymbol getOrCreateAssignmentParent(AssignmentTarget target,
+				@Nullable TypeScriptSymbol parent, boolean exported) {
 			TypeScriptSymbol currentParent = parent;
-			for (int i=0; i<segments.size()-1; i++) {
-				NamespaceSegment segment = segments.get(i);
+			for (int i=0; i<target.segments.size()-1; i++) {
+				IdentifierSegment segment = target.segments.get(i);
 				TypeScriptSymbol symbol = findSymbol(currentParent, segment.name);
 				if (symbol == null) {
 					symbol = new VariableSymbol(currentParent, segment.name, currentParent == parent? "variable": "property",
-							position(segment.start, segment.end), null, currentParent == parent && isLocal(parent, false, false));
+							position(segment.start, segment.end), null,
+							currentParent == parent && isLocal(parent, exported, false));
 					symbols.add(symbol);
 				}
 				currentParent = symbol;
@@ -456,12 +412,10 @@ public class TypescriptExtractor extends AbstractSymbolExtractor<TypeScriptSymbo
 			return currentParent;
 		}
 
-		private @Nullable List<NamespaceSegment> parseNamespaceAssignmentTarget(int propNameStart, int propNameEnd) {
-			List<NamespaceSegment> segments = new ArrayList<>();
-			int nameStart = propNameStart;
-			int nameEnd = propNameEnd;
+		private @Nullable AssignmentTarget parseAssignmentTarget(int nameStart, int nameEnd) {
+			List<IdentifierSegment> segments = new ArrayList<>();
 			while (true) {
-				segments.add(0, new NamespaceSegment(code.substring(nameStart, nameEnd), nameStart, nameEnd));
+				segments.add(0, new IdentifierSegment(code.substring(nameStart, nameEnd), nameStart, nameEnd));
 				int index = nameStart-1;
 				while (index >= 0 && Character.isWhitespace(code.charAt(index)))
 					index--;
@@ -481,12 +435,10 @@ public class TypescriptExtractor extends AbstractSymbolExtractor<TypeScriptSymbo
 					index--;
 				nameStart = index+1;
 			}
-			if (segments.size() <= 1)
-				return null;
 			String rootName = segments.get(0).name;
 			if ("this".equals(rootName) || "super".equals(rootName))
 				return null;
-			return segments;
+			return new AssignmentTarget(segments);
 		}
 
 		private @Nullable TypeScriptSymbol findSymbol(@Nullable TypeScriptSymbol parent, String name) {
@@ -498,7 +450,25 @@ public class TypescriptExtractor extends AbstractSymbolExtractor<TypeScriptSymbo
 			return found;
 		}
 
-		private static class NamespaceSegment {
+		private static class AssignmentTarget {
+
+			private final List<IdentifierSegment> segments;
+
+			private AssignmentTarget(List<IdentifierSegment> segments) {
+				this.segments = segments;
+			}
+
+			private IdentifierSegment getLastSegment() {
+				return segments.get(segments.size()-1);
+			}
+
+			private boolean isSimple() {
+				return segments.size() == 1;
+			}
+
+		}
+
+		private static class IdentifierSegment {
 
 			private final String name;
 
@@ -506,39 +476,12 @@ public class TypescriptExtractor extends AbstractSymbolExtractor<TypeScriptSymbo
 
 			private final int end;
 
-			private NamespaceSegment(String name, int start, int end) {
+			private IdentifierSegment(String name, int start, int end) {
 				this.name = name;
 				this.start = start;
 				this.end = end;
 			}
 
-		}
-
-		private @Nullable String parseMemberAssignmentObject(int propNameStart) {
-			int index = propNameStart-1;
-			while (index >= 0 && Character.isWhitespace(code.charAt(index)))
-				index--;
-			if (index < 0 || code.charAt(index) != '.')
-				return null;
-			index--;
-			while (index >= 0 && Character.isWhitespace(code.charAt(index)))
-				index--;
-			if (index >= 0 && code.charAt(index) == '?')
-				index--;
-			while (index >= 0 && Character.isWhitespace(code.charAt(index)))
-				index--;
-			if (index < 0 || !isIdentifierPart(code.charAt(index)))
-				return null;
-			int nameEnd = index+1;
-			while (index >= 0 && isIdentifierPart(code.charAt(index)))
-				index--;
-			int nameStart = index+1;
-			int beforeObject = nameStart-1;
-			while (beforeObject >= 0 && Character.isWhitespace(code.charAt(beforeObject)))
-				beforeObject--;
-			if (beforeObject >= 0 && (code.charAt(beforeObject) == '.' || code.charAt(beforeObject) == '?'))
-				return null;
-			return code.substring(nameStart, nameEnd);
 		}
 
 		private void scanObjectInitializer(int nameEnd, int end, TypeScriptSymbol parent) {
@@ -1043,6 +986,29 @@ public class TypescriptExtractor extends AbstractSymbolExtractor<TypeScriptSymbo
 							break;
 						}
 					}
+				} else if (ch == '/' && isRegexLiteralStart(builder, index)) {
+					builder.setCharAt(index, ' ');
+					boolean inCharacterClass = false;
+					while (index+1 < builder.length()) {
+						char current = builder.charAt(++index);
+						if (current == '\n')
+							break;
+						builder.setCharAt(index, ' ');
+						if (current == '\\' && index+1 < builder.length()) {
+							if (builder.charAt(index+1) != '\n')
+								builder.setCharAt(index+1, ' ');
+							index++;
+						} else if (current == '[') {
+							inCharacterClass = true;
+						} else if (current == ']') {
+							inCharacterClass = false;
+						} else if (current == '/' && !inCharacterClass) {
+							while (index+1 < builder.length()
+									&& Character.isLetter(builder.charAt(index+1)))
+								builder.setCharAt(++index, ' ');
+							break;
+						}
+					}
 				} else if (ch == '\'' || ch == '"' || ch == '`') {
 					char quote = ch;
 					builder.setCharAt(index, ' ');
@@ -1062,6 +1028,16 @@ public class TypescriptExtractor extends AbstractSymbolExtractor<TypeScriptSymbo
 				}
 			}
 			return builder.toString();
+		}
+
+		private static boolean isRegexLiteralStart(StringBuilder builder, int index) {
+			index--;
+			while (index >= 0 && Character.isWhitespace(builder.charAt(index)))
+				index--;
+			if (index < 0)
+				return true;
+			char previous = builder.charAt(index);
+			return "([{=,:;!&|?+-*%^~<>".indexOf(previous) != -1;
 		}
 
 	}
