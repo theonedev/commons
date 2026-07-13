@@ -259,8 +259,8 @@ public class Bootstrap {
 		// configuration file.
 		if (command != null) {
 			System.setProperty("logback.logFile", installDir.getAbsolutePath() + "/logs/" + command.getName() + ".log");
-			System.setProperty("logback.fileLogPattern", "%-5level - %msg%n");			
-			System.setProperty("logback.consoleLogPattern", "%-5level - %msg%n");
+			System.setProperty("logback.fileLogPattern", "%date %-5level - %msg%n");			
+			System.setProperty("logback.consoleLogPattern", "%d{HH:mm:ss} %-5level - %msg%n");
 		} else {
 			System.setProperty("logback.logFile", installDir.getAbsolutePath() + "/logs/server.log");
 			System.setProperty("logback.consoleLogPattern", "%d{HH:mm:ss} %-5level %logger{36} - %msg%n");			
