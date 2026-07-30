@@ -62,7 +62,7 @@ public class Bootstrap {
 	
     public static volatile ExecutorService executorService = Executors.newCachedThreadPool();
 
-	public static void main(String[] args) {
+	public static void main(String[] args) {						
 		if (Thread.currentThread().getContextClassLoader() instanceof URLClassLoader)
 			initialURLClassLoader = (URLClassLoader) Thread.currentThread().getContextClassLoader();
 
@@ -435,9 +435,125 @@ public class Bootstrap {
 		if (noProxy == null)
 			noProxy = System.getenv("NO_PROXY");
 		if (noProxy != null) {
-			noProxy = noProxy.replace(',', '|');
-			System.setProperty("https.nonProxyHosts", noProxy);
-			System.setProperty("http.nonProxyHosts", noProxy);
+			var nonProxyHosts = convertNoProxyToNonProxyHosts(noProxy);
+			if (nonProxyHosts != null) {
+				System.setProperty("https.nonProxyHosts", nonProxyHosts);
+				System.setProperty("http.nonProxyHosts", nonProxyHosts);
+			}
+		}
+
+		/**
+		 * OpenJDK may populate http.nonProxyHosts and https.nonProxyHosts with CIDR notation 
+		 * if VPN (shadowrocket for instance) is enabled. Since CIDR notation is not supported 
+		 * by JVM, we need to convert it to wildcard notation.
+		 */
+		for (var propertyName : List.of("http.nonProxyHosts", "https.nonProxyHosts")) {
+			var nonProxyHosts = System.getProperty(propertyName);
+			if (nonProxyHosts != null)
+				System.setProperty(propertyName, convertCidrsInNonProxyHosts(nonProxyHosts));
+		}
+	}
+
+	static String convertNoProxyToNonProxyHosts(String noProxy) {
+		var nonProxyHosts = new ArrayList<String>();
+		for (var noProxyEntry : noProxy.split(",")) {
+			var nonProxyHost = normalizeNonProxyHost(noProxyEntry);
+			if (nonProxyHost != null)
+				nonProxyHosts.add(nonProxyHost);
+		}
+		return nonProxyHosts.isEmpty() ? null : String.join("|", nonProxyHosts);
+	}
+
+	static String convertCidrsInNonProxyHosts(String nonProxyHosts) {
+		var convertedHosts = new ArrayList<String>();
+		for (var nonProxyHost : nonProxyHosts.split("\\|")) {
+			nonProxyHost = nonProxyHost.trim();
+			if (nonProxyHost.isEmpty())
+				continue;
+			var wildcards = convertCidrToWildcards(nonProxyHost);
+			if (wildcards != null)
+				convertedHosts.addAll(wildcards);
+			else
+				convertedHosts.add(nonProxyHost);
+		}
+		return String.join("|", convertedHosts);
+	}
+
+	/**
+	 * The no_proxy environment variable allows forms JVM does not understand, such as a port 
+	 * suffix, or a leading dot to denote sub domains of a domain
+	 */
+	static String normalizeNonProxyHost(String noProxyEntry) {
+		var nonProxyHost = noProxyEntry.trim();
+		var colonIndex = nonProxyHost.lastIndexOf(':');
+		if (colonIndex != -1 && colonIndex == nonProxyHost.indexOf(':') && isPort(nonProxyHost.substring(colonIndex + 1)))
+			nonProxyHost = nonProxyHost.substring(0, colonIndex);
+		if (nonProxyHost.startsWith("."))
+			nonProxyHost = "*" + nonProxyHost;
+		return nonProxyHost.isEmpty() ? null : nonProxyHost;
+	}
+
+	private static boolean isPort(String string) {
+		if (string.isEmpty())
+			return false;
+		for (var i = 0; i < string.length(); i++) {
+			if (!Character.isDigit(string.charAt(i)))
+				return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Convert an IPv4 CIDR to equivalent JVM wildcard notations, or return <tt>null</tt> if 
+	 * specified string is not an IPv4 CIDR. As JVM wildcard can only replace whole octets, a 
+	 * prefix length not aligned to octet boundary is expanded into one entry per possible value 
+	 * of the partially masked octet, for instance 172.16.0.0/12 results in 172.16.* to 172.31.*
+	 */
+	static List<String> convertCidrToWildcards(String cidr) {
+		var cidrParts = cidr.split("/", -1);
+		if (cidrParts.length != 2)
+			return null;
+		var addressParts = cidrParts[0].split("\\.", -1);
+		if (addressParts.length != 4)
+			return null;
+
+		int prefixLength;
+		var address = new int[addressParts.length];
+		try {
+			prefixLength = Integer.parseInt(cidrParts[1]);
+			for (var i = 0; i < addressParts.length; i++)
+				address[i] = Integer.parseInt(addressParts[i]);
+		} catch (NumberFormatException e) {
+			return null;
+		}
+
+		if (prefixLength < 0 || prefixLength > 8 * addressParts.length)
+			return null;
+		for (var addressPart : address) {
+			if (addressPart < 0 || addressPart > 255)
+				return null;
+		}
+
+		var numFixedParts = prefixLength / 8;
+		var partialBits = prefixLength % 8;
+
+		var fixedPrefix = new StringBuilder();
+		for (var i = 0; i < numFixedParts; i++)
+			fixedPrefix.append(address[i]).append('.');
+
+		if (partialBits == 0) {
+			if (numFixedParts == addressParts.length)
+				return List.of(fixedPrefix.substring(0, fixedPrefix.length() - 1));
+			else
+				return List.of(fixedPrefix + "*");
+		} else {
+			var wildcards = new ArrayList<String>();
+			var suffix = numFixedParts + 1 < addressParts.length ? ".*" : "";
+			var partialMask = (0xff << (8 - partialBits)) & 0xff;
+			var firstValue = address[numFixedParts] & partialMask;
+			for (var i = 0; i < 1 << (8 - partialBits); i++)
+				wildcards.add(fixedPrefix + String.valueOf(firstValue + i) + suffix);
+			return wildcards;
 		}
 	}
 
