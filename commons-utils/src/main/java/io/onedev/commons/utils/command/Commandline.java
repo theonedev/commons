@@ -228,20 +228,18 @@ public class Commandline implements Serializable {
 		if (effectiveWorkingDir == null)
 			effectiveWorkingDir = new File(".");
 
-		String effectiveExecutable;
-        if (!new File(executable).isAbsolute()) {
-            if (new File(effectiveWorkingDir, executable).isFile())
-            	effectiveExecutable = new File(effectiveWorkingDir, executable).getAbsolutePath();
-            else if (new File(effectiveWorkingDir, executable + ".exe").isFile())
-            	effectiveExecutable = new File(effectiveWorkingDir, executable + ".exe").getAbsolutePath();
-            else if (new File(effectiveWorkingDir, executable + ".bat").isFile())
-            	effectiveExecutable = new File(effectiveWorkingDir, executable + ".bat").getAbsolutePath();
-            else if (new File(effectiveWorkingDir, executable + ".cmd").isFile())
-            	effectiveExecutable = new File(effectiveWorkingDir, executable + ".cmd").getAbsolutePath();
-			else
-				effectiveExecutable = executable;
-        } else {
-			effectiveExecutable = executable;
+		// Bare names such as "git" come from PATH so a same-named file in the
+		// working directory cannot hijack them. Relative paths still resolve here.
+		String effectiveExecutable = executable;
+		if (!new File(executable).isAbsolute() && executable.contains(File.separator)) {
+			if (new File(effectiveWorkingDir, executable).isFile())
+				effectiveExecutable = new File(effectiveWorkingDir, executable).getAbsolutePath();
+			else if (new File(effectiveWorkingDir, executable + ".exe").isFile())
+				effectiveExecutable = new File(effectiveWorkingDir, executable + ".exe").getAbsolutePath();
+			else if (new File(effectiveWorkingDir, executable + ".bat").isFile())
+				effectiveExecutable = new File(effectiveWorkingDir, executable + ".bat").getAbsolutePath();
+			else if (new File(effectiveWorkingDir, executable + ".cmd").isFile())
+				effectiveExecutable = new File(effectiveWorkingDir, executable + ".cmd").getAbsolutePath();
 		}
 
 		List<String> command = new ArrayList<String>();
