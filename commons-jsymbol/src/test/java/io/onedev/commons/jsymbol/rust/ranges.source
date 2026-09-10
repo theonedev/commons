@@ -1,0 +1,12 @@
+// Unicode 🙂 and misleading braces }.
+pub [[s:example]]mod [[p:example]]example[[/p:example]] {
+	pub [[s:Worker]]struct [[p:Worker]]Worker[[/p:Worker]] {
+		value: i32,
+	}[[/s:Worker]]
+	pub [[s:first]]fn [[p:first]]first[[/p:first]](
+		value: i32,
+	) { if value > 0 { println!("}"); } }[[/s:first]] /* 🙂 */ [[s:second]]fn [[p:second]]second[[/p:second]]() {}[[/s:second]]
+	pub [[s:Service]]trait [[p:Service]]Service[[/p:Service]] {
+		fn [[p:declaration]]declaration[[/p:declaration]](&self);
+	}[[/s:Service]]
+}[[/s:example]]

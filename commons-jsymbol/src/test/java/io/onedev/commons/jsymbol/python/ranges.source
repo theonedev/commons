@@ -1,0 +1,11 @@
+# Unicode 🙂 and misleading class Fake:
+[[s:Example]]class [[p:Example]]Example[[/p:Example]]:
+	[[s:first]]def [[p:first]]first[[/p:first]](
+		self, value):
+		if value:
+			print("def fake():")[[/s:first]]
+
+	[[s:second]]def [[p:second]]second[[/p:second]](self): return "🙂"[[/s:second]][[/s:Example]]
+
+[[s:outside]]def [[p:outside]]outside[[/p:outside]]():
+	return 3[[/s:outside]]

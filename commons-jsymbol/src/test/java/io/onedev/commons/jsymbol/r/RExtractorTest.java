@@ -13,6 +13,11 @@ import io.onedev.commons.jsymbol.r.symbols.VariableSymbol;
 public class RExtractorTest extends DescriptableExtractorTest<RSymbol> {
 
 	@Test
+	public void testRanges() {
+		verifyRanges(new RExtractor(), "ranges.r");
+	}
+
+	@Test
 	public void test() {
 		verify(readFile("test.outline"), new RExtractor().extract(null, readFile("test.source")));
 	}

@@ -247,10 +247,25 @@ public class GolangExtractor extends AbstractSymbolExtractor<GolangSymbol> {
             }
         
             if (check(TokenType.RBRACE)) {
-                advance();
+                Token close = advance();
+                if (parent instanceof VariableSymbol) {
+                    PlanarRange start = parent.getPosition();
+                    parent.setScope(new PlanarRange(start.getFromRow(), start.getFromColumn(),
+                            close.line, close.column + close.value.length()));
+                }
             }
         }
     
+        private void setSharedScope(List<VariableSymbol> fields) {
+            PlanarRange scope = fields.get(0).getScope();
+            if (scope != null) {
+                for (VariableSymbol field : fields) {
+                    field.setScope(new PlanarRange(field.getPosition().getFromRow(),
+                            field.getPosition().getFromColumn(), scope.getToRow(), scope.getToColumn()));
+                }
+            }
+        }
+
         private void parseFieldDecl(GolangSymbol parent) {
             skipNewlines();
             if (check(TokenType.RBRACE)) return;
@@ -338,6 +353,7 @@ public class GolangExtractor extends AbstractSymbolExtractor<GolangSymbol> {
                         } else {
                             parseStructBody(fieldSymbols.get(0));
                         }
+                        setSharedScope(fieldSymbols);
                         return; // Already consumed the body
                     } else {
                         // struct/interface without body
@@ -363,6 +379,8 @@ public class GolangExtractor extends AbstractSymbolExtractor<GolangSymbol> {
                         for (VariableSymbol fs : fieldSymbols) {
                             fs.setType(type);
                         }
+                    } else {
+                        setSharedScope(fieldSymbols);
                     }
                 }
             } else if (check(TokenType.STRUCT) || check(TokenType.INTERFACE)) {
@@ -545,7 +563,12 @@ public class GolangExtractor extends AbstractSymbolExtractor<GolangSymbol> {
             }
         
             if (check(TokenType.RBRACE)) {
-                advance();
+                Token close = advance();
+                if (parent instanceof VariableSymbol) {
+                    PlanarRange start = parent.getPosition();
+                    parent.setScope(new PlanarRange(start.getFromRow(), start.getFromColumn(),
+                            close.line, close.column + close.value.length()));
+                }
             }
         }
     
@@ -1246,6 +1269,8 @@ public class GolangExtractor extends AbstractSymbolExtractor<GolangSymbol> {
                     for (VariableSymbol vs : varSymbols) {
                         vs.setType(type);
                     }
+                } else {
+                    setSharedScope(varSymbols);
                 }
             } else {
                 // No type, just initializer (var x = value)
@@ -1495,7 +1520,7 @@ public class GolangExtractor extends AbstractSymbolExtractor<GolangSymbol> {
 
     @Override
     public int getVersion() {
-        return 9;
+        return 10;
     }
 
 }

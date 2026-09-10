@@ -16,6 +16,11 @@ import io.onedev.commons.jsymbol.swift.symbols.VariableSymbol;
 public class SwiftExtractorTest extends DescriptableExtractorTest<SwiftSymbol> {
 
 	@Test
+	public void testRanges() {
+		verifyRanges(new SwiftExtractor(), "ranges.swift");
+	}
+
+	@Test
 	public void test() {
 		verify(readFile("test.outline"), new SwiftExtractor().extract(null, readFile("test.source")));
 	}

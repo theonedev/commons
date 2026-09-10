@@ -28,7 +28,7 @@ public class RustExtractor extends AbstractSymbolExtractor<RustSymbol> {
 
 	@Override
 	public int getVersion() {
-		return 1;
+		return 2;
 	}
 
 	private static class Scanner {
@@ -106,9 +106,9 @@ public class RustExtractor extends AbstractSymbolExtractor<RustSymbol> {
 					} else if ("impl".equals(word)) {
 						index = scanImpl(index, wordEnd, end, parent, exported)-1;
 					} else if ("macro_rules".equals(word) && wordEnd < end && code.charAt(wordEnd) == '!') {
-						index = scanMacro(wordEnd+1, end, parent, exported)-1;
+						index = scanMacro(index, wordEnd+1, end, parent, exported)-1;
 					} else if ("macro".equals(word)) {
-						index = scanMacro(wordEnd, end, parent, exported)-1;
+						index = scanMacro(index, wordEnd, end, parent, exported)-1;
 					} else {
 						index = wordEnd-1;
 					}
@@ -128,6 +128,7 @@ public class RustExtractor extends AbstractSymbolExtractor<RustSymbol> {
 			if (bodyStart < end && code.charAt(bodyStart) == '{') {
 				int bodyEnd = findMatching(bodyStart, end, '{', '}');
 				if (bodyEnd != -1) {
+					symbol.setScope(position(keywordStart, bodyEnd+1));
 					scanDeclarations(bodyStart+1, bodyEnd, symbol, false);
 					return bodyEnd+1;
 				}
@@ -152,6 +153,7 @@ public class RustExtractor extends AbstractSymbolExtractor<RustSymbol> {
 			if (bodyStart < end && code.charAt(bodyStart) == '{') {
 				int bodyEnd = findMatching(bodyStart, end, '{', '}');
 				if (bodyEnd != -1) {
+					symbol.setScope(position(keywordStart, bodyEnd+1));
 					if ("enum".equals(kind))
 						scanEnumVariants(bodyStart+1, bodyEnd, symbol, exported);
 					else if ("trait".equals(kind))
@@ -177,13 +179,16 @@ public class RustExtractor extends AbstractSymbolExtractor<RustSymbol> {
 				if (paramsEnd != -1)
 					params = source.substring(paramsStart, paramsEnd+1);
 			}
-			symbols.add(new FunctionSymbol(parent, code.substring(nameStart, nameEnd), params,
-					position(nameStart, nameEnd), null, traitMember? false: !exported));
+			FunctionSymbol symbol = new FunctionSymbol(parent, code.substring(nameStart, nameEnd), params,
+					position(nameStart, nameEnd), null, traitMember? false: !exported);
+			symbols.add(symbol);
 			int bodyStart = findNextTopLevel(nameEnd, end, '{', ';');
 			if (bodyStart < end && code.charAt(bodyStart) == '{') {
 				int bodyEnd = findMatching(bodyStart, end, '{', '}');
-				if (bodyEnd != -1)
+				if (bodyEnd != -1) {
+					symbol.setScope(position(keywordStart, bodyEnd+1));
 					return bodyEnd+1;
+				}
 			}
 			return bodyStart < end? bodyStart+1: nameEnd;
 		}
@@ -202,18 +207,24 @@ public class RustExtractor extends AbstractSymbolExtractor<RustSymbol> {
 			return statementEnd < end? statementEnd+1: nameEnd;
 		}
 
-		private int scanMacro(int afterKeyword, int end, @Nullable RustSymbol parent, boolean exported) {
+		private int scanMacro(int keywordStart, int afterKeyword, int end, @Nullable RustSymbol parent, boolean exported) {
 			int nameStart = skipWhitespace(afterKeyword, end);
 			if (nameStart >= end || !isIdentifierStart(code.charAt(nameStart)))
 				return afterKeyword;
 			int nameEnd = readIdentifierEnd(nameStart);
-			symbols.add(new VariableSymbol(parent, code.substring(nameStart, nameEnd), "macro",
-					position(nameStart, nameEnd), null, isLocal(parent, exported)));
-			int bodyStart = findNextTopLevel(nameEnd, end, '{', ';');
-			if (bodyStart < end && code.charAt(bodyStart) == '{') {
-				int bodyEnd = findMatching(bodyStart, end, '{', '}');
-				if (bodyEnd != -1)
+			VariableSymbol symbol = new VariableSymbol(parent, code.substring(nameStart, nameEnd), "macro",
+					position(nameStart, nameEnd), null, isLocal(parent, exported));
+			symbols.add(symbol);
+			int bodyStart = code.startsWith("macro_rules", keywordStart)? skipWhitespace(nameEnd, end)
+					: findNextTopLevel(nameEnd, end, '{', ';');
+			if (bodyStart < end && "{([".indexOf(code.charAt(bodyStart)) != -1) {
+				char open = code.charAt(bodyStart);
+				char close = open == '{'? '}': open == '('? ')': ']';
+				int bodyEnd = findMatching(bodyStart, end, open, close);
+				if (bodyEnd != -1) {
+					symbol.setScope(position(keywordStart, bodyEnd+1));
 					return bodyEnd+1;
+				}
 			}
 			return nameEnd;
 		}
@@ -228,7 +239,7 @@ public class RustExtractor extends AbstractSymbolExtractor<RustSymbol> {
 			String name = StringUtils.normalizeSpace(source.substring(afterKeyword, bodyStart));
 			if (name.length() == 0)
 				name = "impl";
-			BlockSymbol symbol = new BlockSymbol(parent, name, "impl", position(keywordStart, afterKeyword), null,
+			BlockSymbol symbol = new BlockSymbol(parent, name, "impl", position(keywordStart, afterKeyword), position(keywordStart, bodyEnd+1),
 					isLocal(parent, exported));
 			symbols.add(symbol);
 			scanDeclarations(bodyStart+1, bodyEnd, symbol, false);

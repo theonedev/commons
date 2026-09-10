@@ -18,6 +18,11 @@ import io.onedev.commons.jsymbol.java.symbols.TypeSymbol.Kind;
 public class JavaExtractorTest extends DescriptableExtractorTest<JavaSymbol> {
 
 	@Test
+	public void testRanges() {
+		verifyRanges(new JavaExtractor(), "ranges.java");
+	}
+
+	@Test
 	public void test() {
 		verify(readFile("test.outline"), new JavaExtractor().extract(null, readFile("test.source")));
 		verify(readFile("composite.outline"), new JavaExtractor().extract(null, readFile("composite.source")));

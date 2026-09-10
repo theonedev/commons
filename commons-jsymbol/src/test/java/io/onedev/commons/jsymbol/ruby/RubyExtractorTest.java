@@ -17,6 +17,11 @@ import io.onedev.commons.jsymbol.ruby.symbols.VariableSymbol;
 public class RubyExtractorTest extends DescriptableExtractorTest<RubySymbol> {
 
 	@Test
+	public void testRanges() {
+		verifyRanges(new RubyExtractor(), "ranges.rb");
+	}
+
+	@Test
 	public void test() {
 		verify(readFile("test.outline"), new RubyExtractor().extract(null, readFile("test.source")));
 	}

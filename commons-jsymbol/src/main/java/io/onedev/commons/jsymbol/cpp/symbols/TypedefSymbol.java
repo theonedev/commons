@@ -22,7 +22,12 @@ public class TypedefSymbol extends CppSymbol {
 	private Modifier modifier;
 	
 	public TypedefSymbol(CppSymbol parent, String name, boolean local, String type, PlanarRange position, Modifier modifier, boolean isTemp) {
-		super(parent, name, local, position, null);
+		this(parent, name, local, type, position, null, modifier, isTemp);
+	}
+
+	public TypedefSymbol(CppSymbol parent, String name, boolean local, String type, PlanarRange position,
+			PlanarRange scope, Modifier modifier, boolean isTemp) {
+		super(parent, name, local, position, scope);
 		this.type = type;
 		this.modifier=modifier;
 		this.isTemp = isTemp;

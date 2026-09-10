@@ -18,7 +18,11 @@ public class MacroSymbol extends CppSymbol {
 	private Modifier modifier;
 	
 	public MacroSymbol(CppSymbol parent, String name, boolean local, PlanarRange position ,Modifier modifier) {
-		super(parent, name, local, position, null);
+		this(parent, name, local, position, null, modifier);
+	}
+
+	public MacroSymbol(CppSymbol parent, String name, boolean local, PlanarRange position, PlanarRange scope, Modifier modifier) {
+		super(parent, name, local, position, scope);
 		this.modifier=modifier;
 	}
 

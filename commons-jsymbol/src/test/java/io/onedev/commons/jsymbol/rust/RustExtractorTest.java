@@ -17,6 +17,11 @@ import io.onedev.commons.jsymbol.rust.symbols.VariableSymbol;
 public class RustExtractorTest extends DescriptableExtractorTest<RustSymbol> {
 
 	@Test
+	public void testRanges() {
+		verifyRanges(new RustExtractor(), "ranges.rs");
+	}
+
+	@Test
 	public void test() {
 		verify(readFile("test.outline"), new RustExtractor().extract(null, readFile("test.source")));
 	}

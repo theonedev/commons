@@ -17,6 +17,11 @@ import io.onedev.commons.jsymbol.php.symbols.VariableSymbol;
 public class PhpExtractorTest extends DescriptableExtractorTest<PhpSymbol> {
 
 	@Test
+	public void testRanges() {
+		verifyRanges(new PhpExtractor(), "ranges.php");
+	}
+
+	@Test
 	public void test() {
 		verify(readFile("test.outline"), new PhpExtractor().extract(null, readFile("test.source")));
 	}

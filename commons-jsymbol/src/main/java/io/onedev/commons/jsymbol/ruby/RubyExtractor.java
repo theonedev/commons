@@ -30,7 +30,7 @@ public class RubyExtractor extends AbstractSymbolExtractor<RubySymbol> {
 
 	@Override
 	public int getVersion() {
-		return 1;
+		return 2;
 	}
 
 	private static List<Token> tokenize(String source) {
@@ -241,14 +241,14 @@ public class RubyExtractor extends AbstractSymbolExtractor<RubySymbol> {
 						parseType(token.type == Type.CLASS? "class": "module");
 					else if (token.type == Type.DEF)
 						parseMethod();
-					else if (token.type == Type.END)
-						closeFrame();
 					else if (token.type == Type.IDENT)
 						parseStatementStart();
 				}
-				if (token.type == Type.DO || token.type == Type.BEGIN
+				if (token.type == Type.END && !isMemberAccess())
+					closeFrame(token);
+				if (token.type == Type.DO && !isLoopDo(token) || token.type == Type.BEGIN
 						|| token.type == Type.BLOCK_START && (statementStart || previousSignificantIsAssign()))
-					stack.add(new Frame(null, false));
+					stack.add(new Frame(null, false, token));
 				if (token.type == Type.NL)
 					lineStart = index + 1;
 				index++;
@@ -258,7 +258,7 @@ public class RubyExtractor extends AbstractSymbolExtractor<RubySymbol> {
 		private void parseType(String kind) {
 			int nameIndex = nextNonNewline(index+1);
 			if ("class".equals(kind) && isSingletonClassStart(nameIndex)) {
-				stack.add(new Frame(null, true));
+				stack.add(new Frame(null, true, tokens.get(index)));
 				index = nameIndex + 2;
 				return;
 			}
@@ -269,7 +269,7 @@ public class RubyExtractor extends AbstractSymbolExtractor<RubySymbol> {
 			String name = qualifiedName(nameIndex, endIndex);
 			TypeSymbol symbol = new TypeSymbol(currentSymbol(), name, kind, range(nameToken), null);
 			symbols.add(symbol);
-			stack.add(new Frame(symbol, false));
+			stack.add(new Frame(symbol, false, tokens.get(index)));
 			index = endIndex;
 		}
 
@@ -288,7 +288,7 @@ public class RubyExtractor extends AbstractSymbolExtractor<RubySymbol> {
 			MethodSymbol symbol = new MethodSymbol(currentSymbol(), name, parameters, range(tokens.get(endIndex)), null,
 					singleton);
 			symbols.add(symbol);
-			stack.add(new Frame(symbol, false));
+			stack.add(new Frame(symbol, false, tokens.get(index)));
 			index = endIndex;
 		}
 
@@ -364,9 +364,25 @@ public class RubyExtractor extends AbstractSymbolExtractor<RubySymbol> {
 			}
 		}
 
-		private void closeFrame() {
-			if (!stack.isEmpty())
-				stack.remove(stack.size()-1);
+		private void closeFrame(Token end) {
+			if (!stack.isEmpty()) {
+				Frame frame = stack.remove(stack.size()-1);
+				if (frame.symbol != null)
+					frame.symbol.setScope(new PlanarRange(frame.start.fromRow, frame.start.fromColumn,
+							end.toRow, end.toColumn));
+			}
+		}
+
+		private boolean isMemberAccess() {
+			return index > 0 && (tokens.get(index-1).text.equals(".") || tokens.get(index-1).type == Type.SCOPE);
+		}
+
+		private boolean isLoopDo(Token token) {
+			if (stack.isEmpty())
+				return false;
+			Token start = stack.get(stack.size()-1).start;
+			return start.fromRow == token.fromRow
+					&& (start.text.equals("while") || start.text.equals("until") || start.text.equals("for"));
 		}
 
 		@Nullable
@@ -522,7 +538,10 @@ public class RubyExtractor extends AbstractSymbolExtractor<RubySymbol> {
 
 		private final boolean singletonContext;
 
-		private Frame(@Nullable RubySymbol symbol, boolean singletonContext) {
+		private final Token start;
+
+		private Frame(@Nullable RubySymbol symbol, boolean singletonContext, Token start) {
+			this.start = start;
 			this.symbol = symbol;
 			this.singletonContext = singletonContext;
 		}

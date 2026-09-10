@@ -1,0 +1,8 @@
+# Unicode 🙂 and misleading function() { }
+[[p:first]]first[[/p:first]] <- [[s:first]]function(
+	value) {
+	[[p:nested]]nested[[/p:nested]] <- [[s:nested]]function(x) {
+		if (x) { print("}") }
+	}[[/s:nested]]
+	nested(value)
+}[[/s:first]]; [[p:second]]second[[/p:second]] <- [[s:second]]function() 2[[/s:second]]

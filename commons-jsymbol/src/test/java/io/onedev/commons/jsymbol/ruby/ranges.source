@@ -1,0 +1,10 @@
+# Unicode 🙂 and misleading end.
+[[s:Example]]module [[p:Example]]Example[[/p:Example]]
+	[[s:Worker]]class [[p:Worker]]Worker[[/p:Worker]]
+		[[s:first]]def [[p:first]]first[[/p:first]](items)
+			items.each do |item|
+				puts "end" if item
+			end
+		end[[/s:first]]; [[s:second]]def [[p:second]]second[[/p:second]]; 2; end[[/s:second]]
+	end[[/s:Worker]]
+end[[/s:Example]]

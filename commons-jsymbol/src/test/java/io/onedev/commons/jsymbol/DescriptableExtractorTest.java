@@ -59,6 +59,17 @@ public abstract class DescriptableExtractorTest<T extends Symbol> {
 		}
 	}
 
+	/** Read annotated ranges without stripping blank lines or trailing whitespace. */
+	protected void verifyRanges(SymbolExtractor<T> extractor, String fileName) {
+		try {
+			String source = Resources.toString(Resources.getResource(getClass(), "ranges.source"),
+					java.nio.charset.StandardCharsets.UTF_8);
+			SymbolRangeTestSupport.verify(extractor, fileName, source);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	protected void appendChildren(List<String> lines, List<T> context, T symbol) {
 		List<T> children = new ArrayList<>();
 		for (T each: context) {

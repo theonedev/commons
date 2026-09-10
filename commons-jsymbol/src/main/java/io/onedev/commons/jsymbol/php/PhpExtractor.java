@@ -48,7 +48,7 @@ public class PhpExtractor extends AbstractSymbolExtractor<PhpSymbol> {
 
 	@Override
 	public int getVersion() {
-		return 1;
+		return 2;
 	}
 
 	private static class Parser {
@@ -565,8 +565,11 @@ public class PhpExtractor extends AbstractSymbolExtractor<PhpSymbol> {
 					return token;
 				if ("{".equals(token.text) || "(".equals(token.text) || "[".equals(token.text))
 					nested++;
-				else if ("}".equals(token.text) || ")".equals(token.text) || "]".equals(token.text))
+				else if ("}".equals(token.text) || ")".equals(token.text) || "]".equals(token.text)) {
 					nested--;
+					if (nested == 0 && "}".equals(token.text))
+						return token;
+				}
 				end = token;
 				i++;
 			}

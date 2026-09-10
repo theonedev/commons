@@ -16,7 +16,11 @@ public class ConceptSymbol extends CppSymbol {
 	private static final long serialVersionUID = 1L;
 
 	public ConceptSymbol(CppSymbol parent, String name, boolean local, PlanarRange position) {
-		super(parent, name, local, position, null);
+		this(parent, name, local, position, null);
+	}
+
+	public ConceptSymbol(CppSymbol parent, String name, boolean local, PlanarRange position, PlanarRange scope) {
+		super(parent, name, local, position, scope);
 	}
 
 	@Override

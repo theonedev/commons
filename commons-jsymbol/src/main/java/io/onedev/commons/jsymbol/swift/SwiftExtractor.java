@@ -26,7 +26,7 @@ public class SwiftExtractor extends AbstractSymbolExtractor<SwiftSymbol> {
 
 	@Override
 	public int getVersion() {
-		return 1;
+		return 2;
 	}
 
 	private static class Scanner {
@@ -116,7 +116,7 @@ public class SwiftExtractor extends AbstractSymbolExtractor<SwiftSymbol> {
 			if (bodyStart < end && code.charAt(bodyStart) == '{')
 				bodyEnd = findMatching(bodyStart, end, '{', '}');
 			TypeSymbol symbol = new TypeSymbol(parent, code.substring(nameStart, nameEnd), kind,
-					position(nameStart, nameEnd), bodyEnd != -1? range(bodyStart, bodyEnd): null, local);
+					position(nameStart, nameEnd), bodyEnd != -1? range(keywordStart, bodyEnd): null, local);
 			symbols.add(symbol);
 			if (bodyEnd != -1) {
 				scanDeclarations(bodyStart+1, bodyEnd, symbol);
@@ -139,7 +139,7 @@ public class SwiftExtractor extends AbstractSymbolExtractor<SwiftSymbol> {
 			if (bodyStart < end && code.charAt(bodyStart) == '{')
 				bodyEnd = findMatching(bodyStart, end, '{', '}');
 			TypeSymbol symbol = new TypeSymbol(parent, name, "extension", position(nameStart, nameEnd),
-					bodyEnd != -1? range(bodyStart, bodyEnd): null, local);
+					bodyEnd != -1? range(keywordStart, bodyEnd): null, local);
 			symbols.add(symbol);
 			if (bodyEnd != -1) {
 				scanDeclarations(bodyStart+1, bodyEnd, symbol);
@@ -161,12 +161,12 @@ public class SwiftExtractor extends AbstractSymbolExtractor<SwiftSymbol> {
 				if (paramsEnd != -1)
 					params = source.substring(paramsStart, paramsEnd+1);
 			}
-			int bodyStart = findNextTopLevel(nameEnd, end, '{', '\n');
+			int bodyStart = findFunctionBody(nameEnd, end);
 			int bodyEnd = -1;
 			if (bodyStart < end && code.charAt(bodyStart) == '{')
 				bodyEnd = findMatching(bodyStart, end, '{', '}');
 			symbols.add(new FunctionSymbol(parent, source.substring(nameStart, nameEnd), kind, params,
-					position(nameStart, nameEnd), bodyEnd != -1? range(bodyStart, bodyEnd): null, local));
+					position(nameStart, nameEnd), bodyEnd != -1? range(keywordStart, bodyEnd): null, local));
 			if (bodyEnd != -1)
 				return bodyEnd+1;
 			return paramsStart < end? paramsStart+1: nameEnd;
@@ -182,12 +182,12 @@ public class SwiftExtractor extends AbstractSymbolExtractor<SwiftSymbol> {
 				if (paramsEnd != -1)
 					params = source.substring(paramsStart, paramsEnd+1);
 			}
-			int bodyStart = findNextTopLevel(afterKeyword, end, '{', '\n');
+			int bodyStart = findFunctionBody(afterKeyword, end);
 			int bodyEnd = -1;
 			if (bodyStart < end && code.charAt(bodyStart) == '{')
 				bodyEnd = findMatching(bodyStart, end, '{', '}');
 			symbols.add(new FunctionSymbol(parent, kind, kind, params, position(nameStart, afterKeyword),
-					bodyEnd != -1? range(bodyStart, bodyEnd): null, local));
+					bodyEnd != -1? range(keywordStart, bodyEnd): null, local));
 			if (bodyEnd != -1)
 				return bodyEnd+1;
 			return paramsStart < end? paramsStart+1: afterKeyword;
@@ -212,9 +212,13 @@ public class SwiftExtractor extends AbstractSymbolExtractor<SwiftSymbol> {
 				if (index >= end || !isIdentifierStart(code.charAt(index)))
 					return afterKeyword;
 				int nameEnd = readIdentifierEnd(index);
+				int tailEnd = skipVariableTail(nameEnd, end);
+				int bodyStart = findNextTopLevel(nameEnd, tailEnd, '{', '\n');
+				int bodyEnd = bodyStart < tailEnd && code.charAt(bodyStart) == '{'
+						? findMatching(bodyStart, tailEnd, '{', '}'): -1;
 				symbols.add(new VariableSymbol(parent, code.substring(index, nameEnd), kind, position(index, nameEnd),
-						null, local));
-				index = skipVariableTail(nameEnd, end);
+						bodyEnd != -1? range(index, bodyEnd): null, local));
+				index = tailEnd;
 				if (index >= end || code.charAt(index-1) != ',')
 					return index;
 			}
@@ -355,6 +359,20 @@ public class SwiftExtractor extends AbstractSymbolExtractor<SwiftSymbol> {
 					depth = Math.max(0, depth-1);
 			}
 			return index;
+		}
+
+		private int findFunctionBody(int index, int end) {
+			while (index < end) {
+				index = findNextTopLevel(index, end, '{', '\n');
+				if (index == end || code.charAt(index) == '{')
+					return index;
+				index = skipWhitespace(index+1, end);
+				String word = readWord(index);
+				if (index == end || code.charAt(index) != '{' && !code.startsWith("->", index)
+						&& !word.equals("async") && !word.equals("throws") && !word.equals("rethrows") && !word.equals("where"))
+					return end;
+			}
+			return end;
 		}
 
 		private int findNextTopLevel(int index, int end, char first, char second) {

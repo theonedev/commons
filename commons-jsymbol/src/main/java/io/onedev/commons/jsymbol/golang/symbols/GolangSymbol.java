@@ -15,7 +15,7 @@ public abstract class GolangSymbol extends Symbol {
 	
 	private final PlanarRange position;
 	
-	private final PlanarRange scope;	
+	private PlanarRange scope;
 	
 	public GolangSymbol(GolangSymbol parent, String name, @Nullable PlanarRange position, @Nullable PlanarRange scope) {
 		this.parent = parent;
@@ -46,6 +46,10 @@ public abstract class GolangSymbol extends Symbol {
 	@Override
 	public PlanarRange getScope() {
 		return scope;
+	}
+
+	public void setScope(PlanarRange scope) {
+		this.scope = scope;
 	}
 
 	@Override

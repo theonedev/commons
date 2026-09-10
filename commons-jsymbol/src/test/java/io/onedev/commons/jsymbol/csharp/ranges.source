@@ -1,0 +1,10 @@
+// Unicode 🙂 and misleading braces }.
+[[s:Example]]namespace [[p:Example]]Example[[/p:Example]] {
+	[[s:Worker]]class [[p:Worker]]Worker[[/p:Worker]] {
+		[[s:Value]]int [[p:Value]]Value[[/p:Value]] {
+			get { return 1; }
+		}[[/s:Value]]
+		[[s:first]]void [[p:first]]first[[/p:first]](
+			int value) { if (value > 0) {} }[[/s:first]] /* 🙂 */ [[s:second]]void [[p:second]]second[[/p:second]]() {}[[/s:second]]
+	}[[/s:Worker]]
+}[[/s:Example]]

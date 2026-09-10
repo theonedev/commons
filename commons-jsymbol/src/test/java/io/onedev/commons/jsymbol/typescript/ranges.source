@@ -1,0 +1,12 @@
+// Unicode 🙂 and misleading braces }.
+[[s:Example]]class [[p:Example]]Example[[/p:Example]] {
+	[[s:first]][[p:first]]first[[/p:first]](
+		value) { if (value) { console.log("}"); } }[[/s:first]] /* 🙂 */ [[s:second]][[p:second]]second[[/p:second]]() {}[[/s:second]]
+	[[s:arrow]][[p:arrow]]arrow[[/p:arrow]] = (x) => {
+		return x;
+	}[[/s:arrow]];
+}[[/s:Example]]
+const [[p:object]]object[[/p:object]] = [[s:object]]{
+	[[s:run]][[p:run]]run[[/p:run]]() { return "🙂"; }[[/s:run]]
+}[[/s:object]];
+const [[p:constant]]constant[[/p:constant]] = 1;

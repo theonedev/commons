@@ -28,7 +28,7 @@ public class TypescriptExtractor extends AbstractSymbolExtractor<TypeScriptSymbo
 
 	@Override
 	public int getVersion() {
-		return 19;
+		return 20;
 	}
 
 	private static class Scanner {
@@ -236,6 +236,7 @@ public class TypescriptExtractor extends AbstractSymbolExtractor<TypeScriptSymbo
 					if (afterEq < end && code.charAt(afterEq) == '{') {
 						int objEnd = findMatching(afterEq, end, '{', '}');
 						if (objEnd != -1) {
+							symbol.setScope(position(keywordStart, objEnd+1));
 							scanMembers(afterEq+1, objEnd, symbol);
 							return objEnd+1;
 						}
@@ -249,6 +250,7 @@ public class TypescriptExtractor extends AbstractSymbolExtractor<TypeScriptSymbo
 			if (bodyStart < end && code.charAt(bodyStart) == '{') {
 				int bodyEnd = findMatching(bodyStart, end, '{', '}');
 				if (bodyEnd != -1) {
+					symbol.setScope(position(keywordStart, bodyEnd+1));
 					if ("namespace".equals(kind))
 						scanDeclarations(bodyStart+1, bodyEnd, symbol, true);
 					else if ("enum".equals(kind))
@@ -285,8 +287,10 @@ public class TypescriptExtractor extends AbstractSymbolExtractor<TypeScriptSymbo
 			int bodyStart = findNextTopLevel(searchFrom, end, '{', ';');
 			if (bodyStart < end && code.charAt(bodyStart) == '{') {
 				int bodyEnd = findMatching(bodyStart, end, '{', '}');
-				if (bodyEnd != -1)
+				if (bodyEnd != -1) {
+					symbol.setScope(position(keywordStart, bodyEnd+1));
 					return bodyEnd+1;
+				}
 			}
 			int statementEnd = findStatementEnd(keywordStart, end);
 			return statementEnd < end? statementEnd+1: nameEnd;
@@ -302,7 +306,11 @@ public class TypescriptExtractor extends AbstractSymbolExtractor<TypeScriptSymbo
 					VariableSymbol variable = new VariableSymbol(parent, code.substring(index, nameEnd), kind,
 							position(index, nameEnd), null, isLocal(parent, exported, false));
 					symbols.add(variable);
-					scanObjectInitializer(nameEnd, statementEnd, variable);
+					int initializerEnd = skipVariableInitializer(nameEnd, statementEnd);
+					scanObjectInitializer(nameEnd, initializerEnd, variable);
+					int eq = findNextTopLevel(nameEnd, initializerEnd, '=', ';');
+					if (eq < initializerEnd && functionValueParams(skipWhitespace(eq+1, initializerEnd), initializerEnd) != null)
+						variable.setScope(scope(index, initializerEnd));
 					index = nameEnd;
 				} else if (index < statementEnd && (code.charAt(index) == '{' || code.charAt(index) == '[')) {
 					int patternEnd = findMatching(index, statementEnd, code.charAt(index), code.charAt(index)=='{'? '}': ']');
@@ -360,9 +368,10 @@ public class TypescriptExtractor extends AbstractSymbolExtractor<TypeScriptSymbo
 				return nameEnd;
 			AssignmentTarget target = parseAssignmentTarget(nameStart, nameEnd);
 			int valueStart = skipWhitespace(eq+1, end);
+			int valueEnd = skipAssignedValue(valueStart, end);
 			if (target != null)
-				addAssignedSymbol(target, valueStart, end, parent, exported);
-			return skipAssignedValue(valueStart, end);
+				addAssignedSymbol(target, valueStart, valueEnd, parent, exported);
+			return valueEnd;
 		}
 
 		private int skipAssignedValue(int valueStart, int end) {
@@ -382,7 +391,7 @@ public class TypescriptExtractor extends AbstractSymbolExtractor<TypeScriptSymbo
 			String params = functionValueParams(valueStart, end);
 			if (params != null) {
 				symbols.add(new FunctionSymbol(targetParent, segment.name, params, position(segment.start, segment.end),
-						null, target.isSimple() && isLocal(parent, exported, false)));
+						scope(segment.start, end), target.isSimple() && isLocal(parent, exported, false)));
 				return;
 			}
 			VariableSymbol variable = new VariableSymbol(targetParent, segment.name, target.isSimple()? "variable": "property",
@@ -390,8 +399,10 @@ public class TypescriptExtractor extends AbstractSymbolExtractor<TypeScriptSymbo
 			symbols.add(variable);
 			if (valueStart < end && code.charAt(valueStart) == '{') {
 				int objEnd = findMatching(valueStart, end, '{', '}');
-				if (objEnd != -1)
+				if (objEnd != -1) {
+					variable.setScope(position(segment.start, objEnd+1));
 					scanObjectMembers(valueStart+1, objEnd, variable);
+				}
 			}
 		}
 
@@ -490,8 +501,10 @@ public class TypescriptExtractor extends AbstractSymbolExtractor<TypeScriptSymbo
 				int valueStart = skipWhitespace(afterName+1, end);
 				if (valueStart < end && code.charAt(valueStart) == '{') {
 					int objEnd = findMatching(valueStart, end, '{', '}');
-					if (objEnd != -1)
+					if (objEnd != -1) {
+						parent.setScope(position(valueStart, objEnd+1));
 						scanObjectMembers(valueStart+1, objEnd, parent);
+					}
 				}
 			}
 		}
@@ -569,13 +582,16 @@ public class TypescriptExtractor extends AbstractSymbolExtractor<TypeScriptSymbo
 			if (afterKey < end && code.charAt(afterKey) == '(') {
 				int paramsEnd = findMatching(afterKey, end, '(', ')');
 				String params = paramsEnd != -1? source.substring(afterKey, paramsEnd+1): "()";
-				symbols.add(new FunctionSymbol(parent, name, params, position(keyStart, nameEnd), null, false));
+				var symbol = new FunctionSymbol(parent, name, params, position(keyStart, nameEnd), null, false);
+				symbols.add(symbol);
 				if (paramsEnd != -1) {
 					int bodyStart = findNextTopLevel(paramsEnd+1, end, '{', ',');
 					if (bodyStart < end && code.charAt(bodyStart) == '{') {
 						int bodyEnd = findMatching(bodyStart, end, '{', '}');
-						if (bodyEnd != -1)
+						if (bodyEnd != -1) {
+							symbol.setScope(position(keyStart, bodyEnd+1));
 							return skipObjectValue(bodyEnd+1, end);
+						}
 					}
 				}
 				return skipObjectValue(afterKey, end);
@@ -586,7 +602,7 @@ public class TypescriptExtractor extends AbstractSymbolExtractor<TypeScriptSymbo
 					int objEnd = findMatching(valueStart, end, '{', '}');
 					if (objEnd != -1) {
 						VariableSymbol variable = new VariableSymbol(parent, name, "property",
-								position(keyStart, nameEnd), null, false);
+								position(keyStart, nameEnd), position(keyStart, objEnd+1), false);
 						symbols.add(variable);
 						scanObjectMembers(valueStart+1, objEnd, variable);
 						return objEnd+1;
@@ -594,8 +610,10 @@ public class TypescriptExtractor extends AbstractSymbolExtractor<TypeScriptSymbo
 				}
 				String params = functionValueParams(valueStart, end);
 				if (params != null) {
-					symbols.add(new FunctionSymbol(parent, name, params, position(keyStart, nameEnd), null, false));
-					return skipObjectValue(valueStart, end);
+					int valueEnd = skipObjectValue(valueStart, end);
+					symbols.add(new FunctionSymbol(parent, name, params, position(keyStart, nameEnd),
+							scope(keyStart, valueEnd), false));
+					return valueEnd;
 				}
 				symbols.add(new VariableSymbol(parent, name, "property", position(keyStart, nameEnd), null, false));
 				return skipObjectValue(afterKey, end);
@@ -687,14 +705,21 @@ public class TypescriptExtractor extends AbstractSymbolExtractor<TypeScriptSymbo
 					if (afterName < end && code.charAt(afterName) == '(') {
 						int paramsEnd = findMatching(afterName, end, '(', ')');
 						String params = paramsEnd!=-1? source.substring(afterName, paramsEnd+1): "";
-						symbols.add(new FunctionSymbol(parent, name, params, position(index, nameEnd), null, local));
-						index = skipMemberTail(afterName, end)-1;
+						int memberEnd = skipMemberTail(afterName, end);
+						symbols.add(new FunctionSymbol(parent, name, params, position(index, nameEnd), scope(index, memberEnd), local));
+						index = memberEnd-1;
 					} else if (accessor) {
 						symbols.add(new FunctionSymbol(parent, name, "()", position(index, nameEnd), null, local));
 						index = skipMemberTail(nameEnd, end)-1;
 					} else if (!isControlWord(name)) {
-						symbols.add(new VariableSymbol(parent, name, "property", position(index, nameEnd), null, local));
-						index = skipMemberTail(nameEnd, end)-1;
+						int memberEnd = skipMemberTail(nameEnd, end);
+						VariableSymbol symbol = new VariableSymbol(parent, name, "property", position(index, nameEnd), null, local);
+						symbols.add(symbol);
+						scanObjectInitializer(nameEnd, memberEnd, symbol);
+						int eq = findNextTopLevel(nameEnd, memberEnd, '=', ';');
+						if (eq < memberEnd && functionValueParams(skipWhitespace(eq+1, memberEnd), memberEnd) != null)
+							symbol.setScope(scope(index, memberEnd));
+						index = memberEnd-1;
 					}
 				}
 			}
@@ -958,6 +983,12 @@ public class TypescriptExtractor extends AbstractSymbolExtractor<TypeScriptSymbo
 
 		private boolean isIdentifierPart(char ch) {
 			return isIdentifierStart(ch) || Character.isDigit(ch);
+		}
+
+		private PlanarRange scope(int start, int end) {
+			while (end > start+1 && Character.isWhitespace(source.charAt(end-1)))
+				end--;
+			return position(start, end);
 		}
 
 		private PlanarRange position(int start, int end) {

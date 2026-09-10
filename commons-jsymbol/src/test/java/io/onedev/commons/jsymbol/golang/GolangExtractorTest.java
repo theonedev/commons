@@ -19,6 +19,11 @@ import io.onedev.commons.jsymbol.golang.symbols.VariableSymbol;
 public class GolangExtractorTest extends DescriptableExtractorTest<GolangSymbol> {
 
 	@Test
+	public void testRanges() {
+		verifyRanges(new GolangExtractor(), "ranges.go");
+	}
+
+	@Test
 	public void test() throws IOException {
 		var symbols = new GolangExtractor().extract(null, readFile("test.source"));
 		List<String> lines = new ArrayList<>();

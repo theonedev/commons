@@ -15,6 +15,11 @@ import io.onedev.commons.jsymbol.python.symbols.VariableSymbol;
 public class PythonExtractorTest extends DescriptableExtractorTest<PythonSymbol> {
 
 	@Test
+	public void testRanges() {
+		verifyRanges(new PythonExtractor(), "ranges.py");
+	}
+
+	@Test
 	public void testMethod() {
 		verify(readFile("method.outline"), new PythonExtractor().extract(null, readFile("method.source")));
 	}

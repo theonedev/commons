@@ -150,11 +150,11 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
 	       	        if(macrodef.contains("(") && macrodef.contains(")")){
 	       	        	SpecialFunctionSymbol function = new SpecialFunctionSymbol(fileSymbol,
 	       	        			macrodef.substring(0,macrodef.indexOf("(")), isLocal, false,
-	       	        			macrodef.substring(macrodef.indexOf("(")+1, macrodef.indexOf(")")), token, null, Modifier.MACRO);
+					macrodef.substring(macrodef.indexOf("(")+1, macrodef.indexOf(")")), token, getScope(def, strLineLength), Modifier.MACRO);
 	       	            symbols.add(function);
 	       	        }
 	       	        else{
-	       	            macro = new MacroSymbol(fileSymbol, macrodef, isLocal, token, Modifier.NORMAL);
+					macro = new MacroSymbol(fileSymbol, macrodef, isLocal, token, getScope(def, strLineLength), Modifier.NORMAL);
 	       	            symbols.add(macro);
 	       	        }
 	            }
@@ -490,7 +490,8 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
     	    	    	}
     	    	    	if(isTypedef && 2 <= node.length){
     	    	    		token = getPosition(node[1],strLineLength);
-    	    	    		tsymbol = new TypedefSymbol(fileSymbol, node[1].getRawSignature(), isLocal, type, token,getModifier(visibility), isTemp);
+					tsymbol = new TypedefSymbol(fileSymbol, node[1].getRawSignature(), isLocal, type, token,
+							getScope(enumnode, strLineLength), getModifier(visibility), isTemp);
     	    	    	    typeSymbols.add(tsymbol);
     	    	    	}
     				}
@@ -983,7 +984,8 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
     					if(isTypedef && node.length >= 2){
     						tname = node[1].getRawSignature();
     						token = getPosition(node[1], strLineLength);
-        					tsymbol = new TypedefSymbol(fileSymbol, tname, isLocal, type, token, modifier, isTemp);
+					tsymbol = new TypedefSymbol(fileSymbol, tname, isLocal, type, token,
+							getScope(structnode, strLineLength), modifier, isTemp);
         					typesymbols.add(tsymbol);
         				}
 	    				if(judge == 0){
@@ -1257,7 +1259,7 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
             String name = conceptMatcher.group(1);
             boolean isLocal = isModernLocal(parentSymbol, declaration, isPrivate);
             symbols.add(new ConceptSymbol(parentSymbol, name, isLocal,
-                    getPosition(node, signature.indexOf(name), name.length(), strLineLength)));
+                    getPosition(node, signature.indexOf(name), name.length(), strLineLength), getScope(node, strLineLength)));
             return;
         }
 
@@ -1675,7 +1677,7 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
     }
 	@Override
 	public int getVersion() {
-		return 3;
+		return 4;
 	}
 	/*
 	 * getVisivility method will be used for judging visibility of class.

@@ -1,0 +1,11 @@
+// Unicode 🙂 and misleading braces }.
+[[s:Example]]class [[p:Example]]Example[[/p:Example]] {
+	var [[s:value]][[p:value]]value[[/p:value]]: Int {
+		get { return 1 }
+	}[[/s:value]]
+	[[s:first]]func [[p:first]]first[[/p:first]](
+		value: Int)
+	{
+		if value > 0 { print("}") }
+	}[[/s:first]] /* 🙂 */ [[s:second]]func [[p:second]]second[[/p:second]]() {}[[/s:second]]
+}[[/s:Example]]

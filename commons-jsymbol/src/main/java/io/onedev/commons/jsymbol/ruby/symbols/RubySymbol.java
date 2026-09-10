@@ -15,7 +15,7 @@ public abstract class RubySymbol extends Symbol {
 
 	private final PlanarRange position;
 
-	private final PlanarRange scope;
+	private PlanarRange scope;
 
 	public RubySymbol(@Nullable RubySymbol parent, String name, @Nullable PlanarRange position,
 			@Nullable PlanarRange scope) {
@@ -43,6 +43,10 @@ public abstract class RubySymbol extends Symbol {
 	@Override
 	public PlanarRange getScope() {
 		return scope;
+	}
+
+	public void setScope(PlanarRange scope) {
+		this.scope = scope;
 	}
 
 	@Override

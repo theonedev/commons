@@ -45,7 +45,7 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 
 	@Override
 	public int getVersion() {
-		return 4;
+		return 5;
 	}
 
 	private String preprocess(String source) {
@@ -237,9 +237,10 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 			int nameEnd = nameStart;
 			while (nameEnd < end && !is(nameEnd, "{") && !is(nameEnd, ";"))
 				nameEnd++;
-			CSharpSymbol namespaceParent = extractNamespaceNames(nameStart, nameEnd, range(index, nameEnd), parentSymbol);
+			int scopeEnd = nameEnd < end && is(nameEnd, "{")? matching(nameEnd, end)+1: end;
+			CSharpSymbol namespaceParent = extractNamespaceNames(nameStart, nameEnd, range(index, scopeEnd), parentSymbol);
 			if (nameEnd < end && is(nameEnd, "{")) {
-				int close = matching(nameEnd, end);
+				int close = scopeEnd-1;
 				parseCompilationUnit(nameEnd+1, close, namespaceParent);
 				return close + 1;
 			} else {
@@ -397,7 +398,7 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 				int name = nextIdentifier(index+1, end);
 				if (name != -1)
 					symbols.add(new MethodSymbol(parentSymbol, MethodSymbol.Kind.NORMAL_METHOD, "~" + typeName,
-							range(name, name+1), range(index, end), null, null, null, null, modifiers));
+							range(name, name+1), memberScope(index, end), null, null, null, null, modifiers));
 			} else if (is(index, "delegate")) {
 				parseDelegate(index, end, start, parentSymbol, modifiers);
 			} else if (is(index, "event")) {
@@ -422,7 +423,7 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 			String type = join(index+1, name) + "(...)";
 			if (findTopLevel(index, end, "{") != -1) {
 				symbols.add(new FieldSymbol(parentSymbol, FieldSymbol.Kind.EVENT, text(name), range(name, name+1),
-						range(index, end), type, null, modifiers));
+						memberScope(index, end), type, null, modifiers));
 			} else {
 				int typeEnd = name;
 				for (int i=name; i<=end; i++) {
@@ -468,7 +469,7 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 			String prefix = text(index) + " operator";
 			QualifiedName name = new QualifiedName(join(operator+1, open), null, null);
 			symbols.add(new MethodSymbol(parentSymbol, MethodSymbol.Kind.OPERATOR, name, range(operator+1, open),
-					range(index, end), null, null, singleParamType(open+1, close), prefix, modifiers));
+					memberScope(index, end), null, null, singleParamType(open+1, close), prefix, modifiers));
 		}
 
 		private void parseOperator(int index, int end, int operator, CSharpSymbol parentSymbol,
@@ -478,7 +479,7 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 				return;
 			int close = matching(open, end);
 			symbols.add(new MethodSymbol(parentSymbol, MethodSymbol.Kind.OPERATOR, join(operator+1, open),
-					range(operator+1, open), range(index, end), null, join(index, operator),
+					range(operator+1, open), memberScope(index, end), null, join(index, operator),
 					methodParams(open+1, close), "operator", modifiers));
 		}
 
@@ -498,14 +499,14 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 				int close = matching(open, end);
 				if (text(name).equals(typeName) && join(index, name).length() == 0) {
 					symbols.add(new MethodSymbol(parentSymbol, MethodSymbol.Kind.NORMAL_METHOD, text(name),
-							range(name, name+1), range(index, end), null, null, methodParams(open+1, close),
+							range(name, name+1), memberScope(index, end), null, null, methodParams(open+1, close),
 							null, modifiers));
 				} else {
 					int nameStart = explicitMethodNameStart(index, name);
 					String returnType = join(index, nameStart);
 					QualifiedName methodName = new QualifiedName(join(nameStart, name+1), "~", "::", ".");
 					symbols.add(new MethodSymbol(parentSymbol, MethodSymbol.Kind.NORMAL_METHOD, methodName,
-							range(name, name+1), range(index, end), typeParameters(name+1, open),
+							range(name, name+1), memberScope(index, end), typeParameters(name+1, open),
 							returnType.length()!=0? normalizeReturnType(returnType): "void",
 							methodParams(open+1, close), null, modifiers));
 				}
@@ -525,13 +526,13 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 						params = "[" + methodParams(bracket+1, close) + "]";
 					}
 					symbols.add(new FieldSymbol(parentSymbol, FieldSymbol.Kind.PROPERTY, propertyName,
-							range(thisIndex, thisIndex+1), range(index, end), join(index, typeEnd), params, modifiers));
+							range(thisIndex, thisIndex+1), memberScope(index, end), join(index, typeEnd), params, modifiers));
 				} else {
 					int name = previousIdentifier(marker-1, index-1);
 					if (name != -1) {
 						int nameStart = explicitMethodNameStart(index, name);
 						symbols.add(new FieldSymbol(parentSymbol, FieldSymbol.Kind.PROPERTY, join(nameStart, name+1),
-								range(name, name+1), range(index, end), join(index, nameStart), null, modifiers));
+								range(name, name+1), memberScope(index, end), join(index, nameStart), null, modifiers));
 					}
 				}
 			} else {
@@ -586,6 +587,11 @@ public class CSharpExtractor extends AbstractSymbolExtractor<CSharpSymbol> {
 				return returnType.substring("ref".length());
 			else
 				return returnType;
+		}
+
+		private PlanarRange memberScope(int start, int end) {
+			// findMemberEnd returns the closing token itself; range takes an exclusive end.
+			return range(start, end < tokens.size()? end+1: end);
 		}
 
 		private int findMemberEnd(int index, int end) {

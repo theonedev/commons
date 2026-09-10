@@ -1,0 +1,14 @@
+// Unicode 🙂 and misleading braces }.
+package example
+
+type [[s:Example]][[p:Example]]Example[[/p:Example]] struct {
+	[[s:Nested]][[p:Nested]]Nested[[/p:Nested]] struct {
+		Value int
+	}[[/s:Nested]]
+}[[/s:Example]]
+[[s:first]]func [[p:first]]first[[/p:first]](
+	value int,
+) {
+	if value > 0 { println("}") }
+}[[/s:first]]
+[[s:second]]func [[p:second]]second[[/p:second]]() {}[[/s:second]]

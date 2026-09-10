@@ -1,0 +1,11 @@
+// Unicode 🙂 before declarations, with a misleading }.
+[[s:Example]]class [[p:Example]]Example[[/p:Example]] {
+	[[s:first]]void [[p:first]]first[[/p:first]](
+		String value) {
+		if (value != null) { System.out.println("}"); }
+	}[[/s:first]] /* 🙂 */ [[s:second]]void [[p:second]]second[[/p:second]]() {}[[/s:second]]
+
+	[[s:Nested]]class [[p:Nested]]Nested[[/p:Nested]] {
+		[[s:third]]int [[p:third]]third[[/p:third]]() { return 3; }[[/s:third]]
+	}[[/s:Nested]]
+}[[/s:Example]]

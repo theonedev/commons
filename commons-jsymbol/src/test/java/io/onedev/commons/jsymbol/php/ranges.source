@@ -1,0 +1,8 @@
+<?php
+// Unicode 🙂 and misleading braces }.
+[[s:Example]]namespace [[p:Example]]Example[[/p:Example]] {
+	[[s:Worker]]class [[p:Worker]]Worker[[/p:Worker]] {
+		[[s:first]]function [[p:first]]first[[/p:first]](
+			$value) { if ($value) { echo "}"; } }[[/s:first]] /* 🙂 */ [[s:second]]function [[p:second]]second[[/p:second]]() {}[[/s:second]]
+	}[[/s:Worker]]
+}[[/s:Example]]

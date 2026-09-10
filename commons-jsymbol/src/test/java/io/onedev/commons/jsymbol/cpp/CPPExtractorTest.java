@@ -25,6 +25,12 @@ import io.onedev.commons.jsymbol.cpp.symbols.UnionSymbol;
 import io.onedev.commons.jsymbol.cpp.symbols.VariableSymbol;
 
 public class CPPExtractorTest extends DescriptableExtractorTest<CppSymbol> {
+
+	@Test
+	public void testRanges() {
+		for (String extension : new String[] { "c", "cpp", "h", "hpp" })
+			verifyRanges(new CppExtractor(), "ranges." + extension);
+	}
  
 	@Test
 	public void testAnonymous(){

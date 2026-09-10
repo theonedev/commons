@@ -17,6 +17,11 @@ import io.onedev.commons.jsymbol.csharp.symbols.TypeSymbol;
 public class CSharpExtractorTest extends DescriptableExtractorTest<CSharpSymbol> {
 
 	@Test
+	public void testRanges() {
+		verifyRanges(new CSharpExtractor(), "ranges.cs");
+	}
+
+	@Test
 	public void testNamespace() {
 		verify(readFile("namespace.outline"), new CSharpExtractor().extract(null, readFile("namespace.source")));
 	}

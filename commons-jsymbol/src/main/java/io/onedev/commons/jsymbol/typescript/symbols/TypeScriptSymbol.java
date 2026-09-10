@@ -15,7 +15,7 @@ public abstract class TypeScriptSymbol extends Symbol {
 	
 	private final PlanarRange position;
 	
-	private final PlanarRange scope;
+	private PlanarRange scope;
 	
 	private final boolean local;
 
@@ -52,6 +52,10 @@ public abstract class TypeScriptSymbol extends Symbol {
 	@Override
 	public PlanarRange getScope() {
 		return scope;
+	}
+
+	public void setScope(PlanarRange scope) {
+		this.scope = scope;
 	}
 
 	@Override
