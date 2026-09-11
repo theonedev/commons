@@ -7,13 +7,13 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.eclipse.cdt.core.dom.ICodeReaderFactory;
 import org.eclipse.cdt.core.dom.ast.IASTNode;
 import org.eclipse.cdt.core.dom.ast.IASTPreprocessorMacroDefinition;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 import org.eclipse.cdt.core.dom.ast.gnu.cpp.GPPLanguage;
-import org.eclipse.cdt.core.parser.CodeReader;
+import org.eclipse.cdt.core.index.IIndexFileLocation;
 import org.eclipse.cdt.core.parser.DefaultLogService;
+import org.eclipse.cdt.core.parser.FileContent;
 import org.eclipse.cdt.core.parser.IParserLogService;
 import org.eclipse.cdt.core.parser.IScannerInfo;
 import org.eclipse.cdt.core.parser.ScannerInfo;
@@ -48,6 +48,9 @@ import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPASTTemplateSpecialization
 import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPASTUsingDeclaration;
 import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPASTUsingDirective;
 import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPASTVisibilityLabel;
+import org.eclipse.cdt.internal.core.parser.IMacroDictionary;
+import org.eclipse.cdt.internal.core.parser.scanner.InternalFileContent;
+import org.eclipse.cdt.internal.core.parser.scanner.InternalFileContentProvider;
 import org.eclipse.core.runtime.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,9 +81,7 @@ import io.onedev.commons.jsymbol.cpp.symbols.CppSymbol.Modifier;
  * definition will be extracted at first.In addition,class,struct,union,namespace,enum and template will also be
  * extracted.What's more,some CPP14 characters are also be extracted,like atuo and constexpr.
  *
- * @Author: Yan
  */
-@SuppressWarnings("deprecation")
 public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
 
 	private static final Logger logger = LoggerFactory.getLogger(CppExtractor.class);
@@ -113,11 +114,29 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
 		    IParserLogService log = new DefaultLogService();
 			int opts = GPPLanguage.OPTION_PARSE_INACTIVE_CODE;
 		    opts += GPPLanguage.OPTION_SKIP_FUNCTION_BODIES;
-			ICodeReaderFactory codeReaderFactory = null;
+			// CDT's empty-files provider still probes the filesystem, and UNC includes
+			// require Eclipse services unavailable in this standalone parser. Symbols
+			// are extracted from this blob only, so do not resolve includes at all.
+			var includeProvider = new InternalFileContentProvider() {
+				@Override
+				public boolean getInclusionExists(String path) {
+					return false;
+				}
+
+				@Override
+				public InternalFileContent getContentForInclusion(String path, IMacroDictionary macroDictionary) {
+					return null;
+				}
+
+				@Override
+				public InternalFileContent getContentForInclusion(IIndexFileLocation location, String astPath) {
+					return null;
+				}
+			};
 			IASTTranslationUnit translationUnit;
 			try {
-				CodeReader reader = new CodeReader("",fileContent.toCharArray());
-				translationUnit = GPPLanguage.getDefault().getASTTranslationUnit(reader,info, codeReaderFactory, null, opts, log);
+				FileContent content = FileContent.create("", fileContent.toCharArray());
+				translationUnit = GPPLanguage.getDefault().getASTTranslationUnit(content, info, includeProvider, null, opts, log);
 		        IASTPreprocessorMacroDefinition[] definition = translationUnit.getMacroDefinitions();
 	            String macrodef = "";
 	            MacroSymbol macro = null;
@@ -1677,7 +1696,7 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
     }
 	@Override
 	public int getVersion() {
-		return 4;
+		return 5;
 	}
 	/*
 	 * getVisivility method will be used for judging visibility of class.
