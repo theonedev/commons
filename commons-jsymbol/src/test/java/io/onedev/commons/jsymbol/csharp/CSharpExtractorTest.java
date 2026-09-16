@@ -3,8 +3,8 @@ package io.onedev.commons.jsymbol.csharp;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import io.onedev.commons.jsymbol.DescriptableExtractorTest;
 import io.onedev.commons.jsymbol.csharp.symbols.CSharpSymbol;
@@ -47,7 +47,7 @@ public class CSharpExtractorTest extends DescriptableExtractorTest<CSharpSymbol>
 				break;
 			}
 		}
-		Assert.assertTrue(found);
+		Assertions.assertTrue(found);
 	}
 	
 	@Test

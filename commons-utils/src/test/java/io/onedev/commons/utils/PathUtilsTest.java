@@ -4,12 +4,12 @@ import static io.onedev.commons.utils.PathUtils.matchLongest;
 import static io.onedev.commons.utils.PathUtils.matchSegments;
 import static io.onedev.commons.utils.PathUtils.parseRelative;
 import static io.onedev.commons.utils.PathUtils.resolveSibling;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.Collection;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Lists;
 

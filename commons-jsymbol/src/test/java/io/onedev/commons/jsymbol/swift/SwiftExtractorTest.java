@@ -3,8 +3,8 @@ package io.onedev.commons.jsymbol.swift;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import io.onedev.commons.jsymbol.DescriptableExtractorTest;
 import io.onedev.commons.jsymbol.SymbolExtractorRegistry;
@@ -32,7 +32,7 @@ public class SwiftExtractorTest extends DescriptableExtractorTest<SwiftSymbol> {
 
 	@Test
 	public void testRegistry() {
-		Assert.assertEquals(SwiftExtractor.class, SymbolExtractorRegistry.getExtractor("test.swift").getClass());
+		Assertions.assertEquals(SwiftExtractor.class, SymbolExtractorRegistry.getExtractor("test.swift").getClass());
 	}
 
 	@Override

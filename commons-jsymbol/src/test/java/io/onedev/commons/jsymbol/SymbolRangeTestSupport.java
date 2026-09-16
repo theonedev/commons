@@ -1,6 +1,6 @@
 package io.onedev.commons.jsymbol;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,7 +24,7 @@ public final class SymbolRangeTestSupport {
 	}
 
 	public static void verify(SymbolExtractor<?> extractor, String fileName, String fixture) {
-		assertFalse("Use LF in annotated fixtures", fixture.contains("\r"));
+		assertFalse(fixture.contains("\r"), "Use LF in annotated fixtures");
 		String trimmed = fixture.endsWith("\n")? fixture.substring(0, fixture.length()-1): fixture;
 		for (String newline : new String[] { "\n", "\r\n" }) {
 			for (String prefix : new String[] { "", "\n\n" }) {
@@ -48,11 +48,11 @@ public final class SymbolRangeTestSupport {
 			source.append(fixture, offset, matcher.start());
 			String key = matcher.group(2) + ":" + matcher.group(3);
 			if (matcher.group(1).isEmpty()) {
-				assertFalse("Duplicate marker " + key, expected.containsKey(key));
-				assertNull("Duplicate opening marker " + key, starts.put(key, source.length()));
+				assertFalse(expected.containsKey(key), "Duplicate marker " + key);
+				assertNull(starts.put(key, source.length()), "Duplicate opening marker " + key);
 			} else {
 				Integer start = starts.remove(key);
-				assertNotNull("Unmatched closing marker " + key, start);
+				assertNotNull(start, "Unmatched closing marker " + key);
 				int[] from = coordinates(source, start);
 				int[] to = coordinates(source, source.length());
 				expected.put(key, new PlanarRange(from[0], from[1], to[0], to[1]));
@@ -60,21 +60,21 @@ public final class SymbolRangeTestSupport {
 			offset = matcher.end();
 		}
 		source.append(fixture, offset, fixture.length());
-		assertTrue("Unclosed markers " + starts.keySet(), starts.isEmpty());
-		assertFalse("Fixture must assert some ranges", expected.isEmpty());
+		assertTrue(starts.isEmpty(), "Unclosed markers " + starts.keySet());
+		assertFalse(expected.isEmpty(), "Fixture must assert some ranges");
 		List<? extends Symbol> symbols = extractor.extract(fileName, source.toString());
 		for (Map.Entry<String, PlanarRange> entry : expected.entrySet()) {
 			String name = entry.getKey().substring(2);
 			if (entry.getKey().startsWith("s:")) {
-				assertTrue("Missing position marker for " + name, expected.containsKey("p:" + name));
+				assertTrue(expected.containsKey("p:" + name), "Missing position marker for " + name);
 				continue;
 			}
 			List<? extends Symbol> matches = symbols.stream().filter(it -> name.equals(it.getName()))
 					.collect(java.util.stream.Collectors.toList());
-			assertEquals(context + ": symbol " + name, 1, matches.size());
+			assertEquals(1, matches.size(), context + ": symbol " + name);
 			Symbol symbol = matches.get(0);
-			assertEquals(context + ": position of " + name, entry.getValue(), symbol.getPosition());
-			assertEquals(context + ": scope of " + name, expected.get("s:" + name), symbol.getScope());
+			assertEquals(entry.getValue(), symbol.getPosition(), context + ": position of " + name);
+			assertEquals(expected.get("s:" + name), symbol.getScope(), context + ": scope of " + name);
 		}
 	}
 

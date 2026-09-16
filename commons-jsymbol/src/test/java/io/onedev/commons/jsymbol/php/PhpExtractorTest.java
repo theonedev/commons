@@ -3,7 +3,7 @@ package io.onedev.commons.jsymbol.php;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.onedev.commons.jsymbol.DescriptableExtractorTest;
 import io.onedev.commons.jsymbol.php.symbols.ConstantSymbol;

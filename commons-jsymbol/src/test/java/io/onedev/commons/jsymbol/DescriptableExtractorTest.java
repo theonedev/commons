@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -41,7 +41,7 @@ public abstract class DescriptableExtractorTest<T extends Symbol> {
 				lines.addAll(describe(symbols, symbol));
 		}
 		
-		Assert.assertEquals(Joiner.on("\n").join(expected), Joiner.on("\n").join(lines));
+		Assertions.assertEquals(Joiner.on("\n").join(expected), Joiner.on("\n").join(lines));
 	}
 
 	protected List<String> readFile(String fileName) {

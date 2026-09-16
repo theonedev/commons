@@ -3,7 +3,7 @@ package io.onedev.commons.jsymbol.java;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.github.javaparser.ast.Modifier.Keyword;
 

@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.base.Joiner;
 
@@ -31,7 +31,7 @@ public class GolangExtractorTest extends DescriptableExtractorTest<GolangSymbol>
 			if (symbol.getParent() == null)
 				lines.addAll(describe(symbols, symbol));
 		}
-		Assert.assertEquals(
+		Assertions.assertEquals(
 			Joiner.on("\n").join(readFile("test.outline")), 
 			Joiner.on("\n").join(lines));
 		
@@ -41,7 +41,7 @@ public class GolangExtractorTest extends DescriptableExtractorTest<GolangSymbol>
 			if (symbol.getParent() == null)
 				lines.addAll(describe(symbols, symbol));
 		}
-		Assert.assertEquals(
+		Assertions.assertEquals(
 			Joiner.on("\n").join(readFile("test2.outline")), 
 			Joiner.on("\n").join(lines));
 	}

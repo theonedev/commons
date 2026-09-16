@@ -1,9 +1,9 @@
 package io.onedev.commons.utils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import static org.apache.commons.compress.archivers.tar.TarConstants.LF_SYMLINK;
 
@@ -21,7 +21,7 @@ import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TarUtilsTest {
 
@@ -60,23 +60,23 @@ public class TarUtilsTest {
 
 			// Verify the file with backslash in name exists and has correct content
 			File extractedFileWithBackslash = new File(destDir, "str\\escape.txt");
-			assertTrue("File with backslash in name should exist", extractedFileWithBackslash.exists());
-			assertTrue("Should be a file, not a directory", extractedFileWithBackslash.isFile());
+			assertTrue(extractedFileWithBackslash.exists(), "File with backslash in name should exist");
+			assertTrue(extractedFileWithBackslash.isFile(), "Should be a file, not a directory");
 			assertEquals("test content", Files.readString(extractedFileWithBackslash.toPath(), StandardCharsets.UTF_8));
 
 			// Verify the normal file
 			File extractedNormalFile = new File(destDir, "normal.txt");
-			assertTrue("Normal file should exist", extractedNormalFile.exists());
+			assertTrue(extractedNormalFile.exists(), "Normal file should exist");
 			assertEquals("normal content", Files.readString(extractedNormalFile.toPath(), StandardCharsets.UTF_8));
 
 			// Verify the subdirectory file
 			File extractedSubFile = new File(destDir, "subdir/subfile.txt");
-			assertTrue("Subdirectory file should exist", extractedSubFile.exists());
+			assertTrue(extractedSubFile.exists(), "Subdirectory file should exist");
 			assertEquals("sub content", Files.readString(extractedSubFile.toPath(), StandardCharsets.UTF_8));
 
 			// Verify that no spurious "str" directory was created
 			File spuriousDir = new File(destDir, "str");
-			assertTrue("No spurious 'str' directory should be created", !spuriousDir.exists());
+			assertTrue(!spuriousDir.exists(), "No spurious 'str' directory should be created");
 
 		} finally {
 			// Clean up
@@ -114,7 +114,7 @@ public class TarUtilsTest {
 
 			// Verify the file with backslash in name exists
 			File extractedFileWithBackslash = new File(destDir, "test\\file.txt");
-			assertTrue("File with backslash should exist", extractedFileWithBackslash.exists());
+			assertTrue(extractedFileWithBackslash.exists(), "File with backslash should exist");
 			assertEquals("backslash content", Files.readString(extractedFileWithBackslash.toPath(), StandardCharsets.UTF_8));
 
 		} finally {
@@ -151,11 +151,11 @@ public class TarUtilsTest {
 			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
 			TarUtils.untar(bais, destDir, true);
 
-			assertTrue("Unmatched file should exist", new File(destDir, "keep.txt").exists());
-			assertTrue("Unmatched nested file should exist", new File(destDir, "nested/keep.txt").exists());
-			assertFalse("Matched file should be excluded", new File(destDir, "ignored.log").exists());
-			assertFalse("Matched directory children should be excluded", new File(destDir, "ignored-dir").exists());
-			assertFalse("Matched directory children should be excluded", new File(destDir, "ignored-dir/child.txt").exists());
+			assertTrue(new File(destDir, "keep.txt").exists(), "Unmatched file should exist");
+			assertTrue(new File(destDir, "nested/keep.txt").exists(), "Unmatched nested file should exist");
+			assertFalse(new File(destDir, "ignored.log").exists(), "Matched file should be excluded");
+			assertFalse(new File(destDir, "ignored-dir").exists(), "Matched directory children should be excluded");
+			assertFalse(new File(destDir, "ignored-dir/child.txt").exists(), "Matched directory children should be excluded");
 		} finally {
 			FileUtils.deleteDir(sourceDir);
 			FileUtils.deleteDir(destDir);
@@ -192,18 +192,18 @@ public class TarUtilsTest {
 			TarUtils.untar(bais, destDir, true);
 
 			File extractedTarget = new File(destDir, "target.txt");
-			assertTrue("Target file should exist", extractedTarget.exists());
+			assertTrue(extractedTarget.exists(), "Target file should exist");
 			assertEquals("target content", Files.readString(extractedTarget.toPath(), StandardCharsets.UTF_8));
 
 			Path extractedSymlink = new File(destDir, "link.txt").toPath();
-			assertTrue("Symbolic link should exist", Files.exists(extractedSymlink, LinkOption.NOFOLLOW_LINKS));
-			assertTrue("Should be a symbolic link", Files.isSymbolicLink(extractedSymlink));
+			assertTrue(Files.exists(extractedSymlink, LinkOption.NOFOLLOW_LINKS), "Symbolic link should exist");
+			assertTrue(Files.isSymbolicLink(extractedSymlink), "Should be a symbolic link");
 			assertEquals(Paths.get("target.txt"), Files.readSymbolicLink(extractedSymlink));
 			assertEquals("target content", Files.readString(extractedSymlink, StandardCharsets.UTF_8));
 
 			Path extractedRelativeSymlink = new File(destDir, "subdir/link-to-target.txt").toPath();
-			assertTrue("Relative symbolic link should exist", Files.exists(extractedRelativeSymlink, LinkOption.NOFOLLOW_LINKS));
-			assertTrue("Should be a symbolic link", Files.isSymbolicLink(extractedRelativeSymlink));
+			assertTrue(Files.exists(extractedRelativeSymlink, LinkOption.NOFOLLOW_LINKS), "Relative symbolic link should exist");
+			assertTrue(Files.isSymbolicLink(extractedRelativeSymlink), "Should be a symbolic link");
 			assertEquals(Paths.get("../target.txt"), Files.readSymbolicLink(extractedRelativeSymlink));
 			assertEquals("target content", Files.readString(extractedRelativeSymlink, StandardCharsets.UTF_8));
 
@@ -236,12 +236,11 @@ public class TarUtilsTest {
 				TarUtils.untar(bais, destDir, true);
 				fail("Expected an exception due to tar entry name escape");
 			} catch (ExplicitException e) {
-				assertTrue("Exception message should mention tar entry escape",
-						e.getMessage().contains("Tar entry escape"));
+				assertTrue(e.getMessage().contains("Tar entry escape"), "Exception message should mention tar entry escape");
 			}
 
 			File escapedFile = new File(destDir.getParentFile(), "escape.txt");
-			assertFalse("Escaping file should not be created", escapedFile.exists());
+			assertFalse(escapedFile.exists(), "Escaping file should not be created");
 
 		} finally {
 			FileUtils.deleteDir(destDir);
@@ -273,15 +272,12 @@ public class TarUtilsTest {
 				TarUtils.untar(bais, destDir, true);
 				fail("Expected an exception due to symbolic link escape");
 			} catch (ExplicitException e) {
-				assertTrue("Exception message should mention symbol link escape",
-						e.getMessage().contains("symbol link escape"));
-				assertTrue("Exception message should mention tar entry name",
-						e.getMessage().contains("escape.txt"));
+				assertTrue(e.getMessage().contains("symbol link escape"), "Exception message should mention symbol link escape");
+				assertTrue(e.getMessage().contains("escape.txt"), "Exception message should mention tar entry name");
 			}
 
 			File extractedSymlink = new File(destDir, "escape.txt");
-			assertFalse("Escaping symbolic link should not be created",
-					Files.exists(extractedSymlink.toPath(), LinkOption.NOFOLLOW_LINKS));
+			assertFalse(Files.exists(extractedSymlink.toPath(), LinkOption.NOFOLLOW_LINKS), "Escaping symbolic link should not be created");
 
 		} finally {
 			FileUtils.deleteDir(destDir);
@@ -326,11 +322,11 @@ public class TarUtilsTest {
 			TarUtils.untar(bais, destDir, true);
 
 			Path extractedAlias = new File(destDir, "alias").toPath();
-			assertTrue("Alias symlink should exist", Files.isSymbolicLink(extractedAlias));
+			assertTrue(Files.isSymbolicLink(extractedAlias), "Alias symlink should exist");
 			assertEquals(Paths.get("target.txt"), Files.readSymbolicLink(extractedAlias));
 
 			Path extractedChain = new File(destDir, "chain").toPath();
-			assertTrue("Chain symlink should exist", Files.isSymbolicLink(extractedChain));
+			assertTrue(Files.isSymbolicLink(extractedChain), "Chain symlink should exist");
 			assertEquals(Paths.get("alias"), Files.readSymbolicLink(extractedChain));
 
 			assertEquals("target content",
@@ -382,7 +378,7 @@ public class TarUtilsTest {
 			TarUtils.untar(bais, destDir, true);
 
 			Path extractedTop = new File(destDir, "payload").toPath();
-			assertTrue("Top symlink should exist", Files.isSymbolicLink(extractedTop));
+			assertTrue(Files.isSymbolicLink(extractedTop), "Top symlink should exist");
 			assertEquals("inside content",
 					Files.readString(extractedTop, StandardCharsets.UTF_8));
 		} finally {
@@ -421,14 +417,11 @@ public class TarUtilsTest {
 				TarUtils.untar(bais, destDir, true);
 				fail("Expected an exception due to symbolic link escape via existing symlink");
 			} catch (ExplicitException e) {
-				assertTrue("Exception message should mention resolves outside",
-						e.getMessage().contains("resolves outside"));
-				assertTrue("Exception message should mention tar entry name",
-						e.getMessage().contains("important"));
+				assertTrue(e.getMessage().contains("resolves outside"), "Exception message should mention resolves outside");
+				assertTrue(e.getMessage().contains("important"), "Exception message should mention tar entry name");
 			}
 
-			assertFalse("Escaping symlink should not be created",
-					Files.exists(new File(destDir, "important").toPath(), LinkOption.NOFOLLOW_LINKS));
+			assertFalse(Files.exists(new File(destDir, "important").toPath(), LinkOption.NOFOLLOW_LINKS), "Escaping symlink should not be created");
 		} finally {
 			FileUtils.deleteDir(destDir);
 			FileUtils.deleteDir(outsideDir);
@@ -464,8 +457,7 @@ public class TarUtilsTest {
 				TarUtils.untar(bais, destDir, true);
 				fail("Expected an exception due to symbolic link cycle");
 			} catch (ExplicitException e) {
-				assertTrue("Exception message should mention too many symbolic links",
-						e.getMessage().contains("Too many"));
+				assertTrue(e.getMessage().contains("Too many"), "Exception message should mention too many symbolic links");
 			}
 		} finally {
 			FileUtils.deleteDir(destDir);

@@ -3,8 +3,9 @@ package io.onedev.commons.jsymbol.cpp;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import io.onedev.commons.jsymbol.DescriptableExtractorTest;
 import io.onedev.commons.jsymbol.cpp.symbols.ClassSymbol;
@@ -27,7 +28,8 @@ import io.onedev.commons.jsymbol.cpp.symbols.VariableSymbol;
 
 public class CPPExtractorTest extends DescriptableExtractorTest<CppSymbol> {
 
-	@Test(timeout = 5000)
+	@Test
+	@Timeout(value = 5, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
 	public void testUncIncludes() {
 		// Reduced from Node.js deps/uv/src/unix/os390.c.
 		for (String directive : new String[] {
@@ -37,23 +39,24 @@ public class CPPExtractorTest extends DescriptableExtractorTest<CppSymbol> {
 				"#if defined(__clang__)\n#include \"csrsic.h\"\n#else\n"
 						+ "#include \"//'SYS1.SAMPLIB(CSRSIC)'\"\n#endif\n" }) {
 			var symbols = new CppExtractor().extract("os390.c", directive + "int after_include;\n");
-			Assert.assertTrue(symbols.stream().anyMatch(it -> it instanceof VariableSymbol
+			Assertions.assertTrue(symbols.stream().anyMatch(it -> it instanceof VariableSymbol
 					&& "after_include".equals(it.getName())));
 		}
 	}
 
-	@Test(timeout = 5000)
+	@Test
+	@Timeout(value = 5, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
 	public void testUncHasInclude() {
 		String source = "#if __has_include(\"//server/share/header.h\")\n"
 				+ "#define HEADER_AVAILABLE 1\n#else\n#define HEADER_UNAVAILABLE 1\n#endif\n"
 				+ "int after_include_check;\n";
 		var symbols = new CppExtractor().extract("test.cpp", source);
-		Assert.assertTrue(symbols.stream().anyMatch(it -> it instanceof MacroSymbol
+		Assertions.assertTrue(symbols.stream().anyMatch(it -> it instanceof MacroSymbol
 				&& "HEADER_UNAVAILABLE".equals(it.getName())));
 		// Inactive branches are indexed as well.
-		Assert.assertTrue(symbols.stream().anyMatch(it -> it instanceof MacroSymbol
+		Assertions.assertTrue(symbols.stream().anyMatch(it -> it instanceof MacroSymbol
 				&& "HEADER_AVAILABLE".equals(it.getName())));
-		Assert.assertTrue(symbols.stream().anyMatch(it -> it instanceof VariableSymbol
+		Assertions.assertTrue(symbols.stream().anyMatch(it -> it instanceof VariableSymbol
 				&& "after_include_check".equals(it.getName())));
 	}
 

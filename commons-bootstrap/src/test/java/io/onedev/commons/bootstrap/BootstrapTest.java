@@ -4,13 +4,13 @@ import static io.onedev.commons.bootstrap.Bootstrap.convertCidrToWildcards;
 import static io.onedev.commons.bootstrap.Bootstrap.convertCidrsInNonProxyHosts;
 import static io.onedev.commons.bootstrap.Bootstrap.convertNoProxyToNonProxyHosts;
 import static io.onedev.commons.bootstrap.Bootstrap.normalizeNonProxyHost;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class BootstrapTest {
 

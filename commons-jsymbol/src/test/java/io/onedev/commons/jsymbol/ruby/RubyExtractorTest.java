@@ -3,8 +3,8 @@ package io.onedev.commons.jsymbol.ruby;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import io.onedev.commons.jsymbol.DescriptableExtractorTest;
 import io.onedev.commons.jsymbol.SymbolExtractorRegistry;
@@ -28,9 +28,9 @@ public class RubyExtractorTest extends DescriptableExtractorTest<RubySymbol> {
 
 	@Test
 	public void testRegistry() {
-		Assert.assertEquals(RubyExtractor.class, SymbolExtractorRegistry.getExtractor("model.rb").getClass());
-		Assert.assertEquals(RubyExtractor.class, SymbolExtractorRegistry.getExtractor("Rakefile").getClass());
-		Assert.assertEquals(RubyExtractor.class, SymbolExtractorRegistry.getExtractor("demo.gemspec").getClass());
+		Assertions.assertEquals(RubyExtractor.class, SymbolExtractorRegistry.getExtractor("model.rb").getClass());
+		Assertions.assertEquals(RubyExtractor.class, SymbolExtractorRegistry.getExtractor("Rakefile").getClass());
+		Assertions.assertEquals(RubyExtractor.class, SymbolExtractorRegistry.getExtractor("demo.gemspec").getClass());
 	}
 
 	@Override

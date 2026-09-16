@@ -1,6 +1,6 @@
 package io.onedev.commons.jsymbol;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -9,19 +9,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Test;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.reflections.Reflections;
 
 import io.onedev.commons.utils.PlanarRange;
 
 /** Verifies scopes cover whole bodies and stop before neighboring declarations. */
-@RunWith(Parameterized.class)
 public class ExtractorScopeTest {
 
-	@Parameterized.Parameters(name = "{0}")
 	public static Collection<Object[]> fixtures() {
 		return Arrays.asList(new Object[][] {
 			{ "example.java", String.join("\n",
@@ -447,29 +444,21 @@ public class ExtractorScopeTest {
 		});
 	}
 
-	private final String fileName;
-	private final String source;
-	private final Object[][] expected;
-
-	public ExtractorScopeTest(String fileName, String source, Object[][] expected) {
-		this.fileName = fileName;
-		this.source = source;
-		this.expected = expected;
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("fixtures")
+	public void recordsEnclosingScopes(String fileName, String source, Object[][] expected) {
+		assertScopes(fileName, source, expected);
 	}
 
-	@Test
-	public void recordsEnclosingScopes() {
-		assertScopes(source);
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("fixtures")
+	public void recordsEnclosingScopesWithCrLf(String fileName, String source, Object[][] expected) {
+		assertScopes(fileName, source.replace("\n", "\r\n"), expected);
 	}
 
-	@Test
-	public void recordsEnclosingScopesWithCrLf() {
-		assertScopes(source.replace("\n", "\r\n"));
-	}
-
-	private void assertScopes(String source) {
+	private void assertScopes(String fileName, String source, Object[][] expected) {
 		SymbolExtractor<Symbol> extractor = SymbolExtractorRegistry.getExtractor(fileName);
-		assertNotNull(fileName, extractor);
+		assertNotNull(extractor, fileName);
 		List<Symbol> symbols = extractor.extract(fileName, source);
 		for (Object[] item : expected) {
 			String name = (String) item[0];
@@ -481,29 +470,29 @@ public class ExtractorScopeTest {
 					.findFirst().orElseThrow(() -> new AssertionError("Missing " + name + " at row " + from));
 			PlanarRange scope = symbol.getScope();
 			if (to == -1) {
-				assertNull(name, scope);
+				assertNull(scope, name);
 				continue;
 			}
-			assertNotNull(name, scope);
-			assertEquals(name, from, scope.getFromRow());
-			assertEquals(name, to, scope.getToRow());
-			assertTrue(name, scope.getToColumn() > 0);
+			assertNotNull(scope, name);
+			assertEquals(from, scope.getFromRow(), name);
+			assertEquals(to, scope.getToRow(), name);
+			assertTrue(scope.getToColumn() > 0, name);
 		}
 		String[] lines = source.split("\n", -1);
 		for (Symbol symbol : symbols) {
 			PlanarRange scope = symbol.getScope();
 			if (scope != null) {
-				assertTrue(symbol.getName(), scope.getFromRow() >= 0 && scope.getToRow() < lines.length);
-				assertTrue(symbol.getName(), scope.getFromRow() <= scope.getToRow());
-				assertTrue(symbol.getName(), scope.getFromColumn() >= 0
-						&& scope.getFromColumn() <= lines[scope.getFromRow()].length());
-				assertTrue(symbol.getName(), scope.getToColumn() >= 0
-						&& scope.getToColumn() <= lines[scope.getToRow()].length());
+				assertTrue(scope.getFromRow() >= 0 && scope.getToRow() < lines.length, symbol.getName());
+				assertTrue(scope.getFromRow() <= scope.getToRow(), symbol.getName());
+				assertTrue(scope.getFromColumn() >= 0
+						&& scope.getFromColumn() <= lines[scope.getFromRow()].length(), symbol.getName());
+				assertTrue(scope.getToColumn() >= 0
+						&& scope.getToColumn() <= lines[scope.getToRow()].length(), symbol.getName());
 			}
 		}
 	}
 
-	@BeforeClass
+	@BeforeAll
 	public static void coversEveryExtractor() {
 		Set<Class<?>> covered = new HashSet<>();
 		for (Object[] fixture : fixtures())
@@ -514,6 +503,6 @@ public class ExtractorScopeTest {
 			if (!Modifier.isAbstract(type.getModifiers()))
 				available.add(type);
 		}
-		assertEquals("Add scope fixtures for new extractors", available, covered);
+		assertEquals(available, covered, "Add scope fixtures for new extractors");
 	}
 }

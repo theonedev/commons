@@ -1,22 +1,22 @@
 package io.onedev.commons.utils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Properties;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class LoadPropsTest {
 
 	private File file;
 	
-	@Before
+	@BeforeEach
 	public void setup() {
 		try {
 			file = File.createTempFile("load", ".properties");
@@ -66,7 +66,7 @@ public class LoadPropsTest {
 		assertEquals("a:b", props.getProperty("key3"));
 	}
 
-	@After
+	@AfterEach
 	public void teardown() {
 		if (file != null)
 			file.delete();

@@ -6,8 +6,8 @@ import static org.mockito.Mockito.spy;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
 import com.google.common.collect.ImmutableSet;
@@ -18,7 +18,7 @@ public class AbstractPluginTest {
 	
 	private AbstractPlugin plugin1, plugin2, plugin3;
 	
-	@Before
+	@BeforeEach
 	public void before() {
 		plugin1 = spy(new AbstractPlugin() {
 

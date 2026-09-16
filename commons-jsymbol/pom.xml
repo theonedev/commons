@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>io.onedev</groupId>
 		<artifactId>commons</artifactId>
-		<version>4.2.1</version>
+		<version>4.2.2</version>
 	</parent>
 	<artifactId>commons-jsymbol</artifactId>
 	<build>
@@ -95,18 +95,13 @@
 		    <artifactId>org.eclipse.cdt.core</artifactId>
 		</dependency>	
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-server</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-webapp</artifactId>
+			<groupId>org.eclipse.jetty.ee11</groupId>
+			<artifactId>jetty-ee11-webapp</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

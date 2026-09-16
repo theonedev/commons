@@ -3,8 +3,8 @@ package io.onedev.commons.jsymbol.rust;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import io.onedev.commons.jsymbol.DescriptableExtractorTest;
 import io.onedev.commons.jsymbol.SymbolExtractorRegistry;
@@ -28,7 +28,7 @@ public class RustExtractorTest extends DescriptableExtractorTest<RustSymbol> {
 
 	@Test
 	public void testRegistry() {
-		Assert.assertEquals(RustExtractor.class, SymbolExtractorRegistry.getExtractor("lib.rs").getClass());
+		Assertions.assertEquals(RustExtractor.class, SymbolExtractorRegistry.getExtractor("lib.rs").getClass());
 	}
 
 	@Override

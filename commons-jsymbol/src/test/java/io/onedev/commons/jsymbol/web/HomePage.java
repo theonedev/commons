@@ -69,7 +69,7 @@ public class HomePage extends WebPage {
 
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
-				onChange(target, sourceInput.getModelObject(), extractorChoice.getModelObject());
+				HomePage.this.onChange(target, sourceInput.getModelObject(), extractorChoice.getModelObject());
 			}
 			
 		});
@@ -85,7 +85,7 @@ public class HomePage extends WebPage {
 
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
-				onChange(target, sourceInput.getModelObject(), extractorChoice.getModelObject());
+				HomePage.this.onChange(target, sourceInput.getModelObject(), extractorChoice.getModelObject());
 			}
 			
 		});		

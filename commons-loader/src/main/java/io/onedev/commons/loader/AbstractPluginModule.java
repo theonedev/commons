@@ -7,7 +7,7 @@ import java.util.Set;
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
-import com.google.inject.matcher.AbstractMatcher;
+import com.google.inject.matcher.Matcher;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.spi.InjectionListener;
 import com.google.inject.spi.TypeEncounter;
@@ -40,7 +40,7 @@ public abstract class AbstractPluginModule extends AbstractModule implements Dep
 		if (pluginClass != null) {
 			contribute(Plugin.class, pluginClass);
 		    
-		    bindListener(new AbstractMatcher<TypeLiteral<?>>() {
+		    bindListener(new Matcher<TypeLiteral<?>>() {
 
 				@Override
 				public boolean matches(TypeLiteral<?> t) {

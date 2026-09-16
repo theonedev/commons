@@ -1,10 +1,10 @@
 package io.onedev.commons.codeassist;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.onedev.commons.codeassist.parser.TerminalExpect;
 import io.onedev.commons.codeassist.test.CodeAssistTest4Lexer;

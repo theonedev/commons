@@ -3,8 +3,8 @@ package io.onedev.commons.jsymbol.typescript;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import io.onedev.commons.jsymbol.DescriptableExtractorTest;
 import io.onedev.commons.jsymbol.SymbolExtractorRegistry;
@@ -54,10 +54,10 @@ public class TypescriptExtractorTest extends DescriptableExtractorTest<TypeScrip
 
 	@Test
 	public void testRegistry() {
-		Assert.assertEquals(TypescriptExtractor.class, SymbolExtractorRegistry.getExtractor("test.js").getClass());
-		Assert.assertEquals(TypescriptExtractor.class, SymbolExtractorRegistry.getExtractor("test.ts").getClass());
-		Assert.assertEquals(TypescriptExtractor.class, SymbolExtractorRegistry.getExtractor("test.tsx").getClass());
-		Assert.assertEquals(TypescriptExtractor.class, SymbolExtractorRegistry.getExtractor("component.jsx").getClass());
+		Assertions.assertEquals(TypescriptExtractor.class, SymbolExtractorRegistry.getExtractor("test.js").getClass());
+		Assertions.assertEquals(TypescriptExtractor.class, SymbolExtractorRegistry.getExtractor("test.ts").getClass());
+		Assertions.assertEquals(TypescriptExtractor.class, SymbolExtractorRegistry.getExtractor("test.tsx").getClass());
+		Assertions.assertEquals(TypescriptExtractor.class, SymbolExtractorRegistry.getExtractor("component.jsx").getClass());
 	}
 
 	@Test
@@ -83,14 +83,14 @@ public class TypescriptExtractorTest extends DescriptableExtractorTest<TypeScrip
 		assertScope(symbols, "object", 25, 31);
 		assertScope(symbols, "object.nested", 26, 30);
 		assertScope(symbols, "object.nested.f", 27, 29);
-		Assert.assertNull(symbols.stream().filter(it -> it.getName().equals("constant")).findFirst().get().getScope());
+		Assertions.assertNull(symbols.stream().filter(it -> it.getName().equals("constant")).findFirst().get().getScope());
 	}
 
 	private void assertScope(List<TypeScriptSymbol> symbols, String fqn, int from, int to) {
 		var symbol = symbols.stream().filter(it -> it.getFQN().equals(fqn)).findFirst().orElseThrow();
-		Assert.assertNotNull(fqn, symbol.getScope());
-		Assert.assertEquals(fqn, from, symbol.getScope().getFromRow());
-		Assert.assertEquals(fqn, to, symbol.getScope().getToRow());
+		Assertions.assertNotNull(symbol.getScope(), fqn);
+		Assertions.assertEquals(from, symbol.getScope().getFromRow(), fqn);
+		Assertions.assertEquals(to, symbol.getScope().getToRow(), fqn);
 	}
 
 	@Override
