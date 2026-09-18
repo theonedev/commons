@@ -199,6 +199,11 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 				if (isSymbolicLink(dir.toPath())) {
 					deleteFile(dir);
 				} else if (dir.exists()) {
+					// Go module caches contain read-only directories. Their owner needs
+					// write permission to remove children, even if the files are writable.
+					// Do this after the symlink check to leave external targets untouched.
+					if (!dir.canWrite())
+						dir.setWritable(true);
 					cleanDir(dir);
 					deleteFile(dir);
 				}
