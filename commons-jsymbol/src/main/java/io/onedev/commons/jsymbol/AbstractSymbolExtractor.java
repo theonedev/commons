@@ -18,6 +18,12 @@ import com.google.common.base.Joiner;
 
 public abstract class AbstractSymbolExtractor<T extends Symbol> implements SymbolExtractor<T> {
 
+	/**
+	 * Maximum length of an individual regex input, in UTF-16 code units.
+	 * Skip oversized candidates instead of truncating them or rejecting the file.
+	 */
+	protected static final int MAX_REGEX_INPUT_LENGTH = 4096;
+
 	protected boolean acceptExtensions(@Nullable String filePath, String...exts) {
 		String fileExt = StringUtils.substringAfterLast(filePath, ".");
 		for (String ext: exts) {

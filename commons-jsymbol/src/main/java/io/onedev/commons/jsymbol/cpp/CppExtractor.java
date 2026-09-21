@@ -1263,6 +1263,9 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
             return;
 
         String declaration = stripExport(signature);
+        // This also bounds the signature fragments normalized by parseModernFunction.
+        if (declaration.length() > MAX_REGEX_INPUT_LENGTH)
+            return;
         Matcher moduleMatcher = MODULE_DECLARATION.matcher(declaration);
         if (moduleMatcher.matches()) {
             String name = moduleMatcher.group(1);
@@ -1696,7 +1699,7 @@ public class CppExtractor extends AbstractSymbolExtractor<CppSymbol> {
     }
 	@Override
 	public int getVersion() {
-		return 5;
+		return 6;
 	}
 	/*
 	 * getVisivility method will be used for judging visibility of class.

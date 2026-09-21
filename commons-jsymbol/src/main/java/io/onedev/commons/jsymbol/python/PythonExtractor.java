@@ -66,6 +66,15 @@ public class PythonExtractor extends AbstractSymbolExtractor<PythonSymbol> {
 			if (statement.indent <= parentIndent)
 				break;
 
+			if (statement.text.length() > MAX_REGEX_INPUT_LENGTH
+					|| statement.scanText.length() > MAX_REGEX_INPUT_LENGTH) {
+				// Consume the block as well so its children are not attributed to another scope.
+				index++;
+				while (index < statements.size() && statements.get(index).indent > statement.indent)
+					index++;
+				continue;
+			}
+
 			Matcher defMatcher = DEF_PATTERN.matcher(statement.scanText);
 			Matcher classMatcher = CLASS_PATTERN.matcher(statement.scanText);
 			if (defMatcher.find()) {
@@ -429,7 +438,7 @@ public class PythonExtractor extends AbstractSymbolExtractor<PythonSymbol> {
 	}
 
 	private boolean isQualifiedName(String text) {
-		return text.matches("[A-Za-z_]\\w*(\\s*\\.\\s*[A-Za-z_]\\w*)*");
+		return text.length() <= MAX_REGEX_INPUT_LENGTH && text.matches("[A-Za-z_]\\w*(\\s*\\.\\s*[A-Za-z_]\\w*)*");
 	}
 
 	private String getUnqualified(String name) {
@@ -559,7 +568,7 @@ public class PythonExtractor extends AbstractSymbolExtractor<PythonSymbol> {
 
 	@Override
 	public int getVersion() {
-		return 2;
+		return 3;
 	}
 
 	private static class Statement {

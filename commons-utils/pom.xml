@@ -68,10 +68,6 @@
 			<artifactId>winp</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.github.oshi</groupId>
-			<artifactId>oshi-core</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.jetbrains.pty4j</groupId>
 			<artifactId>pty4j</artifactId>
 			<exclusions>

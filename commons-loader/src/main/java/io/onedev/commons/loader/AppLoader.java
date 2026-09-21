@@ -56,6 +56,8 @@ public class AppLoader implements Lifecycle {
 	
 	@Override
 	public void start() {
+		// Guice reads this once during initialization; preserve explicit JVM overrides.
+		System.getProperties().putIfAbsent("guice_include_stack_traces", "OFF");
 		logger.info("Starting application...");
 		
 		OverriddenModuleBuilder builder = Modules.override(new AppLoaderModule());

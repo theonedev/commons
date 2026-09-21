@@ -26,7 +26,7 @@ public class SwiftExtractor extends AbstractSymbolExtractor<SwiftSymbol> {
 
 	@Override
 	public int getVersion() {
-		return 2;
+		return 3;
 	}
 
 	private static class Scanner {
@@ -133,11 +133,14 @@ public class SwiftExtractor extends AbstractSymbolExtractor<SwiftSymbol> {
 			int nameEnd = readExtendedTypeEnd(nameStart, end);
 			if (nameEnd <= nameStart)
 				return afterKeyword;
-			String name = normalizeName(source.substring(nameStart, nameEnd));
 			int bodyStart = findNextTopLevel(nameEnd, end, '{', '\0');
 			int bodyEnd = -1;
 			if (bodyStart < end && code.charAt(bodyStart) == '{')
 				bodyEnd = findMatching(bodyStart, end, '{', '}');
+			String name = source.substring(nameStart, nameEnd).trim();
+			if (name.length() > MAX_REGEX_INPUT_LENGTH)
+				return bodyEnd != -1? bodyEnd+1: nameEnd;
+			name = normalizeName(name);
 			TypeSymbol symbol = new TypeSymbol(parent, name, "extension", position(nameStart, nameEnd),
 					bodyEnd != -1? range(keywordStart, bodyEnd): null, local);
 			symbols.add(symbol);

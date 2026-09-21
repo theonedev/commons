@@ -30,7 +30,7 @@ public class RubyExtractor extends AbstractSymbolExtractor<RubySymbol> {
 
 	@Override
 	public int getVersion() {
-		return 2;
+		return 3;
 	}
 
 	private static List<Token> tokenize(String source) {
@@ -285,9 +285,13 @@ public class RubyExtractor extends AbstractSymbolExtractor<RubySymbol> {
 			if (name.startsWith("self."))
 				name = name.substring("self.".length());
 			String parameters = parameters(endIndex+1);
-			MethodSymbol symbol = new MethodSymbol(currentSymbol(), name, parameters, range(tokens.get(endIndex)), null,
-					singleton);
-			symbols.add(symbol);
+			MethodSymbol symbol = null;
+			if (parameters != null) {
+				symbol = new MethodSymbol(currentSymbol(), name, parameters, range(tokens.get(endIndex)), null,
+						singleton);
+				symbols.add(symbol);
+			}
+			// Retain the frame even when the method is omitted, to consume its closing end.
 			stack.add(new Frame(symbol, false, tokens.get(index)));
 			index = endIndex;
 		}
@@ -498,6 +502,7 @@ public class RubyExtractor extends AbstractSymbolExtractor<RubySymbol> {
 			return builder.toString();
 		}
 
+		@Nullable
 		private String parameters(int start) {
 			int i = start;
 			if (i >= tokens.size() || tokens.get(i).type == Type.NL)
@@ -526,6 +531,8 @@ public class RubyExtractor extends AbstractSymbolExtractor<RubySymbol> {
 					builder.append(token.text);
 				}
 			}
+			if (builder.length() > MAX_REGEX_INPUT_LENGTH)
+				return null;
 			return builder.toString().replaceAll("\\s+", " ").trim();
 		}
 

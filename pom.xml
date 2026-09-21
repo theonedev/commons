@@ -215,11 +215,6 @@
 				<version>9.3.100.202512101642</version>
 			</dependency>
 			<dependency>
-				<groupId>com.github.oshi</groupId>
-				<artifactId>oshi-core</artifactId>
-				<version>5.8.2</version>
-			</dependency>
-			<dependency>
 				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>jetty-server</artifactId>
 				<version>${jetty.version}</version>
