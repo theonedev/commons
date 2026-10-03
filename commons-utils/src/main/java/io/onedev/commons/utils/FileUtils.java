@@ -152,7 +152,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 			if (tempFile != null)
 				tempFile.delete();
 			if (!dirExists)
-				deleteDir(dir);
+				deletePath(dir);
 		}
 	}
 	
@@ -188,66 +188,46 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 		return asList(scanner.getIncludedFiles());
 	}
 
-    public static void deleteDir(File dir) {
-		deleteDir(dir, 0);
-    }
+	/**
+	 * Delete a file, symbolic link, or directory tree if it exists. Symbolic links,
+	 * including dangling links, are unlinked without deleting their targets.
+	 */
+	public static void deletePath(File path) {
+		deletePath(path, 0);
+	}
 
-	public static void deleteDir(File dir, int retries) {
+	/**
+	 * Delete a path, retrying failures up to the specified number of times.
+	 */
+	public static void deletePath(File path, int retries) {
 		int retried = 0;
-		while (dir.exists()) {
+		while (true) {
+			boolean directory = false;
 			try {
-				if (isSymbolicLink(dir.toPath())) {
-					deleteFile(dir);
-				} else if (dir.exists()) {
+				directory = Files.isDirectory(path.toPath(), LinkOption.NOFOLLOW_LINKS);
+				if (directory) {
 					// Go module caches contain read-only directories. Their owner needs
 					// write permission to remove children, even if the files are writable.
-					// Do this after the symlink check to leave external targets untouched.
-					if (!dir.canWrite())
-						dir.setWritable(true);
-					cleanDir(dir);
-					deleteFile(dir);
+					// Only change real directories to leave symlink targets untouched.
+					if (!path.canWrite())
+						path.setWritable(true);
+					cleanDir(path);
 				}
+				Files.deleteIfExists(path.toPath());
 				break;
 			} catch (Exception e) {
-				if (retried < retries) {
+				if (retried >= retries) {
+					throw new RuntimeException("Failed to delete path '" + path.getAbsolutePath() + "'", e);
+				} else {
 					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e2) {
+						Thread.sleep(directory ? 1000 : 100);
+					} catch (InterruptedException ignored) {
 					}
 					retried++;
-				} else {
-					throw new RuntimeException("Failed to delete directory '" + dir.getAbsolutePath() + "'", e);
 				}
 			}
 		}
 	}
-	
-	public static void deleteFile(File file) {
-		deleteFile(file, 0);
-	}
-
-	public static void deleteFile(File file, int retries) {		
-    	int retried = 0;
-
-    	while (true) {
-    		if (file.delete())
-    			break;
-    		
-    		if (file.exists()) {
-            	if (retried >= retries) {
-            		throw new RuntimeException("Failed to delete file '" + file.getAbsolutePath() + "'");
-            	} else {
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                    }
-                    retried++;
-            	}
-    		} else {
-    			break;
-    		}
-        }
-    }    
     
 	public static void writeFile(File file, String content, Charset encoding) {
 		try {
@@ -287,12 +267,8 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 			int retried = 0;
 			while ((children = dir.listFiles()).length != 0) {
 				try {
-					for (File file : children) {
-						if (file.isDirectory())
-							deleteDir(file);
-						else
-							deleteFile(file);
-					}	
+					for (File file : children)
+						deletePath(file);
 					break;
 				} catch (Exception e) {
 					if (retried < retries) {
@@ -308,7 +284,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 			}
 		} else {
 			if (isSymbolicLink(dir.toPath()))
-				deleteFile(dir, retries);
+				deletePath(dir, retries);
 			createDir(dir);
 		}
 	}

@@ -331,7 +331,7 @@ public class TarUtils {
     }
 
     private static void deleteDirAt(Map<Path, TarArchiveEntry> pendingLinks, Path dirPath) {
-        FileUtils.deleteDir(dirPath.toFile());
+        FileUtils.deletePath(dirPath.toFile());
         if (!pendingLinks.isEmpty())
             pendingLinks.keySet().removeIf(it -> it.startsWith(dirPath));
     }
@@ -345,7 +345,7 @@ public class TarUtils {
         for (var pathSegment: relativePath) {
             currentPath = currentPath.resolve(pathSegment);
             if (Files.isSymbolicLink(currentPath))
-                FileUtils.deleteFile(currentPath.toFile());
+                FileUtils.deletePath(currentPath.toFile());
             if (Files.exists(currentPath, LinkOption.NOFOLLOW_LINKS)) {
                 if (!Files.isDirectory(currentPath, LinkOption.NOFOLLOW_LINKS)) {
                     throw new ExplicitException("Tar entry can not create directory over file: "
@@ -389,7 +389,7 @@ public class TarUtils {
                     if (Files.isDirectory(entryPath, LinkOption.NOFOLLOW_LINKS))
                         deleteDirAt(pendingLinks, entryPath);
                     else
-                        FileUtils.deleteFile(entryFile);
+                        FileUtils.deletePath(entryFile);
                 }
                 pendingLinks.put(entryPath, entry);
             } else if (entry.isFile()) {
@@ -403,7 +403,7 @@ public class TarUtils {
                     if (Files.isDirectory(entryPath, LinkOption.NOFOLLOW_LINKS))
                         deleteDirAt(pendingLinks, entryPath);
                     else
-                        FileUtils.deleteFile(entryFile);
+                        FileUtils.deletePath(entryFile);
                 }
 
                 try (var os = Files.newOutputStream(entryPath, StandardOpenOption.CREATE_NEW,

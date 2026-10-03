@@ -80,8 +80,8 @@ public class TarUtilsTest {
 
 		} finally {
 			// Clean up
-			FileUtils.deleteDir(sourceDir);
-			FileUtils.deleteDir(destDir);
+			FileUtils.deletePath(sourceDir);
+			FileUtils.deletePath(destDir);
 		}
 	}
 
@@ -118,8 +118,8 @@ public class TarUtilsTest {
 			assertEquals("backslash content", Files.readString(extractedFileWithBackslash.toPath(), StandardCharsets.UTF_8));
 
 		} finally {
-			FileUtils.deleteDir(sourceDir);
-			FileUtils.deleteDir(destDir);
+			FileUtils.deletePath(sourceDir);
+			FileUtils.deletePath(destDir);
 		}
 	}
 
@@ -157,8 +157,8 @@ public class TarUtilsTest {
 			assertFalse(new File(destDir, "ignored-dir").exists(), "Matched directory children should be excluded");
 			assertFalse(new File(destDir, "ignored-dir/child.txt").exists(), "Matched directory children should be excluded");
 		} finally {
-			FileUtils.deleteDir(sourceDir);
-			FileUtils.deleteDir(destDir);
+			FileUtils.deletePath(sourceDir);
+			FileUtils.deletePath(destDir);
 		}
 	}
 
@@ -208,8 +208,8 @@ public class TarUtilsTest {
 			assertEquals("target content", Files.readString(extractedRelativeSymlink, StandardCharsets.UTF_8));
 
 		} finally {
-			FileUtils.deleteDir(sourceDir);
-			FileUtils.deleteDir(destDir);
+			FileUtils.deletePath(sourceDir);
+			FileUtils.deletePath(destDir);
 		}
 	}
 
@@ -243,7 +243,7 @@ public class TarUtilsTest {
 			assertFalse(escapedFile.exists(), "Escaping file should not be created");
 
 		} finally {
-			FileUtils.deleteDir(destDir);
+			FileUtils.deletePath(destDir);
 		}
 	}
 
@@ -280,7 +280,7 @@ public class TarUtilsTest {
 			assertFalse(Files.exists(extractedSymlink.toPath(), LinkOption.NOFOLLOW_LINKS), "Escaping symbolic link should not be created");
 
 		} finally {
-			FileUtils.deleteDir(destDir);
+			FileUtils.deletePath(destDir);
 		}
 	}
 
@@ -332,7 +332,7 @@ public class TarUtilsTest {
 			assertEquals("target content",
 					Files.readString(extractedChain, StandardCharsets.UTF_8));
 		} finally {
-			FileUtils.deleteDir(destDir);
+			FileUtils.deletePath(destDir);
 		}
 	}
 
@@ -382,7 +382,7 @@ public class TarUtilsTest {
 			assertEquals("inside content",
 					Files.readString(extractedTop, StandardCharsets.UTF_8));
 		} finally {
-			FileUtils.deleteDir(destDir);
+			FileUtils.deletePath(destDir);
 		}
 	}
 
@@ -423,8 +423,8 @@ public class TarUtilsTest {
 
 			assertFalse(Files.exists(new File(destDir, "important").toPath(), LinkOption.NOFOLLOW_LINKS), "Escaping symlink should not be created");
 		} finally {
-			FileUtils.deleteDir(destDir);
-			FileUtils.deleteDir(outsideDir);
+			FileUtils.deletePath(destDir);
+			FileUtils.deletePath(outsideDir);
 		}
 	}
 
@@ -470,7 +470,7 @@ public class TarUtilsTest {
 			assertFalse(Files.exists(new File(destDir, "escape").toPath(), LinkOption.NOFOLLOW_LINKS), "Escaping symlink should not be kept");
 			assertFalse(Files.exists(new File(destDir, "d/e/up").toPath(), LinkOption.NOFOLLOW_LINKS), "Symlinks should be removed on failure");
 		} finally {
-			FileUtils.deleteDir(destDir);
+			FileUtils.deletePath(destDir);
 		}
 	}
 
@@ -511,7 +511,7 @@ public class TarUtilsTest {
 
 			assertFalse(Files.exists(new File(destDir, "escape").toPath(), LinkOption.NOFOLLOW_LINKS), "Escaping symlink should not be kept");
 		} finally {
-			FileUtils.deleteDir(destDir);
+			FileUtils.deletePath(destDir);
 		}
 	}
 
@@ -528,7 +528,7 @@ public class TarUtilsTest {
 			FileUtils.createDir(destDir);
 			FileUtils.touchFile(new File(destDir, "case"));
 			boolean caseInsensitive = new File(destDir, "CASE").exists();
-			FileUtils.deleteFile(new File(destDir, "case"));
+			FileUtils.deletePath(new File(destDir, "case"));
 			if (!caseInsensitive) {
 				return;
 			}
@@ -575,7 +575,7 @@ public class TarUtilsTest {
 			assertFalse(Files.exists(new File(parentDir, "l").toPath(), LinkOption.NOFOLLOW_LINKS), "Symlink should not be created outside destination");
 			assertFalse(Files.exists(new File(destDir, "AB").toPath(), LinkOption.NOFOLLOW_LINKS), "Symlinks should be removed on failure");
 		} finally {
-			FileUtils.deleteDir(parentDir);
+			FileUtils.deletePath(parentDir);
 		}
 	}
 
@@ -611,7 +611,7 @@ public class TarUtilsTest {
 				assertTrue(e.getMessage().contains("Too many"), "Exception message should mention too many symbolic links");
 			}
 		} finally {
-			FileUtils.deleteDir(destDir);
+			FileUtils.deletePath(destDir);
 		}
 	}
 }
