@@ -2,11 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">  
     <modelVersion>4.0.0</modelVersion>  
     <artifactId>commons-codeassist</artifactId>
-    <version>4.2.4</version>
+    <version>4.2.5</version>
     <parent> 
         <groupId>io.onedev</groupId>  
         <artifactId>commons</artifactId>  
-        <version>4.2.4</version>
+        <version>4.2.5</version>
     </parent>  
     <properties>
         <antlr.version>4.13.2</antlr.version>
@@ -57,7 +57,7 @@
 		<dependency>
 			<groupId>io.onedev</groupId>
 			<artifactId>commons-utils</artifactId>
-            <version>4.2.4</version>
+            <version>4.2.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.antlr</groupId>
