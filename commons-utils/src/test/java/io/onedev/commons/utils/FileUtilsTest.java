@@ -7,10 +7,42 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
 public class FileUtilsTest {
+
+	@Test
+	public void optionallySkipsSymlinksWhenListingFiles() throws Exception {
+		var root = Files.createTempDirectory("list-links");
+		var external = Files.createTempDirectory("list-link-target");
+		try {
+			assumeTrue(Files.getFileStore(root).supportsFileAttributeView("posix"));
+			var regular = Files.writeString(root.resolve("regular.txt"), "regular");
+			Files.writeString(root.resolve("excluded.txt"), "excluded");
+			Files.writeString(external.resolve("outside.txt"), "outside");
+			Files.createSymbolicLink(root.resolve("file-link.txt"), regular);
+			Files.createSymbolicLink(root.resolve("directory-link"), external);
+			var includes = List.of("**/*.txt");
+			var excludes = List.of("excluded.txt");
+			assertEquals(Set.of("regular.txt", "file-link.txt", "directory-link/outside.txt"),
+					new HashSet<>(FileUtils.listPaths(root.toFile(), includes, excludes)));
+			assertEquals(FileUtils.listFiles(root.toFile(), includes, excludes),
+					FileUtils.listFiles(root.toFile(), includes, excludes, true));
+			assertEquals(List.of(regular.toFile()), FileUtils.listFiles(root.toFile(), includes, excludes, false));
+			Files.createSymbolicLink(root.resolve("dangling.txt"), root.resolve("missing"));
+			Files.createSymbolicLink(root.resolve("cycle"), root);
+			assertEquals(List.of("regular.txt"), FileUtils.listPaths(root.toFile(), includes, excludes, false));
+			assertEquals(List.of(), FileUtils.listFiles(root.toFile(),
+					List.of("directory-link/outside.txt"), List.of(), false));
+		} finally {
+			FileUtils.deletePath(root.toFile());
+			FileUtils.deletePath(external.toFile());
+		}
+	}
 
 	@Test
 	public void deletesFilesAndMissingPaths() throws Exception {

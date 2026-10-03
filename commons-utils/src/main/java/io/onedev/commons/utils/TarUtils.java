@@ -123,6 +123,12 @@ public class TarUtils {
         tar(baseDir, includes, excludes, null, os, compress);
     }
 
+    public static void tar(File baseDir, @Nullable Collection<String> includes,
+                           @Nullable Collection<String> excludes, OutputStream os,
+                           boolean compress, boolean followSymlinks) {
+        tar(baseDir, includes, excludes, null, os, compress, followSymlinks);
+    }
+
     private static void addTarEntry(File file, String entryName, @Nullable Collection<File> executableFiles,
                                     TarArchiveOutputStream tos, byte[] buffer) throws IOException {
         if (file.isDirectory()) {
@@ -178,6 +184,13 @@ public class TarUtils {
                            @Nullable Collection<String> excludes,
                            @Nullable Collection<String> executables,
                            OutputStream os, boolean compress) {
+        tar(baseDir, includes, excludes, executables, os, compress, true);
+    }
+
+    public static void tar(File baseDir, @Nullable Collection<String> includes,
+                           @Nullable Collection<String> excludes,
+                           @Nullable Collection<String> executables,
+                           OutputStream os, boolean compress, boolean followSymlinks) {
         if (includes == null)
             includes = Sets.newHashSet("**");
         if (excludes == null)
@@ -190,8 +203,8 @@ public class TarUtils {
             if (baseDir.exists() && baseDir.isDirectory()) {
                 Collection<File> executableFiles = null;
                 if (executables != null)
-                    executableFiles = FileUtils.listFiles(baseDir, executables, new HashSet<>());
-                for (String path: FileUtils.listPaths(baseDir, includes, excludes)) {
+                    executableFiles = FileUtils.listFiles(baseDir, executables, new HashSet<>(), followSymlinks);
+                for (String path: FileUtils.listPaths(baseDir, includes, excludes, followSymlinks)) {
                     var entryName = path.replace(File.separatorChar, '/');
                     addTarEntry(new File(baseDir, path), entryName, executableFiles, tos, buffer);
                 }

@@ -174,16 +174,30 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
      * 			if its path matches the pattern
      */
     public static Collection<File> listFiles(File baseDir, Collection<String> includes, Collection<String> excludes) {
-		return listPaths(baseDir, includes, excludes).stream()
+		return listFiles(baseDir, includes, excludes, true);
+    }
+
+    /**
+     * List matching files, optionally skipping symbolic links and their descendants.
+     */
+    public static Collection<File> listFiles(File baseDir, Collection<String> includes,
+                                            Collection<String> excludes, boolean followSymlinks) {
+		return listPaths(baseDir, includes, excludes, followSymlinks).stream()
 				.map(it->new File(baseDir, it))
 				.collect(Collectors.toList());
     }
 
 	public static Collection<String> listPaths(File baseDir, Collection<String> includes, Collection<String> excludes) {
+		return listPaths(baseDir, includes, excludes, true);
+	}
+
+	public static Collection<String> listPaths(File baseDir, Collection<String> includes,
+			Collection<String> excludes, boolean followSymlinks) {
 		DirectoryScanner scanner = new DirectoryScanner();
 		scanner.setBasedir(baseDir);
 		scanner.setIncludes(includes.toArray(new String[0]));
 		scanner.setExcludes(excludes.toArray(new String[0]));
+		scanner.setFollowSymlinks(followSymlinks);
 		scanner.scan();
 		return asList(scanner.getIncludedFiles());
 	}

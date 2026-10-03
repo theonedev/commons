@@ -26,6 +26,34 @@ import org.junit.jupiter.api.Test;
 public class TarUtilsTest {
 
 	@Test
+	public void testPatternTarCanSkipSymlinks() throws IOException {
+		if (File.separatorChar == '\\')
+			return;
+		var source = Files.createTempDirectory("tar-pattern-links");
+		var external = Files.createTempDirectory("tar-pattern-target");
+		var destination = Files.createTempDirectory("tar-pattern-output");
+		try {
+			var regular = Files.writeString(source.resolve("regular.txt"), "regular");
+			Files.writeString(source.resolve("excluded.txt"), "excluded");
+			Files.writeString(external.resolve("outside.txt"), "outside");
+			Files.createSymbolicLink(source.resolve("file-link.txt"), regular);
+			Files.createSymbolicLink(source.resolve("directory-link"), external);
+			Files.createSymbolicLink(source.resolve("dangling.txt"), source.resolve("missing"));
+			Files.createSymbolicLink(source.resolve("cycle"), source);
+			var archive = new ByteArrayOutputStream();
+			TarUtils.tar(source.toFile(), List.of("**/*.txt"), List.of("excluded.txt"),
+					List.of("**"), archive, false, false);
+			TarUtils.untar(new ByteArrayInputStream(archive.toByteArray()), destination.toFile(), false);
+			assertEquals(List.of("regular.txt"), FileUtils.listPaths(destination.toFile(), List.of("**"), List.of()));
+			assertEquals("regular", Files.readString(destination.resolve("regular.txt")));
+		} finally {
+			FileUtils.deletePath(source.toFile());
+			FileUtils.deletePath(external.toFile());
+			FileUtils.deletePath(destination.toFile());
+		}
+	}
+
+	@Test
 	public void testTarUntarWithBackslashInFilename() throws IOException {
 		// Skip this test on Windows where backslash is not a valid filename character
 		if (File.separatorChar == '\\') {
