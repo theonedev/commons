@@ -429,6 +429,157 @@ public class TarUtilsTest {
 	}
 
 	@Test
+	public void testUntarRejectsParentSegmentAfterSymbolicLink() throws IOException {
+		if (File.separatorChar == '\\') {
+			return;
+		}
+
+		File destDir = Files.createTempDirectory("tar-test-dest").toFile();
+
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			try (var gos = new GZIPOutputStream(baos);
+				 var tos = new TarArchiveOutputStream(gos)) {
+				tos.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
+
+				tos.putArchiveEntry(new TarArchiveEntry("d/e/"));
+				tos.closeArchiveEntry();
+
+				TarArchiveEntry upEntry = new TarArchiveEntry("d/e/up", LF_SYMLINK);
+				upEntry.setLinkName("../..");
+				tos.putArchiveEntry(upEntry);
+				tos.closeArchiveEntry();
+
+				TarArchiveEntry escapeEntry = new TarArchiveEntry("escape", LF_SYMLINK);
+				escapeEntry.setLinkName("d/e/up/../..");
+				tos.putArchiveEntry(escapeEntry);
+				tos.closeArchiveEntry();
+
+				tos.finish();
+			}
+
+			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+			try {
+				TarUtils.untar(bais, destDir, true);
+				fail("Expected an exception due to symbolic link escape via parent segment after symlink");
+			} catch (ExplicitException e) {
+				assertTrue(e.getMessage().contains("resolves outside"), "Exception message should mention resolves outside");
+				assertTrue(e.getMessage().contains("escape"), "Exception message should mention tar entry name");
+			}
+
+			assertFalse(Files.exists(new File(destDir, "escape").toPath(), LinkOption.NOFOLLOW_LINKS), "Escaping symlink should not be kept");
+			assertFalse(Files.exists(new File(destDir, "d/e/up").toPath(), LinkOption.NOFOLLOW_LINKS), "Symlinks should be removed on failure");
+		} finally {
+			FileUtils.deleteDir(destDir);
+		}
+	}
+
+	@Test
+	public void testUntarRejectsSymbolicLinkEscapeCausedByLaterEntry() throws IOException {
+		if (File.separatorChar == '\\') {
+			return;
+		}
+
+		File destDir = Files.createTempDirectory("tar-test-dest").toFile();
+
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			try (var gos = new GZIPOutputStream(baos);
+				 var tos = new TarArchiveOutputStream(gos)) {
+				tos.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
+
+				TarArchiveEntry escapeEntry = new TarArchiveEntry("escape", LF_SYMLINK);
+				escapeEntry.setLinkName("a/..");
+				tos.putArchiveEntry(escapeEntry);
+				tos.closeArchiveEntry();
+
+				TarArchiveEntry selfEntry = new TarArchiveEntry("a", LF_SYMLINK);
+				selfEntry.setLinkName(".");
+				tos.putArchiveEntry(selfEntry);
+				tos.closeArchiveEntry();
+
+				tos.finish();
+			}
+
+			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+			try {
+				TarUtils.untar(bais, destDir, true);
+				fail("Expected an exception due to symbolic link escape caused by later entry");
+			} catch (ExplicitException e) {
+				assertTrue(e.getMessage().contains("resolves outside"), "Exception message should mention resolves outside");
+			}
+
+			assertFalse(Files.exists(new File(destDir, "escape").toPath(), LinkOption.NOFOLLOW_LINKS), "Escaping symlink should not be kept");
+		} finally {
+			FileUtils.deleteDir(destDir);
+		}
+	}
+
+	@Test
+	public void testUntarRejectsSymbolicLinkCreatedThroughCaseAliasedLink() throws IOException {
+		if (File.separatorChar == '\\') {
+			return;
+		}
+
+		File parentDir = Files.createTempDirectory("tar-test-parent").toFile();
+		File destDir = new File(parentDir, "dest");
+
+		try {
+			FileUtils.createDir(destDir);
+			FileUtils.touchFile(new File(destDir, "case"));
+			boolean caseInsensitive = new File(destDir, "CASE").exists();
+			FileUtils.deleteFile(new File(destDir, "case"));
+			if (!caseInsensitive) {
+				return;
+			}
+
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			try (var gos = new GZIPOutputStream(baos);
+				 var tos = new TarArchiveOutputStream(gos)) {
+				tos.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
+
+				tos.putArchiveEntry(new TarArchiveEntry("d/e/"));
+				tos.closeArchiveEntry();
+
+				TarArchiveEntry upEntry = new TarArchiveEntry("d/e/up", LF_SYMLINK);
+				upEntry.setLinkName("../..");
+				tos.putArchiveEntry(upEntry);
+				tos.closeArchiveEntry();
+
+				TarArchiveEntry aliasEntry = new TarArchiveEntry("AB", LF_SYMLINK);
+				aliasEntry.setLinkName("d/e/up/..");
+				tos.putArchiveEntry(aliasEntry);
+				tos.closeArchiveEntry();
+
+				TarArchiveEntry innerEntry = new TarArchiveEntry("ab/l", LF_SYMLINK);
+				innerEntry.setLinkName("x");
+				tos.putArchiveEntry(innerEntry);
+				tos.closeArchiveEntry();
+
+				TarArchiveEntry replaceEntry = new TarArchiveEntry("Ab", LF_SYMLINK);
+				replaceEntry.setLinkName("y");
+				tos.putArchiveEntry(replaceEntry);
+				tos.closeArchiveEntry();
+
+				tos.finish();
+			}
+
+			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+			try {
+				TarUtils.untar(bais, destDir, true);
+				fail("Expected an exception due to symbolic link created through case aliased link");
+			} catch (ExplicitException e) {
+				assertTrue(e.getMessage().contains("ab/l"), "Exception message should mention tar entry name");
+			}
+
+			assertFalse(Files.exists(new File(parentDir, "l").toPath(), LinkOption.NOFOLLOW_LINKS), "Symlink should not be created outside destination");
+			assertFalse(Files.exists(new File(destDir, "AB").toPath(), LinkOption.NOFOLLOW_LINKS), "Symlinks should be removed on failure");
+		} finally {
+			FileUtils.deleteDir(parentDir);
+		}
+	}
+
+	@Test
 	public void testUntarRejectsSymbolicLinkCycle() throws IOException {
 		if (File.separatorChar == '\\') {
 			return;

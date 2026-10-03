@@ -20,10 +20,15 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -255,29 +260,80 @@ public class TarUtils {
         return entryPath;
     }
 
-    private static void ensureLinkTargetInside(Path destPath, Path linkTargetPath, String entryName) throws IOException {
-        var relativePath = destPath.relativize(linkTargetPath);
-        var currentPath = destPath;
-        var linkFollowCount = 0;
-        for (var pathSegment: relativePath) {
-            currentPath = currentPath.resolve(pathSegment);
-            while (Files.isSymbolicLink(currentPath)) {
-                if (++linkFollowCount > 40)
-                    throw new ExplicitException("Too many levels of symbolic links for tar entry "
-                            + entryName + ": " + currentPath);
-                var target = Files.readSymbolicLink(currentPath);
-                var parent = currentPath.getParent();
-                if (parent == null)
+    /*
+     * Path.normalize() collapses ".." lexically, while OS follows symbol links before
+     * applying "..", hence the segment by segment resolution. Must be called after all
+     * entries are extracted, as later entries may change what earlier links resolve to
+     */
+    private static void ensureLinkInside(Path destPath, Path linkPath, String entryName) throws IOException {
+        var segments = new ArrayDeque<String>();
+        var currentPath = followLink(destPath, linkPath, segments, entryName);
+        var linkFollowCount = 1;
+        while (!segments.isEmpty()) {
+            var segment = segments.pop();
+            if (segment.equals("..")) {
+                currentPath = currentPath.getParent();
+                if (currentPath == null || !currentPath.startsWith(destPath))
                     throw new ExplicitException("Tar entry symbol link resolves outside destination: "
-                            + entryName + " -> " + currentPath);
-                currentPath = parent.resolve(target).normalize();
-                if (!currentPath.startsWith(destPath))
-                    throw new ExplicitException("Tar entry symbol link resolves outside destination: "
-                            + entryName + " -> " + currentPath);
+                            + entryName + " -> " + linkPath);
+            } else if (!segment.equals(".") && !segment.isEmpty()) {
+                currentPath = currentPath.resolve(segment);
+                if (Files.isSymbolicLink(currentPath)) {
+                    if (++linkFollowCount > 40)
+                        throw new ExplicitException("Too many levels of symbolic links for tar entry "
+                                + entryName + ": " + currentPath);
+                    currentPath = followLink(destPath, currentPath, segments, entryName);
+                }
             }
-            if (!Files.exists(currentPath, LinkOption.NOFOLLOW_LINKS))
-                return;
         }
+    }
+
+    private static Path followLink(Path destPath, Path linkPath, Deque<String> segments,
+                                   String entryName) throws IOException {
+        var target = Files.readSymbolicLink(linkPath);
+        Path basePath;
+        int startIndex;
+        if (target.getRoot() != null) {
+            if (!target.startsWith(destPath))
+                throw new ExplicitException("Tar entry symbol link resolves outside destination: "
+                        + entryName + " -> " + linkPath);
+            basePath = destPath;
+            startIndex = destPath.getNameCount();
+        } else {
+            basePath = linkPath.getParent();
+            startIndex = 0;
+        }
+        for (int i = target.getNameCount() - 1; i >= startIndex; i--)
+            segments.push(target.getName(i).toString());
+        return basePath;
+    }
+
+    /*
+     * Check against file system instead of relying on path equality, as different paths
+     * may refer to same file on case-insensitive file systems
+     */
+    private static void ensureNoLinkInPath(Path destPath, Path path, String entryName) {
+        var currentPath = destPath;
+        for (var pathSegment: destPath.relativize(path)) {
+            currentPath = currentPath.resolve(pathSegment);
+            if (!Files.isDirectory(currentPath, LinkOption.NOFOLLOW_LINKS))
+                throw new ExplicitException("Tar entry parent is not a directory: " + entryName);
+        }
+    }
+
+    private static void removePendingLinksAt(Map<Path, TarArchiveEntry> pendingLinks, Path destPath, Path path) {
+        if (pendingLinks.isEmpty())
+            return;
+        for (var currentPath = path; currentPath != null && !currentPath.equals(destPath);
+             currentPath = currentPath.getParent()) {
+            pendingLinks.remove(currentPath);
+        }
+    }
+
+    private static void deleteDirAt(Map<Path, TarArchiveEntry> pendingLinks, Path dirPath) {
+        FileUtils.deleteDir(dirPath.toFile());
+        if (!pendingLinks.isEmpty())
+            pendingLinks.keySet().removeIf(it -> it.startsWith(dirPath));
     }
 
     private static void createDirInside(Path destPath, Path dirPath) throws IOException {
@@ -309,6 +365,9 @@ public class TarUtils {
         
         FileUtils.createDir(destDir);
         var destPath = destDir.toPath().toRealPath().normalize();
+
+        // Symbol links are created after all other entries, so that no entry is written through them
+        Map<Path, TarArchiveEntry> pendingLinks = new LinkedHashMap<>();
         TarArchiveEntry entry = firstEntry;
         do {
             var entryName = entry.getName();
@@ -319,30 +378,30 @@ public class TarUtils {
                 if (entryParentPath == null || !entryParentPath.startsWith(destPath))
                     throw new ExplicitException("Tar entry parent escape detected: " + entryName);
                 var linkName = entry.getLinkName();
-                Path linkTarget = Paths.get(linkName);
-                var linkTargetPath = entryParentPath.resolve(linkTarget).normalize();
+                var linkTargetPath = entryParentPath.resolve(Paths.get(linkName)).normalize();
                 if (!linkTargetPath.startsWith(destPath))
                     throw new ExplicitException("Tar entry symbol link escape detected: "
                             + entryName + " -> " + linkName);
-                ensureLinkTargetInside(destPath, linkTargetPath, entryName);
 
+                removePendingLinksAt(pendingLinks, destPath, entryParentPath);
                 createDirInside(destPath, entryParentPath);
                 if (Files.exists(entryPath, LinkOption.NOFOLLOW_LINKS)) {
                     if (Files.isDirectory(entryPath, LinkOption.NOFOLLOW_LINKS))
-                        FileUtils.deleteDir(entryFile);
+                        deleteDirAt(pendingLinks, entryPath);
                     else
                         FileUtils.deleteFile(entryFile);
                 }
-                createSymbolicLink(entryPath, linkTarget);
+                pendingLinks.put(entryPath, entry);
             } else if (entry.isFile()) {
                 var entryParentPath = entryPath.getParent();
                 if (entryParentPath == null || !entryParentPath.startsWith(destPath))
                     throw new ExplicitException("Tar entry parent escape detected: " + entryName);
+                removePendingLinksAt(pendingLinks, destPath, entryPath);
                 createDirInside(destPath, entryParentPath);
 
                 if (Files.exists(entryPath, LinkOption.NOFOLLOW_LINKS)) {
                     if (Files.isDirectory(entryPath, LinkOption.NOFOLLOW_LINKS))
-                        FileUtils.deleteDir(entryFile);
+                        deleteDirAt(pendingLinks, entryPath);
                     else
                         FileUtils.deleteFile(entryFile);
                 }
@@ -359,8 +418,24 @@ public class TarUtils {
                     entryFile.setLastModified(entry.getModTime().getTime());
                 }
             } else {
+                removePendingLinksAt(pendingLinks, destPath, entryPath);
                 createDirInside(destPath, entryPath);
             }
         } while ((entry = tis.getNextTarEntry()) != null);
+
+        var createdLinks = new ArrayList<Path>();
+        try {
+            for (var pendingLink: pendingLinks.entrySet()) {
+                ensureNoLinkInPath(destPath, pendingLink.getKey().getParent(), pendingLink.getValue().getName());
+                createSymbolicLink(pendingLink.getKey(), Paths.get(pendingLink.getValue().getLinkName()));
+                createdLinks.add(pendingLink.getKey());
+            }
+            for (var pendingLink: pendingLinks.entrySet())
+                ensureLinkInside(destPath, pendingLink.getKey(), pendingLink.getValue().getName());
+        } catch (IOException | RuntimeException e) {
+            for (var createdLink: createdLinks)
+                Files.deleteIfExists(createdLink);
+            throw e;
+        }
     }
 }
