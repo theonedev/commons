@@ -203,6 +203,22 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 	}
 
 	/**
+	 * Check path components below baseDir for symbolic links, including dangling links.
+	 * Callers should validate baseDir separately.
+	 */
+	public static boolean hasSymbolLinks(File baseDir, File file) {
+		var currentPath = baseDir.toPath();
+		for (var segment: currentPath.relativize(file.toPath())) {
+			currentPath = currentPath.resolve(segment);
+			if (Files.isSymbolicLink(currentPath))
+				return true;
+			if (!Files.exists(currentPath, LinkOption.NOFOLLOW_LINKS))
+				break;
+		}
+		return false;
+	}
+
+	/**
 	 * Delete a file, symbolic link, or directory tree if it exists. Symbolic links,
 	 * including dangling links, are unlinked without deleting their targets.
 	 */
