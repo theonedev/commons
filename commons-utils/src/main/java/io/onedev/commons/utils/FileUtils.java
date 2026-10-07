@@ -243,7 +243,10 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 						path.setWritable(true);
 					cleanDir(path);
 				}
-				Files.deleteIfExists(path.toPath());
+				// File.delete clears the read-only attribute on Windows. Fall back to
+				// NIO to tolerate missing paths and report the cause of deletion failures.
+				if (!path.delete())
+					Files.deleteIfExists(path.toPath());
 				break;
 			} catch (Exception e) {
 				if (retried >= retries) {
