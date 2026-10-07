@@ -32,7 +32,7 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
-import ch.qos.logback.core.util.StatusPrinter;
+import ch.qos.logback.core.util.StatusPrinter2;
 
 public class Bootstrap {
 
@@ -280,7 +280,7 @@ public class Bootstrap {
 		} catch (JoranException je) {
 			je.printStackTrace();
 		}
-		StatusPrinter.printInCaseOfErrorsOrWarnings(lc);
+		new StatusPrinter2().printInCaseOfErrorsOrWarnings(lc);
 
 		// Redirect JDK logging to slf4j
 		java.util.logging.Logger jdkLogger = java.util.logging.Logger.getLogger("");
