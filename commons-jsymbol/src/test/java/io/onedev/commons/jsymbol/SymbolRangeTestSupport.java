@@ -24,7 +24,9 @@ public final class SymbolRangeTestSupport {
 	}
 
 	public static void verify(SymbolExtractor<?> extractor, String fileName, String fixture) {
-		assertFalse(fixture.contains("\r"), "Use LF in annotated fixtures");
+		// Git may check out fixtures with CRLF on Windows. Normalize before creating variants.
+		fixture = fixture.replace("\r\n", "\n");
+		assertFalse(fixture.contains("\r"), "Unsupported standalone CR in annotated fixtures");
 		String trimmed = fixture.endsWith("\n")? fixture.substring(0, fixture.length()-1): fixture;
 		for (String newline : new String[] { "\n", "\r\n" }) {
 			for (String prefix : new String[] { "", "\n\n" }) {
