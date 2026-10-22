@@ -215,8 +215,19 @@ public class TarUtils {
         }
     }
 
-    @SuppressWarnings("deprecation")
     public static void untar(InputStream is, File destDirOrFile, boolean compressed) {
+        untar(is, destDirOrFile, compressed, false);
+    }
+
+    /**
+     * Optionally preserve external symbolic link targets when extracting inside an isolated
+     * job container. Directory extraction still confines entry paths and never writes through
+     * archived links.
+     * Do not enable this for archives extracted or subsequently used on the host.
+     */
+    @SuppressWarnings("deprecation")
+    public static void untar(InputStream is, File destDirOrFile, boolean compressed,
+                             boolean allowExternalSymlinks) {
         byte[] buffer = new byte[BUFFER_SIZE];
         TarArchiveInputStream tis;
         try {
@@ -232,7 +243,7 @@ public class TarUtils {
             if ("true".equals(firstEntry.getExtraPaxHeader(SINGLE_FILE_PAX_HEADER)))
                 untarSingleFile(tis, firstEntry, destDirOrFile, buffer);
             else
-                untarToDir(tis, firstEntry, destDirOrFile, buffer);
+                untarToDir(tis, firstEntry, destDirOrFile, buffer, allowExternalSymlinks);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -372,7 +383,7 @@ public class TarUtils {
 
     @SuppressWarnings("deprecation")
     private static void untarToDir(TarArchiveInputStream tis, TarArchiveEntry firstEntry,
-                                   File destDir, byte[] buffer) throws IOException {
+                                   File destDir, byte[] buffer, boolean allowExternalSymlinks) throws IOException {
         if (destDir.exists() && !destDir.isDirectory())
             throw new ExplicitException("Destination should be a directory: " + destDir.getAbsolutePath());
         
@@ -391,10 +402,12 @@ public class TarUtils {
                 if (entryParentPath == null || !entryParentPath.startsWith(destPath))
                     throw new ExplicitException("Tar entry parent escape detected: " + entryName);
                 var linkName = entry.getLinkName();
-                var linkTargetPath = entryParentPath.resolve(Paths.get(linkName)).normalize();
-                if (!linkTargetPath.startsWith(destPath))
-                    throw new ExplicitException("Tar entry symbol link escape detected: "
-                            + entryName + " -> " + linkName);
+                if (!allowExternalSymlinks) {
+                    var linkTargetPath = entryParentPath.resolve(Paths.get(linkName)).normalize();
+                    if (!linkTargetPath.startsWith(destPath))
+                        throw new ExplicitException("Tar entry symbol link escape detected: "
+                                + entryName + " -> " + linkName);
+                }
 
                 removePendingLinksAt(pendingLinks, destPath, entryParentPath);
                 createDirInside(destPath, entryParentPath);
@@ -443,8 +456,10 @@ public class TarUtils {
                 createSymbolicLink(pendingLink.getKey(), Paths.get(pendingLink.getValue().getLinkName()));
                 createdLinks.add(pendingLink.getKey());
             }
-            for (var pendingLink: pendingLinks.entrySet())
-                ensureLinkInside(destPath, pendingLink.getKey(), pendingLink.getValue().getName());
+            if (!allowExternalSymlinks) {
+                for (var pendingLink: pendingLinks.entrySet())
+                    ensureLinkInside(destPath, pendingLink.getKey(), pendingLink.getValue().getName());
+            }
         } catch (IOException | RuntimeException e) {
             for (var createdLink: createdLinks)
                 Files.deleteIfExists(createdLink);
