@@ -397,22 +397,23 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 			Files.walkFileTree(checkDir.toPath(), new FileVisitor<>() {
 				@Override
 				public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-					if (attrs.isSymbolicLink())
-						return FileVisitResult.SKIP_SUBTREE;
-					else
-						return FileVisitResult.CONTINUE;
+					// Directory mtimes detect entries added, removed or renamed, including at the root.
+					return checkModified(dir, attrs);
 				}
 
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+					return checkModified(file, attrs);
+				}
+
+				private FileVisitResult checkModified(Path path, BasicFileAttributes attrs) {
 					if (attrs.isSymbolicLink())
 						return FileVisitResult.SKIP_SUBTREE;
 					for (var excludePathPattern : excludePathPatterns) {
-						if (WildcardUtils.matchPath(excludePathPattern, checkDir.toPath().relativize(file).toString()))
-							return FileVisitResult.CONTINUE;
+						if (WildcardUtils.matchPath(excludePathPattern, checkDir.toPath().relativize(path).toString()))
+							return attrs.isDirectory() ? FileVisitResult.SKIP_SUBTREE : FileVisitResult.CONTINUE;
 					}
-					if (attrs.creationTime().toMillis() > sinceDate.getTime()
-							|| attrs.lastModifiedTime().toMillis() > sinceDate.getTime()) {
+					if (attrs.lastModifiedTime().toMillis() > sinceDate.getTime()) {
 						changed.set(true);
 						return FileVisitResult.TERMINATE;
 					} else {
